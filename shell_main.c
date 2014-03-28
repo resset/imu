@@ -18,11 +18,14 @@
 #include "shell_main.h"
 #include "shell_utils.h"
 
+#include "bar_shell.h"
+
 #define SHELL_WA_SIZE   THD_WA_SIZE(2048)
 
 static const ShellCommand commands[] = {
   {"mem", cmd_mem},
   {"threads", cmd_threads},
+  {"bar", cmd_bar},
   {NULL, NULL}
 };
 

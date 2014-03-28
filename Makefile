@@ -100,7 +100,10 @@ CSRC = $(PORTSRC) \
        $(BOARDSRC) \
        $(CHIBIOS)/os/various/shell.c \
        $(CHIBIOS)/os/various/chprintf.c \
-       blink_main.c usb_main.c shell_utils.c shell_main.c main.c
+       blink_main.c \
+       usb_main.c shell_utils.c shell_main.c \
+       bar_main.c bar_shell.c \
+       main.c
 
 # C++ sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
