@@ -102,6 +102,7 @@ CSRC = $(PORTSRC) \
        $(CHIBIOS)/os/various/chprintf.c \
        blink_main.c \
        usb_main.c shell_utils.c shell_main.c \
+       i2c_sensors.c \
        bar_main.c bar_shell.c \
        main.c
 

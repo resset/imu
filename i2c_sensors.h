@@ -14,21 +14,15 @@
     limitations under the License.
 */
 
-#ifndef _BAR_MAIN_H_
-#define _BAR_MAIN_H_
+#ifndef _I2C_SENSORS_H_
+#define _I2C_SENSORS_H_
 
 #include "ch.h"
 #include "hal.h"
 
-#include "i2c_sensors.h"
-#include "ms5611.h"
+extern const I2CConfig i2ccfg;
+extern bool i2c_sensors_started;
 
-#define MS5611_I2C_ADDR MS5611_I2C_ADDR_LOW
+void i2c_sensors_init(void);
 
-extern uint8_t bar_val;
-
-extern WORKING_AREA(waBar, 128);
-
-msg_t thBar(void *arg);
-
-#endif /* _BAR_MAIN_H_ */
+#endif /* _I2C_SENSORS_H_ */

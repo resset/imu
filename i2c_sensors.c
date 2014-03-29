@@ -14,21 +14,27 @@
     limitations under the License.
 */
 
-#ifndef _BAR_MAIN_H_
-#define _BAR_MAIN_H_
-
-#include "ch.h"
-#include "hal.h"
-
 #include "i2c_sensors.h"
-#include "ms5611.h"
 
-#define MS5611_I2C_ADDR MS5611_I2C_ADDR_LOW
+const I2CConfig i2ccfg = {
+  OPMODE_I2C,
+  400000,
+  FAST_DUTY_CYCLE_2,
+};
 
-extern uint8_t bar_val;
+bool i2c_sensors_started = 0;
 
-extern WORKING_AREA(waBar, 128);
+void i2c_sensors_init(void) {
+  if (!i2c_sensors_started) {
+    /*
+     * I2C initialization.
+     */
+    palSetPadMode(GPIOC, 13, PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING);         /* TP IRQ */
+    palSetPadMode(GPIOB, 8, PAL_MODE_ALTERNATE(4) | PAL_STM32_OTYPE_OPENDRAIN); /* SCL */
+    palSetPadMode(GPIOB, 9, PAL_MODE_ALTERNATE(4) | PAL_STM32_OTYPE_OPENDRAIN); /* SDA */
 
-msg_t thBar(void *arg);
+    i2cStart(&I2CD1, &i2ccfg);
+  }
 
-#endif /* _BAR_MAIN_H_ */
+  return;
+}

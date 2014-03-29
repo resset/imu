@@ -22,9 +22,11 @@
 
 #include "main.h"
 #include "blink_main.h"
+#include "bar_main.h"
 #include "shell_main.h"
 
 Thread *tpBlink;
+Thread *tpBar;
 Thread *tpShell;
 
 int main(void) {
@@ -33,6 +35,8 @@ int main(void) {
 
   tpBlink = chThdCreateStatic(waBlink, sizeof(waBlink),
                     NORMALPRIO, thBlink, NULL);
+  tpBar = chThdCreateStatic(waBar, sizeof(waBar),
+                    NORMALPRIO, thBar, NULL);
   tpShell = chThdCreateStatic(waShell, sizeof(waShell),
                     NORMALPRIO, thShell, NULL);
 
