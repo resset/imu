@@ -100,11 +100,14 @@ CSRC = $(PORTSRC) \
        $(BOARDSRC) \
        $(CHIBIOS)/os/various/shell.c \
        $(CHIBIOS)/os/various/chprintf.c \
-       blink_main.c \
-       usb_main.c shell_utils.c shell_main.c \
-       i2c_sensors.c \
-       bar_main.c bar_shell.c \
-       main.c
+       $(CHIBIOS)/src/blink_main.c \
+       $(CHIBIOS)/src/usb_main.c \
+       $(CHIBIOS)/src/shell_utils.c \
+       $(CHIBIOS)/src/shell_main.c \
+       $(CHIBIOS)/src/i2c_sensors.c \
+       $(CHIBIOS)/src/bar_main.c \
+       $(CHIBIOS)/src/bar_shell.c \
+       $(CHIBIOS)/src/main.c
 
 # C++ sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
@@ -135,7 +138,8 @@ ASMSRC = $(PORTASM)
 
 INCDIR = $(PORTINC) $(KERNINC) $(TESTINC) \
          $(HALINC) $(PLATFORMINC) $(BOARDINC) \
-         $(CHIBIOS)/os/various
+         $(CHIBIOS)/os/various \
+         $(CHIBIOS)/include
 
 #
 # Project, sources and paths
