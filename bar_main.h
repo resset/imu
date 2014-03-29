@@ -14,35 +14,21 @@
     limitations under the License.
 */
 
+#ifndef _BAR_MAIN_H_
+#define _BAR_MAIN_H_
+
 #include "ch.h"
 #include "hal.h"
 
-#include "chprintf.h"
-#include "shell.h"
+#include "i2c_sensors.h"
+#include "ms5611.h"
 
-#include "main.h"
-#include "blink_main.h"
-#include "bar_main.h"
-#include "shell_main.h"
+#define MS5611_I2C_ADDR MS5611_I2C_ADDR_LOW
 
-Thread *tpBlink;
-Thread *tpBar;
-Thread *tpShell;
+extern uint8_t bar_val;
 
-int main(void) {
-  halInit();
-  chSysInit();
+extern WORKING_AREA(waBar, 128);
 
-  tpBlink = chThdCreateStatic(waBlink, sizeof(waBlink),
-                    NORMALPRIO, thBlink, NULL);
-  tpBar = chThdCreateStatic(waBar, sizeof(waBar),
-                    NORMALPRIO, thBar, NULL);
-  tpShell = chThdCreateStatic(waShell, sizeof(waShell),
-                    NORMALPRIO, thShell, NULL);
+msg_t thBar(void *arg);
 
-  while (TRUE) {
-    chThdSleepMilliseconds(500);
-  }
-
-  return 0;
-}
+#endif /* _BAR_MAIN_H_ */

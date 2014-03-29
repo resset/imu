@@ -14,35 +14,15 @@
     limitations under the License.
 */
 
+#ifndef _I2C_SENSORS_H_
+#define _I2C_SENSORS_H_
+
 #include "ch.h"
 #include "hal.h"
 
-#include "chprintf.h"
-#include "shell.h"
+extern const I2CConfig i2ccfg;
+extern bool i2c_sensors_started;
 
-#include "main.h"
-#include "blink_main.h"
-#include "bar_main.h"
-#include "shell_main.h"
+void i2c_sensors_init(void);
 
-Thread *tpBlink;
-Thread *tpBar;
-Thread *tpShell;
-
-int main(void) {
-  halInit();
-  chSysInit();
-
-  tpBlink = chThdCreateStatic(waBlink, sizeof(waBlink),
-                    NORMALPRIO, thBlink, NULL);
-  tpBar = chThdCreateStatic(waBar, sizeof(waBar),
-                    NORMALPRIO, thBar, NULL);
-  tpShell = chThdCreateStatic(waShell, sizeof(waShell),
-                    NORMALPRIO, thShell, NULL);
-
-  while (TRUE) {
-    chThdSleepMilliseconds(500);
-  }
-
-  return 0;
-}
+#endif /* _I2C_SENSORS_H_ */

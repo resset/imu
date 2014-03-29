@@ -14,35 +14,29 @@
     limitations under the License.
 */
 
-#include "ch.h"
-#include "hal.h"
-
-#include "chprintf.h"
-#include "shell.h"
-
-#include "main.h"
-#include "blink_main.h"
 #include "bar_main.h"
-#include "shell_main.h"
+#include "bar_shell.h"
 
-Thread *tpBlink;
-Thread *tpBar;
-Thread *tpShell;
+void cmd_bar(BaseSequentialStream *chp, int argc, char *argv[]) {
 
-int main(void) {
-  halInit();
-  chSysInit();
-
-  tpBlink = chThdCreateStatic(waBlink, sizeof(waBlink),
-                    NORMALPRIO, thBlink, NULL);
-  tpBar = chThdCreateStatic(waBar, sizeof(waBar),
-                    NORMALPRIO, thBar, NULL);
-  tpShell = chThdCreateStatic(waShell, sizeof(waShell),
-                    NORMALPRIO, thShell, NULL);
-
-  while (TRUE) {
-    chThdSleepMilliseconds(500);
+  if (argc == 0) {
+    goto ERROR;
   }
 
-  return 0;
+  if (argc == 1) {
+    if (strcmp(argv[0], "get") == 0) {
+      chprintf(chp, "got %d\r\n", bar_val);
+      return;
+    } else if ((argc == 2) && (strcmp(argv[0], "set") == 0)) {
+      chprintf(chp, "set\r\n");
+      return;
+    }
+  }
+
+ERROR:
+  chprintf(chp, "Usage: bar get\r\n");
+  chprintf(chp, "       bar set x\r\n");
+  chprintf(chp, "where x is something\r\n");
+  chprintf(chp, "and that's it\r\n");
+  return;
 }
