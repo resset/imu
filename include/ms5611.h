@@ -12,19 +12,6 @@
 
 #define MS5611_CMD_RESET 0x1E
 
-/* Pressure sensitivity (SENS T1).*/
-#define MS5611_CMD_READ_C0 0xA2
-/* Pressure offset (OFF T1).*/
-#define MS5611_CMD_READ_C1 0xA4
-/* Temperature coefficient of pressure sensitivity (TCS).*/
-#define MS5611_CMD_READ_C2 0xA6
-/* Temperature coefficient of pressure offset (TCO).*/
-#define MS5611_CMD_READ_C3 0xA8
-/* Reference temperature (TREF).*/
-#define MS5611_CMD_READ_C4 0xAA
-/* Temperature coefficient of the temperature (TEMPSENS).*/
-#define MS5611_CMD_READ_C5 0xAC
-
 /* D1 conversion.*/
 #define MS5611_CMD_CONVERT_D1_256  0x40
 #define MS5611_CMD_CONVERT_D1_512  0x42
@@ -40,5 +27,18 @@
 #define MS5611_CMD_CONVERT_D2_4096 0x58
 
 #define MS5611_CMD_READ_ADC 0x0
+
+/* Pressure sensitivity (SENS T1).*/
+#define MS5611_CMD_READ_C0 0xA2
+/* Pressure offset (OFF T1).*/
+#define MS5611_CMD_READ_C1 0xA4
+/* Temperature coefficient of pressure sensitivity (TCS).*/
+#define MS5611_CMD_READ_C2 0xA6
+/* Temperature coefficient of pressure offset (TCO).*/
+#define MS5611_CMD_READ_C3 0xA8
+/* Reference temperature (TREF).*/
+#define MS5611_CMD_READ_C4 0xAA
+/* Temperature coefficient of the temperature (TEMPSENS).*/
+#define MS5611_CMD_READ_C5 0xAC
 
 #endif /* _MS5611_H_ */
