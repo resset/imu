@@ -25,6 +25,15 @@
 
 #define MS5611_I2C_ADDR MS5611_I2C_ADDR_LOW
 
+extern uint32_t d1; /* Digital pressure value.*/
+extern uint32_t d2; /* Digital temperature value.*/
+extern int32_t dt;
+extern int32_t temp;
+extern int64_t off;
+extern int64_t sens;
+extern int64_t p;
+extern uint16_t c1, c2, c3, c4, c5, c6;
+
 extern uint8_t bar_val;
 
 extern WORKING_AREA(waBar, 128);

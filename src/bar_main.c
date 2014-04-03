@@ -16,9 +16,17 @@
 
 #include "bar_main.h"
 
+uint32_t d1; /* Digital pressure value.*/
+uint32_t d2; /* Digital temperature value.*/
+int32_t dt;
+int32_t temp;
+int64_t off;
+int64_t sens;
+int64_t p;
+
 uint8_t bar_val = 0;
 
-uint16_t coefficients[6];
+uint16_t c1, c2, c3, c4, c5, c6;
 
 static void bar_init(void) {
 
@@ -38,27 +46,27 @@ static void bar_init(void) {
 
   txbuf[0] = MS5611_CMD_READ_C0;
   i2cMasterTransmitTimeout(&I2CD1, MS5611_I2C_ADDR, txbuf, 1, rxbuf, 2, MS2ST(0x3000));
-  coefficients[0] = (rxbuf[1] << 8) | rxbuf[0];
+  c1 = (rxbuf[0] << 8) | rxbuf[1];
 
   txbuf[0] = MS5611_CMD_READ_C1;
   i2cMasterTransmitTimeout(&I2CD1, MS5611_I2C_ADDR, txbuf, 1, rxbuf, 2, MS2ST(0x3000));
-  coefficients[1] = (rxbuf[1] << 8) | rxbuf[0];
+  c2 = (rxbuf[0] << 8) | rxbuf[1];
 
   txbuf[0] = MS5611_CMD_READ_C2;
   i2cMasterTransmitTimeout(&I2CD1, MS5611_I2C_ADDR, txbuf, 1, rxbuf, 2, MS2ST(0x3000));
-  coefficients[2] = (rxbuf[1] << 8) | rxbuf[0];
+  c3 = (rxbuf[0] << 8) | rxbuf[1];
 
   txbuf[0] = MS5611_CMD_READ_C3;
   i2cMasterTransmitTimeout(&I2CD1, MS5611_I2C_ADDR, txbuf, 1, rxbuf, 2, MS2ST(0x3000));
-  coefficients[3] = (rxbuf[1] << 8) | rxbuf[0];
+  c4 = (rxbuf[0] << 8) | rxbuf[1];
 
   txbuf[0] = MS5611_CMD_READ_C4;
   i2cMasterTransmitTimeout(&I2CD1, MS5611_I2C_ADDR, txbuf, 1, rxbuf, 2, MS2ST(0x3000));
-  coefficients[4] = (rxbuf[1] << 8) | rxbuf[0];
+  c5 = (rxbuf[0] << 8) | rxbuf[1];
 
   txbuf[0] = MS5611_CMD_READ_C5;
   i2cMasterTransmitTimeout(&I2CD1, MS5611_I2C_ADDR, txbuf, 1, rxbuf, 2, MS2ST(0x3000));
-  coefficients[5] = (rxbuf[1] << 8) | rxbuf[0];
+  c6 = (rxbuf[0] << 8) | rxbuf[1];
 
   i2cReleaseBus(&I2CD1);
 
@@ -66,20 +74,44 @@ static void bar_init(void) {
 }
 
 static void bar_read(void) {
-/*  uint8_t txbuf[1], rxbuf[2];
+/*  uint32_t d1; /* Digital pressure value.
+  uint32_t d2; /* Digital temperature value.
+  int32_t dt;
+  int32_t temp;
+  int64_t off;
+  int64_t sens;
+  int64_t p;*/
+
+  uint8_t txbuf[1], rxbuf[3];
 
   rxbuf[0] = 0;
   rxbuf[1] = 0;
+  rxbuf[2] = 0;
 
   i2cAcquireBus(&I2CD1);
-  txbuf[0] = 0x75;
-  i2cMasterTransmitTimeout(&I2CD1, MS5611_I2C_ADDR, txbuf, 1, rxbuf, 1, MS2ST(0x3000));
-  rxbuf[0] = 0;
-  txbuf[0] = 0x6b;
-  i2cMasterTransmitTimeout(&I2CD1, MS5611_I2C_ADDR, txbuf, 1, rxbuf, 1, MS2ST(0x3000));
-  i2cReleaseBus(&I2CD1);*/
 
+  txbuf[0] = MS5611_CMD_CONVERT_D1_1024;
+  i2cMasterTransmitTimeout(&I2CD1, MS5611_I2C_ADDR, txbuf, 1, rxbuf, 0, MS2ST(0x3000));
+  chThdSleepMilliseconds(10);
+  txbuf[0] = MS5611_CMD_READ_ADC;
+  i2cMasterTransmitTimeout(&I2CD1, MS5611_I2C_ADDR, txbuf, 1, rxbuf, 3, MS2ST(0x3000));
+  d1 = (rxbuf[0] << 16) | (rxbuf[1] << 8) | rxbuf[2];
+
+  txbuf[0] = MS5611_CMD_CONVERT_D2_1024;
+  i2cMasterTransmitTimeout(&I2CD1, MS5611_I2C_ADDR, txbuf, 1, rxbuf, 0, MS2ST(0x3000));
+  chThdSleepMilliseconds(10);
+  txbuf[0] = MS5611_CMD_READ_ADC;
+  i2cMasterTransmitTimeout(&I2CD1, MS5611_I2C_ADDR, txbuf, 1, rxbuf, 3, MS2ST(0x3000));
+  d2 = (rxbuf[0] << 16) | (rxbuf[1] << 8) | rxbuf[2];
+
+  i2cReleaseBus(&I2CD1);
+
+  // tmp
   bar_val++;
+
+  dt = d2 - c5 * 256;
+  temp = 2000 + (int64_t)dt * (int64_t)c6 / 8388608;
+  (void)temp;
 
   return;
 }
@@ -93,7 +125,7 @@ msg_t thBar(void *arg) {
 
   while (TRUE) {
     bar_read();
-    chThdSleepMilliseconds(100);
+    chThdSleepMilliseconds(500);
   }
 
   return (msg_t)0;
