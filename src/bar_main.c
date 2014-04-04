@@ -24,8 +24,6 @@ int64_t off;
 int64_t sens;
 int64_t p;
 
-uint8_t bar_val = 0;
-
 uint16_t c1, c2, c3, c4, c5, c6;
 
 static void bar_init(void) {
@@ -106,12 +104,12 @@ static void bar_read(void) {
 
   i2cReleaseBus(&I2CD1);
 
-  // tmp
-  bar_val++;
+  dt = d2 - c5 << 8;
+  temp = 2000 + ((int64_t)dt * (int64_t)c6) >> 23;
 
-  dt = d2 - c5 * 256;
-  temp = 2000 + (int64_t)dt * (int64_t)c6 / 8388608;
-  (void)temp;
+  off = (uint64_t) c2 << 16 + ((int64_t)c4 * (int64_t)dt) >> 7;
+  sens = (uint64_t) c1 << 15 + ((int64_t)c3 * (int64_t)dt) >> 8;
+  p = (((int64_t)d1 * sens) >> 21 - off) / 32768;
 
   return;
 }

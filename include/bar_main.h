@@ -34,8 +34,6 @@ extern int64_t sens;
 extern int64_t p;
 extern uint16_t c1, c2, c3, c4, c5, c6;
 
-extern uint8_t bar_val;
-
 extern WORKING_AREA(waBar, 128);
 
 msg_t thBar(void *arg);
