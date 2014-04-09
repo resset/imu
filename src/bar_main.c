@@ -72,8 +72,8 @@ static void bar_init(void) {
 }
 
 static void bar_read(void) {
-/*  uint32_t d1; /* Digital pressure value.
-  uint32_t d2; /* Digital temperature value.
+/*  uint32_t d1; // Digital pressure value.
+  uint32_t d2; // Digital temperature value.
   int32_t dt;
   int32_t temp;
   int64_t off;
@@ -104,12 +104,12 @@ static void bar_read(void) {
 
   i2cReleaseBus(&I2CD1);
 
-  dt = d2 - c5 << 8;
-  temp = 2000 + ((int64_t)dt * (int64_t)c6) >> 23;
+  dt = d2 - (c5 << 8);
+  temp = 2000 + (((int64_t)dt * (int64_t)c6) >> 23);
 
-  off = (uint64_t) c2 << 16 + ((int64_t)c4 * (int64_t)dt) >> 7;
-  sens = (uint64_t) c1 << 15 + ((int64_t)c3 * (int64_t)dt) >> 8;
-  p = (((int64_t)d1 * sens) >> 21 - off) / 32768;
+  off = ((uint64_t) c2 << 16) + (((int64_t)c4 * (int64_t)dt) >> 7);
+  sens = ((uint64_t) c1 << 15) + (((int64_t)c3 * (int64_t)dt) >> 8);
+  p = ((((int64_t)d1 * sens) >> 21) - off) / 32768;
 
   return;
 }
