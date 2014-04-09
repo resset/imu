@@ -14,10 +14,29 @@
     limitations under the License.
 */
 
-#ifndef _MAIN_H_
-#define _MAIN_H_
+#include "gyr_main.h"
+#include "gyr_shell.h"
 
-#include "ch.h"
-#include "hal.h"
+void cmd_gyr(BaseSequentialStream *chp, int argc, char *argv[]) {
 
-#endif /* _MAIN_H_ */
+  if (argc == 0) {
+    goto ERROR;
+  }
+
+  if (argc == 1) {
+    if (strcmp(argv[0], "get") == 0) {
+      chprintf(chp, "got %d\r\n", gyr_tmp);
+      return;
+    } else if ((argc == 2) && (strcmp(argv[0], "set") == 0)) {
+      chprintf(chp, "set\r\n");
+      return;
+    }
+  }
+
+ERROR:
+  chprintf(chp, "Usage: gyr get\r\n");
+  chprintf(chp, "       gyr set x\r\n");
+  chprintf(chp, "where x is something\r\n");
+  chprintf(chp, "and that's it\r\n");
+  return;
+}

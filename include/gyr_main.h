@@ -14,10 +14,18 @@
     limitations under the License.
 */
 
-#ifndef _MAIN_H_
-#define _MAIN_H_
+#ifndef _GYR_MAIN_H_
+#define _GYR_MAIN_H_
 
 #include "ch.h"
 #include "hal.h"
 
-#endif /* _MAIN_H_ */
+#include "i2c_sensors.h"
+
+extern int gyr_tmp;
+
+extern WORKING_AREA(waGyr, 128);
+
+msg_t thGyr(void *arg);
+
+#endif /* _GYR_MAIN_H_ */

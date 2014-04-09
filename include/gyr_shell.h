@@ -14,10 +14,19 @@
     limitations under the License.
 */
 
-#ifndef _MAIN_H_
-#define _MAIN_H_
+#ifndef _GYR_SHELL_H_
+#define _GYR_SHELL_H_
+
+#include <string.h>
 
 #include "ch.h"
 #include "hal.h"
 
-#endif /* _MAIN_H_ */
+#include "chprintf.h"
+#include "shell.h"
+
+#include "gyr_main.h"
+
+void cmd_gyr(BaseSequentialStream *chp, int argc, char *argv[]);
+
+#endif /* _GYR_SHELL_H_ */

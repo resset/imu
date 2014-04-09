@@ -14,10 +14,31 @@
     limitations under the License.
 */
 
-#ifndef _MAIN_H_
-#define _MAIN_H_
+#include "gyr_main.h"
 
-#include "ch.h"
-#include "hal.h"
+int gyr_tmp = 0;
 
-#endif /* _MAIN_H_ */
+static void gyr_init(void) {
+  return;
+}
+
+static void gyr_read(void) {
+  gyr_tmp++;
+
+  return;
+}
+
+WORKING_AREA(waGyr, 128);
+msg_t thGyr(void *arg) {
+  (void)arg;
+  chRegSetThreadName("thGyr");
+
+  gyr_init();
+
+  while (TRUE) {
+    gyr_read();
+    chThdSleepMilliseconds(321);
+  }
+
+  return (msg_t)0;
+}
