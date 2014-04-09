@@ -24,11 +24,13 @@
 #include "blink_main.h"
 #include "bar_main.h"
 #include "gyr_main.h"
+#include "mag_main.h"
 #include "shell_main.h"
 
 Thread *tpBlink;
 Thread *tpBar;
 Thread *tpGyr;
+Thread *tpMag;
 Thread *tpShell;
 
 int main(void) {
@@ -41,6 +43,8 @@ int main(void) {
                     NORMALPRIO, thBar, NULL);
   tpGyr = chThdCreateStatic(waGyr, sizeof(waGyr),
                     NORMALPRIO, thGyr, NULL);
+  tpMag = chThdCreateStatic(waMag, sizeof(waMag),
+                    NORMALPRIO, thMag, NULL);
   tpShell = chThdCreateStatic(waShell, sizeof(waShell),
                     NORMALPRIO, thShell, NULL);
 

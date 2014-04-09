@@ -109,6 +109,8 @@ CSRC = $(PORTSRC) \
        $(CHIBIOS)/src/bar_shell.c \
        $(CHIBIOS)/src/gyr_main.c \
        $(CHIBIOS)/src/gyr_shell.c \
+       $(CHIBIOS)/src/mag_main.c \
+       $(CHIBIOS)/src/mag_shell.c \
        $(CHIBIOS)/src/main.c
 
 # C++ sources that can be compiled in ARM or THUMB mode depending on the global

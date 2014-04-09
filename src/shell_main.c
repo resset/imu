@@ -21,6 +21,7 @@
 
 #include "bar_shell.h"
 #include "gyr_shell.h"
+#include "mag_shell.h"
 
 #define SHELL_WA_SIZE   THD_WA_SIZE(2048)
 
@@ -29,6 +30,7 @@ static const ShellCommand commands[] = {
   {"threads", cmd_threads},
   {"bar", cmd_bar},
   {"gyr", cmd_gyr},
+  {"mag", cmd_mag},
   {NULL, NULL}
 };
 
