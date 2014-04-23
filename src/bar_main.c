@@ -37,7 +37,11 @@ static void bar_init(void) {
   txbuf[0] = MS5611_CMD_RESET;
   i2cMasterTransmitTimeout(&I2CD1, MS5611_I2C_ADDR, txbuf, 1, rxbuf, 0, MS2ST(0x3000));
 
+  i2cReleaseBus(&I2CD1);
+
   chThdSleepMilliseconds(10);
+
+  i2cAcquireBus(&I2CD1);
 
   rxbuf[0] = 0;
   rxbuf[1] = 0;
