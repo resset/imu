@@ -111,9 +111,9 @@ static void bar_read(void) {
   dt = d2 - (c5 << 8);
   temp = 2000 + (((int64_t)dt * (int64_t)c6) >> 23);
 
-  off = ((uint64_t) c2 << 16) + (((int64_t)c4 * (int64_t)dt) >> 7);
-  sens = ((uint64_t) c1 << 15) + (((int64_t)c3 * (int64_t)dt) >> 8);
-  p = ((((int64_t)d1 * sens) >> 21) - off) / 32768;
+  off = ((uint64_t)c2 << 16) + (((int64_t)c4 * (int64_t)dt) >> 7);
+//  sens = ((uint64_t)c1 << 15) + (((int64_t)c3 * (int64_t)dt) >> 8);
+//  p = ((((int64_t)d1 * sens) >> 21) - off) >> 15;
 
   return;
 }

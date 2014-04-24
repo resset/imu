@@ -100,6 +100,7 @@ CSRC = $(PORTSRC) \
        $(BOARDSRC) \
        $(CHIBIOS)/os/various/shell.c \
        $(CHIBIOS)/os/various/chprintf.c \
+       $(CHIBIOS)/src/system_main.c \
        $(CHIBIOS)/src/blink_main.c \
        $(CHIBIOS)/src/usb_main.c \
        $(CHIBIOS)/src/shell_utils.c \
