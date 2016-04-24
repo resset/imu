@@ -78,7 +78,7 @@ endif
 PROJECT = imu
 
 # Imported source files and paths
-CHIBIOS = .
+CHIBIOS = ../chibios2
 include $(CHIBIOS)/boards/ST_STM32F4_DISCOVERY/board.mk
 include $(CHIBIOS)/os/hal/platforms/STM32F4xx/platform.mk
 include $(CHIBIOS)/os/hal/hal.mk
@@ -100,19 +100,19 @@ CSRC = $(PORTSRC) \
        $(BOARDSRC) \
        $(CHIBIOS)/os/various/shell.c \
        $(CHIBIOS)/os/various/chprintf.c \
-       $(CHIBIOS)/src/system_main.c \
-       $(CHIBIOS)/src/blink_main.c \
-       $(CHIBIOS)/src/usb_main.c \
-       $(CHIBIOS)/src/shell_utils.c \
-       $(CHIBIOS)/src/shell_main.c \
-       $(CHIBIOS)/src/i2c_sensors.c \
-       $(CHIBIOS)/src/bar_main.c \
-       $(CHIBIOS)/src/bar_shell.c \
-       $(CHIBIOS)/src/gyr_main.c \
-       $(CHIBIOS)/src/gyr_shell.c \
-       $(CHIBIOS)/src/mag_main.c \
-       $(CHIBIOS)/src/mag_shell.c \
-       $(CHIBIOS)/src/main.c
+       ./src/system_main.c \
+       ./src/blink_main.c \
+       ./src/usb_main.c \
+       ./src/shell_utils.c \
+       ./src/shell_main.c \
+       ./src/i2c_sensors.c \
+       ./src/bar_main.c \
+       ./src/bar_shell.c \
+       ./src/gyr_main.c \
+       ./src/gyr_shell.c \
+       ./src/mag_main.c \
+       ./src/mag_shell.c \
+       ./src/main.c
 
 # C++ sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
@@ -144,7 +144,7 @@ ASMSRC = $(PORTASM)
 INCDIR = $(PORTINC) $(KERNINC) $(TESTINC) \
          $(HALINC) $(PLATFORMINC) $(BOARDINC) \
          $(CHIBIOS)/os/various \
-         $(CHIBIOS)/include
+         ./include \
 
 #
 # Project, sources and paths
