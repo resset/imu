@@ -25,14 +25,19 @@
 
 #define MS5611_I2C_ADDR MS5611_I2C_ADDR_LOW
 
+extern uint16_t c1;
+extern uint16_t c2;
+extern uint16_t c3;
+extern uint16_t c4;
+extern uint16_t c5;
+extern uint16_t c6;
 extern uint32_t d1; /* Digital pressure value.*/
 extern uint32_t d2; /* Digital temperature value.*/
-extern int32_t dt;
-extern int32_t temp;
-extern int64_t off;
-extern int64_t sens;
-extern int64_t p;
-extern uint16_t c1, c2, c3, c4, c5, c6;
+extern int32_t dt; /* Difference between actual and reference temperature.*/
+extern int32_t temp; /* Actual temperature.*/
+extern int64_t off; /* Offset at actual temperature.*/
+extern int64_t sens; /* Sensitivity at actual temperature.*/
+extern int64_t p; /* Temperature compensated pressure.*/
 
 extern WORKING_AREA(waBar, 128);
 

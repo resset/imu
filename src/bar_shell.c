@@ -31,10 +31,10 @@ void cmd_bar(BaseSequentialStream *chp, int argc, char *argv[]) {
       chprintf(chp, "c3: %d\r\n", c3);
       chprintf(chp, "c4: %d\r\n", c4);
       chprintf(chp, "c5: %d\r\n", c5);
-      chprintf(chp, "c6: %d\r\n\r\n", c6);
-
+      chprintf(chp, "c6: %d\r\n", c6);
       chprintf(chp, "d1: %d\r\n", d1);
-      chprintf(chp, "d2: %d\r\n", d2);
+      chprintf(chp, "d2: %d\r\n\r\n", d2);
+
       chprintf(chp, "dt: %d\r\n", dt);
       chprintf(chp, "temp: %d\r\n", temp);
       chprintf(chp, "off: %d\r\n", off);
