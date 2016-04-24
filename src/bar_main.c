@@ -108,11 +108,39 @@ static void bar_read(void) {
 
   i2cReleaseBus(&I2CD1);
 
-  dt = d2 - (c5 << 8);
-  temp = 2000 + (((int64_t)dt * (int64_t)c6) >> 23);
+  dt = d2 - c5 * 256;
+  temp = 2000 + ((int64_t)dt * (int64_t)c6) / 8388608;
 
-  off = ((uint64_t)c2 << 16) + (((int64_t)c4 * (int64_t)dt) >> 7);
-//  sens = ((uint64_t)c1 << 15) + (((int64_t)c3 * (int64_t)dt) >> 8);
+//  off = (int64_t)c2 * 65536 + ((int64_t)c4 * (int64_t)dt) / 128;
+//  sens = (int64_t)c1 * 32768 + ((int64_t)c3 * (int64_t)dt) / 256;
+
+////  // czyjeś
+////  off = (int64_t)c2 * 65536 + (int64_t)c4 * dt / 128;
+////  sens = (int64_t)c1 * 32768 + (int64_t)c3 * dt / 256;
+
+  // Tu jest błąd! w 32 bitach to jest liczba ujemna. A powinno być liczone w 64...
+  // Dostaję -947716096 a powinienem 3347251200. sprawdź sobie reprezentację bitową tych liczb...
+  uint32_t rdhi = 0, rdlo = 0;
+  asm("umull %0, %1, %2, %3" : "=r" (rdlo), "=r" (rdhi) : "r" (c2), "r" (65536));
+  off = ((uint64_t)rdhi << 32) | rdlo;
+//  off = (uint64_t)c2 * (uint64_t)65536;
+  sens = ((int64_t)c4 * (int64_t)dt) / 128;
+
+//  if (temp < 2000) {
+//    int temp2 = 0;
+//    int off2 = 0;
+//    int sens2 = 0;
+//
+//    // stuff...
+//
+//    if (temp < -1500) {
+//    }
+//
+//    temp -= temp2;
+//    off -= off2;
+//    sens -= sens2;
+//  }
+
 //  p = ((((int64_t)d1 * sens) >> 21) - off) >> 15;
 
   return;
