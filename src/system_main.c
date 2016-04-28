@@ -1,5 +1,5 @@
 /*
-    IMU - Copyright (C) 2014 Mateusz Tomaszkiewicz
+    IMU - Copyright (C) 2014-2016 Mateusz Tomaszkiewicz
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -50,12 +50,10 @@ void get_registers_from_stack(uint32_t *registers) {
   (void)pc;
   (void)psr;
 
-  while (TRUE)
-    ;
+  while (true);
 }
 
 void HardFaultVector(void) {
-
   __asm volatile
   (
     " tst lr, #4                                    \n"
@@ -68,6 +66,5 @@ void HardFaultVector(void) {
     " get_reg_const: .word get_registers_from_stack \n"
   );
   asm volatile ("BKPT #01");
-  while (TRUE)
-    ;
+  while (true);
 }

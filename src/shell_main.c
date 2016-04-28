@@ -1,6 +1,6 @@
 /*
     ChibiOS/RT - Copyright (C) 2006-2013 Giovanni Di Sirio
-    IMU - Copyright (C) 2014 Mateusz Tomaszkiewicz
+    IMU - Copyright (C) 2014-2016 Mateusz Tomaszkiewicz
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -18,37 +18,32 @@
 #include "usb_main.h"
 #include "shell_main.h"
 #include "shell_utils.h"
+//#include "bar_shell.h"
+//#include "gyr_shell.h"
+//#include "mag_shell.h"
 
-#include "bar_shell.h"
-#include "gyr_shell.h"
-#include "mag_shell.h"
-
-#define SHELL_WA_SIZE   THD_WA_SIZE(2048)
+#define SHELL_WA_SIZE   THD_WORKING_AREA_SIZE(2048)
 
 static const ShellCommand commands[] = {
   {"mem", cmd_mem},
   {"threads", cmd_threads},
-  {"bar", cmd_bar},
+/*  {"bar", cmd_bar},
   {"gyr", cmd_gyr},
-  {"mag", cmd_mag},
+  {"mag", cmd_mag},*/
   {NULL, NULL}
 };
-
-/* Virtual serial port over USB.*/
-SerialUSBDriver SDU1;
 
 static const ShellConfig shell_cfg1 = {
   (BaseSequentialStream *)&SDU1,
   commands
 };
 
-WORKING_AREA(waShell, 128);
-msg_t thShell(void *arg) {
+THD_WORKING_AREA(waShell, 128);
+THD_FUNCTION(thShell, arg) {
+  thread_t *shelltp = NULL;
+
   (void)arg;
-
   chRegSetThreadName("thShell");
-
-  Thread *shelltp = NULL;
 
   /*
    * Shell manager initialization.
@@ -63,7 +58,7 @@ msg_t thShell(void *arg) {
 
   usbActivate();
 
-  while (TRUE) {
+  while (true) {
     if (!shelltp) {
       if (SDU1.config->usbp->state == USB_ACTIVE) {
         /* Spawns a new shell.*/
@@ -72,7 +67,7 @@ msg_t thShell(void *arg) {
     }
     else {
       /* If the previous shell exited.*/
-      if (chThdTerminated(shelltp)) {
+      if (chThdTerminatedX(shelltp)) {
         /* Recovers memory of the previous shell.*/
         chThdRelease(shelltp);
         shelltp = NULL;
@@ -80,6 +75,4 @@ msg_t thShell(void *arg) {
     }
     chThdSleepMilliseconds(500);
   }
-
-  return (msg_t)0;
 }

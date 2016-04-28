@@ -1,5 +1,5 @@
 /*
-    IMU - Copyright (C) 2014 Mateusz Tomaszkiewicz
+    IMU - Copyright (C) 2014-2016 Mateusz Tomaszkiewicz
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -17,38 +17,22 @@
 #include "ch.h"
 #include "hal.h"
 
-#include "chprintf.h"
-#include "shell.h"
-
-#include "main.h"
+#include "system_main.h"
 #include "blink_main.h"
-#include "bar_main.h"
-#include "gyr_main.h"
-#include "mag_main.h"
 #include "shell_main.h"
-
-Thread *tpBlink;
-Thread *tpBar;
-Thread *tpGyr;
-Thread *tpMag;
-Thread *tpShell;
 
 int main(void) {
   halInit();
   chSysInit();
 
-  tpBlink = chThdCreateStatic(waBlink, sizeof(waBlink),
+  system_init();
+
+  chThdCreateStatic(waBlink, sizeof(waBlink),
                     NORMALPRIO, thBlink, NULL);
-  tpBar = chThdCreateStatic(waBar, sizeof(waBar),
-                    NORMALPRIO, thBar, NULL);
-  tpGyr = chThdCreateStatic(waGyr, sizeof(waGyr),
-                    NORMALPRIO, thGyr, NULL);
-  tpMag = chThdCreateStatic(waMag, sizeof(waMag),
-                    NORMALPRIO, thMag, NULL);
-  tpShell = chThdCreateStatic(waShell, sizeof(waShell),
+  chThdCreateStatic(waShell, sizeof(waShell),
                     NORMALPRIO, thShell, NULL);
 
-  while (TRUE) {
+  while (true) {
     chThdSleepMilliseconds(500);
   }
 

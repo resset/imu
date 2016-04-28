@@ -1,5 +1,5 @@
 /*
-    IMU - Copyright (C) 2014 Mateusz Tomaszkiewicz
+    IMU - Copyright (C) 2014-2016 Mateusz Tomaszkiewicz
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -16,14 +16,9 @@
 
 #include "blink_main.h"
 
-/*
- * PWM configuration structure.
- * Cyclic callback enabled, channels 1 and 4 enabled without callbacks,
- * the active state is a logic one.
- */
 static const PWMConfig pwmcfg = {
-  100000,                                   /* 100kHz PWM clock frequency.  */
-  128,                                      /* PWM period is 128 cycles.    */
+  100000,
+  128,
   NULL,
   {
    {PWM_OUTPUT_ACTIVE_HIGH, NULL},
@@ -31,37 +26,31 @@ static const PWMConfig pwmcfg = {
    {PWM_OUTPUT_ACTIVE_HIGH, NULL},
    {PWM_OUTPUT_ACTIVE_HIGH, NULL}
   },
-  /* HW dependent part.*/
   0,
   0
 };
 
-WORKING_AREA(waBlink, 128);
-msg_t thBlink(void *arg) {
+THD_WORKING_AREA(waBlink, 128);
+THD_FUNCTION(thBlink, arg) {
+  uint8_t i = 0;
+
   (void)arg;
   chRegSetThreadName("thBlink");
 
-  /*
-   * Initializes the PWM driver 4, routes the TIM4 outputs to the board LEDs.
-   */
   pwmStart(&PWMD4, &pwmcfg);
-  palSetPadMode(GPIOD, GPIOD_LED4, PAL_MODE_ALTERNATE(2));      /* Green.   */
-  palSetPadMode(GPIOD, GPIOD_LED3, PAL_MODE_ALTERNATE(2));      /* Orange.  */
-  palSetPadMode(GPIOD, GPIOD_LED5, PAL_MODE_ALTERNATE(2));      /* Red.     */
-  palSetPadMode(GPIOD, GPIOD_LED6, PAL_MODE_ALTERNATE(2));      /* Blue.    */
+  palSetPadMode(GPIOD, GPIOD_LED4, PAL_MODE_ALTERNATE(2));        /* Green. */
+  palSetPadMode(GPIOD, GPIOD_LED3, PAL_MODE_ALTERNATE(2));        /* Orange.*/
+  palSetPadMode(GPIOD, GPIOD_LED5, PAL_MODE_ALTERNATE(2));        /* Red.   */
+  palSetPadMode(GPIOD, GPIOD_LED6, PAL_MODE_ALTERNATE(2));        /* Blue.  */
 
-  uint8_t i = 0;
-  while (TRUE) {
-
-    pwmEnableChannel(&PWMD4, 0, i);
-    pwmEnableChannel(&PWMD4, 1, (uint8_t)(i + 64));
-    pwmEnableChannel(&PWMD4, 2, (uint8_t)(i + 128));
-    pwmEnableChannel(&PWMD4, 3, (uint8_t)(i + 192));
+  while (true) {
+    pwmEnableChannel(&PWMD4, 0, (pwmcnt_t)i);
+    pwmEnableChannel(&PWMD4, 1, (pwmcnt_t)(i + 64));
+    pwmEnableChannel(&PWMD4, 2, (pwmcnt_t)(i + 128));
+    pwmEnableChannel(&PWMD4, 3, (pwmcnt_t)(i + 192));
 
     i++;
 
-    chThdSleepMilliseconds(5);
+    chThdSleepMilliseconds(50);
   }
-
-  return (msg_t)0;
 }

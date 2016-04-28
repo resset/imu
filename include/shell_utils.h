@@ -1,5 +1,5 @@
 /*
-    IMU - Copyright (C) 2014 Mateusz Tomaszkiewicz
+    IMU - Copyright (C) 2014-2016 Mateusz Tomaszkiewicz
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -17,11 +17,8 @@
 #ifndef _SHELL_UTILS_H_
 #define _SHELL_UTILS_H_
 
-#include "ch.h"
 #include "hal.h"
-
 #include "chprintf.h"
-#include "shell.h"
 
 void cmd_mem(BaseSequentialStream *chp, int argc, char *argv[]);
 void cmd_threads(BaseSequentialStream *chp, int argc, char *argv[]);

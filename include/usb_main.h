@@ -1,5 +1,5 @@
 /*
-    IMU - Copyright (C) 2014 Mateusz Tomaszkiewicz
+    IMU - Copyright (C) 2014-2016 Mateusz Tomaszkiewicz
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -17,10 +17,11 @@
 #ifndef _USB_MAIN_H_
 #define _USB_MAIN_H_
 
-#include "ch.h"
 #include "hal.h"
 
-extern SerialUSBConfig serusbcfg;
+extern const USBConfig usbcfg;
+extern const SerialUSBConfig serusbcfg;
+extern SerialUSBDriver SDU1;
 
 void usbActivate(void);
 

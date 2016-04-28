@@ -1,5 +1,5 @@
 /*
-    IMU - Copyright (C) 2014 Mateusz Tomaszkiewicz
+    IMU - Copyright (C) 2014-2016 Mateusz Tomaszkiewicz
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -17,11 +17,9 @@
 #ifndef _BLINK_MAIN_H_
 #define _BLINK_MAIN_H_
 
-#include "ch.h"
 #include "hal.h"
 
-extern WORKING_AREA(waBlink, 128);
-
-msg_t thBlink(void *arg);
+extern THD_WORKING_AREA(waBlink, 128);
+THD_FUNCTION(thBlink, arg);
 
 #endif /* _BLINK_MAIN_H_ */
