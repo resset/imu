@@ -122,6 +122,8 @@ CSRC = $(STARTUPSRC) \
        ./src/i2c_sensors.c \
        ./src/gyr_main.c \
        ./src/gyr_shell.c \
+       ./src/mag_main.c \
+       ./src/mag_shell.c \
        ./src/main.c
 
 # C++ sources that can be compiled in ARM or THUMB mode depending on the global

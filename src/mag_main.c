@@ -28,17 +28,15 @@ static void mag_read(void) {
   return;
 }
 
-WORKING_AREA(waMag, 128);
-msg_t thMag(void *arg) {
+THD_WORKING_AREA(waMag, 128);
+THD_FUNCTION(thMag, arg) {
   (void)arg;
   chRegSetThreadName("thMag");
 
   mag_init();
 
-  while (TRUE) {
+  while (true) {
     mag_read();
     chThdSleepMilliseconds(542);
   }
-
-  return (msg_t)0;
 }

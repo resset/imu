@@ -24,8 +24,7 @@
 
 extern int mag_tmp;
 
-extern WORKING_AREA(waMag, 128);
-
-msg_t thMag(void *arg);
+extern THD_WORKING_AREA(waMag, 128);
+THD_FUNCTION(thMag, arg);
 
 #endif /* _MAG_MAIN_H_ */
