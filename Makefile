@@ -120,6 +120,8 @@ CSRC = $(STARTUPSRC) \
        ./src/shell_utils.c \
        ./src/shell_main.c \
        ./src/i2c_sensors.c \
+       ./src/bar_main.c \
+       ./src/bar_shell.c \
        ./src/gyr_main.c \
        ./src/gyr_shell.c \
        ./src/mag_main.c \

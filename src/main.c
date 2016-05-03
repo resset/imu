@@ -19,6 +19,7 @@
 
 #include "system_main.h"
 #include "blink_main.h"
+#include "bar_main.h"
 #include "gyr_main.h"
 #include "mag_main.h"
 #include "shell_main.h"
@@ -31,6 +32,8 @@ int main(void) {
 
   chThdCreateStatic(waBlink, sizeof(waBlink),
                     NORMALPRIO, thBlink, NULL);
+  chThdCreateStatic(waBar, sizeof(waBar),
+                    NORMALPRIO, thBar, NULL);
   chThdCreateStatic(waGyr, sizeof(waGyr),
                     NORMALPRIO, thGyr, NULL);
   chThdCreateStatic(waMag, sizeof(waMag),

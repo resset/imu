@@ -18,7 +18,7 @@
 #include "usb_main.h"
 #include "shell_main.h"
 #include "shell_utils.h"
-//#include "bar_shell.h"
+#include "bar_shell.h"
 #include "gyr_shell.h"
 #include "mag_shell.h"
 
@@ -27,7 +27,7 @@
 static const ShellCommand commands[] = {
   {"mem", cmd_mem},
   {"threads", cmd_threads},
-/*  {"bar", cmd_bar},*/
+  {"bar", cmd_bar},
   {"gyr", cmd_gyr},
   {"mag", cmd_mag},
   {NULL, NULL}

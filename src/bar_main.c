@@ -146,17 +146,15 @@ static void bar_read(void) {
   return;
 }
 
-WORKING_AREA(waBar, 128);
-msg_t thBar(void *arg) {
+THD_WORKING_AREA(waBar, 128);
+THD_FUNCTION(thBar, arg) {
   (void)arg;
   chRegSetThreadName("thBar");
 
   bar_init();
 
-  while (TRUE) {
+  while (true) {
     bar_read();
     chThdSleepMilliseconds(500);
   }
-
-  return (msg_t)0;
 }

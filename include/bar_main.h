@@ -39,8 +39,7 @@ extern int64_t off; /* Offset at actual temperature.*/
 extern int64_t sens; /* Sensitivity at actual temperature.*/
 extern int64_t p; /* Temperature compensated pressure.*/
 
-extern WORKING_AREA(waBar, 128);
-
-msg_t thBar(void *arg);
+extern THD_WORKING_AREA(waBar, 128);
+THD_FUNCTION(thBar, arg);
 
 #endif /* _BAR_MAIN_H_ */
