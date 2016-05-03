@@ -20,9 +20,6 @@
 #include "ch.h"
 #include "hal.h"
 
-extern const I2CConfig i2ccfg;
-extern bool i2c_sensors_started;
-
 void i2c_sensors_init(void);
 
 #endif /* _I2C_SENSORS_H_ */

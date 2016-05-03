@@ -29,7 +29,7 @@ void i2c_sensors_init(void) {
     /*
      * I2C initialization.
      */
-    palSetPadMode(GPIOC, 13, PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING);         /* TP IRQ */
+    palSetPadMode(GPIOC, 13, PAL_MODE_INPUT | PAL_STM32_PUPDR_FLOATING);        /* TP IRQ */
     palSetPadMode(GPIOB, 8, PAL_MODE_ALTERNATE(4) | PAL_STM32_OTYPE_OPENDRAIN); /* SCL */
     palSetPadMode(GPIOB, 9, PAL_MODE_ALTERNATE(4) | PAL_STM32_OTYPE_OPENDRAIN); /* SDA */
 

@@ -119,6 +119,7 @@ CSRC = $(STARTUPSRC) \
        ./src/usb_main.c \
        ./src/shell_utils.c \
        ./src/shell_main.c \
+       ./src/i2c_sensors.c \
        ./src/main.c
 
 # C++ sources that can be compiled in ARM or THUMB mode depending on the global
