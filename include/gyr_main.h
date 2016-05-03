@@ -24,8 +24,7 @@
 
 extern int gyr_tmp;
 
-extern WORKING_AREA(waGyr, 128);
-
-msg_t thGyr(void *arg);
+extern THD_WORKING_AREA(waGyr, 128);
+THD_FUNCTION(thGyr, arg);
 
 #endif /* _GYR_MAIN_H_ */

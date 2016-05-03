@@ -28,17 +28,15 @@ static void gyr_read(void) {
   return;
 }
 
-WORKING_AREA(waGyr, 128);
-msg_t thGyr(void *arg) {
+THD_WORKING_AREA(waGyr, 128);
+THD_FUNCTION(thGyr, arg) {
   (void)arg;
   chRegSetThreadName("thGyr");
 
   gyr_init();
 
-  while (TRUE) {
+  while (true) {
     gyr_read();
     chThdSleepMilliseconds(321);
   }
-
-  return (msg_t)0;
 }

@@ -19,7 +19,7 @@
 #include "shell_main.h"
 #include "shell_utils.h"
 //#include "bar_shell.h"
-//#include "gyr_shell.h"
+#include "gyr_shell.h"
 //#include "mag_shell.h"
 
 #define SHELL_WA_SIZE THD_WORKING_AREA_SIZE(2048)
@@ -27,8 +27,8 @@
 static const ShellCommand commands[] = {
   {"mem", cmd_mem},
   {"threads", cmd_threads},
-/*  {"bar", cmd_bar},
   {"gyr", cmd_gyr},
+/*  {"bar", cmd_bar},
   {"mag", cmd_mag},*/
   {NULL, NULL}
 };
