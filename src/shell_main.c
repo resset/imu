@@ -22,7 +22,7 @@
 //#include "gyr_shell.h"
 //#include "mag_shell.h"
 
-#define SHELL_WA_SIZE   THD_WORKING_AREA_SIZE(2048)
+#define SHELL_WA_SIZE THD_WORKING_AREA_SIZE(2048)
 
 static const ShellCommand commands[] = {
   {"mem", cmd_mem},
