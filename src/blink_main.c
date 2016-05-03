@@ -16,41 +16,32 @@
 
 #include "blink_main.h"
 
-static const PWMConfig pwmcfg = {
-  100000,
-  128,
-  NULL,
-  {
-   {PWM_OUTPUT_ACTIVE_HIGH, NULL},
-   {PWM_OUTPUT_ACTIVE_HIGH, NULL},
-   {PWM_OUTPUT_ACTIVE_HIGH, NULL},
-   {PWM_OUTPUT_ACTIVE_HIGH, NULL}
-  },
-  0,
-  0
-};
-
 THD_WORKING_AREA(waBlink, 128);
 THD_FUNCTION(thBlink, arg) {
-  uint8_t i = 0;
 
   (void)arg;
   chRegSetThreadName("thBlink");
 
-  pwmStart(&PWMD4, &pwmcfg);
-  palSetPadMode(GPIOD, GPIOD_LED4, PAL_MODE_ALTERNATE(2));        /* Green. */
-  palSetPadMode(GPIOD, GPIOD_LED3, PAL_MODE_ALTERNATE(2));        /* Orange.*/
-  palSetPadMode(GPIOD, GPIOD_LED5, PAL_MODE_ALTERNATE(2));        /* Red.   */
-  palSetPadMode(GPIOD, GPIOD_LED6, PAL_MODE_ALTERNATE(2));        /* Blue.  */
-
   while (true) {
-    pwmEnableChannel(&PWMD4, 0, (pwmcnt_t)i);
-    pwmEnableChannel(&PWMD4, 1, (pwmcnt_t)(i + 64));
-    pwmEnableChannel(&PWMD4, 2, (pwmcnt_t)(i + 128));
-    pwmEnableChannel(&PWMD4, 3, (pwmcnt_t)(i + 192));
-
-    i++;
-
-    chThdSleepMilliseconds(50);
+    palClearPad(GPIOD, GPIOD_LED4);
+    palSetPad(GPIOD, GPIOD_LED3);
+    palSetPad(GPIOD, GPIOD_LED5);
+    palSetPad(GPIOD, GPIOD_LED6);
+    chThdSleepMilliseconds(300);
+    palSetPad(GPIOD, GPIOD_LED4);
+    palClearPad(GPIOD, GPIOD_LED3);
+    palSetPad(GPIOD, GPIOD_LED5);
+    palSetPad(GPIOD, GPIOD_LED6);
+    chThdSleepMilliseconds(300);
+    palSetPad(GPIOD, GPIOD_LED4);
+    palSetPad(GPIOD, GPIOD_LED3);
+    palClearPad(GPIOD, GPIOD_LED5);
+    palSetPad(GPIOD, GPIOD_LED6);
+    chThdSleepMilliseconds(300);
+    palSetPad(GPIOD, GPIOD_LED4);
+    palSetPad(GPIOD, GPIOD_LED3);
+    palSetPad(GPIOD, GPIOD_LED5);
+    palClearPad(GPIOD, GPIOD_LED6);
+    chThdSleepMilliseconds(300);
   }
 }
