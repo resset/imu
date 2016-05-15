@@ -16,15 +16,14 @@
 
 #include "bar_main.h"
 
-uint32_t d1; /* Digital pressure value.*/
-uint32_t d2; /* Digital temperature value.*/
-int32_t dt;
-int32_t temp;
-int64_t off;
-int64_t sens;
-int64_t p;
-
-uint16_t c1, c2, c3, c4, c5, c6;
+uint16_t c[8]; /* Coefficient table.*/
+uint32_t d1;   /* Digital pressure value.*/
+uint32_t d2;   /* Digital temperature value.*/
+int32_t dt;    /* Difference between actual and reference temperature.*/
+int32_t temp;  /* Actual temperature.*/
+int64_t off;   /* Offset at actual temperature.*/
+int64_t sens;  /* Sensitivity at actual temperature.*/
+int64_t p;     /* Temperature compensated pressure.*/
 
 static void bar_init(void) {
 
@@ -39,7 +38,8 @@ static void bar_init(void) {
 
   i2cReleaseBus(&I2CD1);
 
-  chThdSleepMilliseconds(10);
+  /* Datasheet of MS5611 says 2.8 ms.*/
+  chThdSleepMilliseconds(3);
 
   i2cAcquireBus(&I2CD1);
 
@@ -48,27 +48,27 @@ static void bar_init(void) {
 
   txbuf[0] = MS5611_CMD_READ_C0;
   i2cMasterTransmitTimeout(&I2CD1, MS5611_I2C_ADDR, txbuf, 1, rxbuf, 2, MS2ST(0x3000));
-  c1 = (rxbuf[0] << 8) | rxbuf[1];
+  c[1] = (rxbuf[0] << 8) | rxbuf[1];
 
   txbuf[0] = MS5611_CMD_READ_C1;
   i2cMasterTransmitTimeout(&I2CD1, MS5611_I2C_ADDR, txbuf, 1, rxbuf, 2, MS2ST(0x3000));
-  c2 = (rxbuf[0] << 8) | rxbuf[1];
+  c[2] = (rxbuf[0] << 8) | rxbuf[1];
 
   txbuf[0] = MS5611_CMD_READ_C2;
   i2cMasterTransmitTimeout(&I2CD1, MS5611_I2C_ADDR, txbuf, 1, rxbuf, 2, MS2ST(0x3000));
-  c3 = (rxbuf[0] << 8) | rxbuf[1];
+  c[3] = (rxbuf[0] << 8) | rxbuf[1];
 
   txbuf[0] = MS5611_CMD_READ_C3;
   i2cMasterTransmitTimeout(&I2CD1, MS5611_I2C_ADDR, txbuf, 1, rxbuf, 2, MS2ST(0x3000));
-  c4 = (rxbuf[0] << 8) | rxbuf[1];
+  c[4] = (rxbuf[0] << 8) | rxbuf[1];
 
   txbuf[0] = MS5611_CMD_READ_C4;
   i2cMasterTransmitTimeout(&I2CD1, MS5611_I2C_ADDR, txbuf, 1, rxbuf, 2, MS2ST(0x3000));
-  c5 = (rxbuf[0] << 8) | rxbuf[1];
+  c[5] = (rxbuf[0] << 8) | rxbuf[1];
 
   txbuf[0] = MS5611_CMD_READ_C5;
   i2cMasterTransmitTimeout(&I2CD1, MS5611_I2C_ADDR, txbuf, 1, rxbuf, 2, MS2ST(0x3000));
-  c6 = (rxbuf[0] << 8) | rxbuf[1];
+  c[6] = (rxbuf[0] << 8) | rxbuf[1];
 
   i2cReleaseBus(&I2CD1);
 
@@ -76,14 +76,6 @@ static void bar_init(void) {
 }
 
 static void bar_read(void) {
-/*  uint32_t d1; // Digital pressure value.
-  uint32_t d2; // Digital temperature value.
-  int32_t dt;
-  int32_t temp;
-  int64_t off;
-  int64_t sens;
-  int64_t p;*/
-
   uint8_t txbuf[1], rxbuf[3];
 
   rxbuf[0] = 0;
@@ -108,8 +100,8 @@ static void bar_read(void) {
 
   i2cReleaseBus(&I2CD1);
 
-  dt = d2 - c5 * 256;
-  temp = 2000 + ((int64_t)dt * (int64_t)c6) / 8388608;
+  dt = d2 - c[5] * 256;
+  temp = 2000 + ((int64_t)dt * (int64_t)c[6]) / 8388608;
 
 //  off = (int64_t)c2 * 65536 + ((int64_t)c4 * (int64_t)dt) / 128;
 //  sens = (int64_t)c1 * 32768 + ((int64_t)c3 * (int64_t)dt) / 256;
@@ -121,10 +113,10 @@ static void bar_read(void) {
   // Tu jest błąd! w 32 bitach to jest liczba ujemna. A powinno być liczone w 64...
   // Dostaję -947716096 a powinienem 3347251200. sprawdź sobie reprezentację bitową tych liczb...
   uint32_t rdhi = 0, rdlo = 0;
-  asm("umull %0, %1, %2, %3" : "=r" (rdlo), "=r" (rdhi) : "r" (c2), "r" (65536));
+  asm("umull %0, %1, %2, %3" : "=r" (rdlo), "=r" (rdhi) : "r" (c[2]), "r" (65536));
   off = ((uint64_t)rdhi << 32) | rdlo;
 //  off = (uint64_t)c2 * (uint64_t)65536;
-  sens = ((int64_t)c4 * (int64_t)dt) / 128;
+  sens = ((int64_t)c[4] * (int64_t)dt) / 128;
 
 //  if (temp < 2000) {
 //    int temp2 = 0;

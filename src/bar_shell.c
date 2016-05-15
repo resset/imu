@@ -26,12 +26,12 @@ void cmd_bar(BaseSequentialStream *chp, int argc, char *argv[]) {
   if (argc == 1) {
     if (strcmp(argv[0], "get") == 0) {
 
-      chprintf(chp, "c1: %d\r\n", c1);
-      chprintf(chp, "c2: %d\r\n", c2);
-      chprintf(chp, "c3: %d\r\n", c3);
-      chprintf(chp, "c4: %d\r\n", c4);
-      chprintf(chp, "c5: %d\r\n", c5);
-      chprintf(chp, "c6: %d\r\n", c6);
+      chprintf(chp, "c1: %d\r\n", c[1]);
+      chprintf(chp, "c2: %d\r\n", c[2]);
+      chprintf(chp, "c3: %d\r\n", c[3]);
+      chprintf(chp, "c4: %d\r\n", c[4]);
+      chprintf(chp, "c5: %d\r\n", c[5]);
+      chprintf(chp, "c6: %d\r\n", c[6]);
       chprintf(chp, "d1: %d\r\n", d1);
       chprintf(chp, "d2: %d\r\n\r\n", d2);
 
