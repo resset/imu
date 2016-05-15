@@ -28,17 +28,21 @@
 
 #define MS5611_CMD_READ_ADC 0x0
 
+/* 16 bits reserved for manufacturer.*/
+#define MS5611_CMD_READ_RESERVED 0xA0
 /* Pressure sensitivity (SENS T1).*/
-#define MS5611_CMD_READ_C0 0xA2
+#define MS5611_CMD_READ_C1       0xA2
 /* Pressure offset (OFF T1).*/
-#define MS5611_CMD_READ_C1 0xA4
+#define MS5611_CMD_READ_C2       0xA4
 /* Temperature coefficient of pressure sensitivity (TCS).*/
-#define MS5611_CMD_READ_C2 0xA6
+#define MS5611_CMD_READ_C3       0xA6
 /* Temperature coefficient of pressure offset (TCO).*/
-#define MS5611_CMD_READ_C3 0xA8
+#define MS5611_CMD_READ_C4       0xA8
 /* Reference temperature (TREF).*/
-#define MS5611_CMD_READ_C4 0xAA
+#define MS5611_CMD_READ_C5       0xAA
 /* Temperature coefficient of the temperature (TEMPSENS).*/
-#define MS5611_CMD_READ_C5 0xAC
+#define MS5611_CMD_READ_C6       0xAC
+/* Cyclic redundancy check sum of the PROM memory (CRC).*/
+#define MS5611_CMD_READ_CRC      0xAE
 
 #endif /* _MS5611_H_ */
