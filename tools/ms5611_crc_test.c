@@ -32,9 +32,9 @@ uint8_t ms5611_crc4(uint16_t n_prom[]) {
 
   for (uint8_t cnt = 0; 16 > cnt; ++cnt) {
     if (cnt % 2 == 1) {
-        n_rem ^= (uint16_t) ((n_prom[cnt >> 1]) & 0x00FF);
+        n_rem ^= (uint16_t)((n_prom[cnt >> 1]) & 0x00FF);
     } else  {
-        n_rem ^= (uint16_t) (n_prom[cnt >> 1] >> 8);
+        n_rem ^= (uint16_t)(n_prom[cnt >> 1] >> 8);
     }
     for (uint8_t n_bit = 8; 0 < n_bit; --n_bit) {
       if (n_rem & (0x8000)) {
