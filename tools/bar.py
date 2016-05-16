@@ -8,11 +8,9 @@ def bar_calc(c1, c2, c3, c4, c5, c6, d1, d2):
     print 'temp = %s' % temp
 
     off = (c2 << 16) + ((c4 * dt) >> 7)
-    #off = (c2 << 16)
     print 'off = %s' % off
 
     sens = (c1 << 15) + ((c3 * dt) >> 8)
-    #sens = ((c4 * dt) >> 7)
     print 'sens = %s' % sens
 
     p = (((d1 * sens) >> 21) - off) >> 15
