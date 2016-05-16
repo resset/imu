@@ -10,7 +10,7 @@ endif
 
 # C specific options here (added to USE_OPT).
 ifeq ($(USE_COPT),)
-  USE_COPT = 
+  USE_COPT = -std=c99 -Wall -Wshadow -Wextra
 endif
 
 # C++ specific options here (added to USE_OPT).
