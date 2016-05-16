@@ -177,7 +177,7 @@ static void bar_read(void) {
   return;
 }
 
-THD_WORKING_AREA(waBar, 128);
+THD_WORKING_AREA(waBar, BAR_THREAD_STACK_SIZE);
 THD_FUNCTION(thBar, arg) {
   (void)arg;
   chRegSetThreadName("thBar");
