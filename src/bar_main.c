@@ -53,7 +53,7 @@ uint8_t ms5611_crc4(uint16_t n_prom[]) {
   return n_rem ^ 0x0;
 }
 
-static uint8_t bar_init(void) {
+static uint8_t bar_init(uint16_t c[]) {
   uint8_t txbuf[1];
   uint8_t rxbuf[2] = {0, 0};
   uint8_t crc_calculated;
@@ -114,33 +114,48 @@ static uint8_t bar_init(void) {
   return 0;
 }
 
-static void bar_read(void) {
-  uint8_t txbuf[1], rxbuf[3];
-
-  rxbuf[0] = 0;
-  rxbuf[1] = 0;
-  rxbuf[2] = 0;
+static uint32_t get_adc_data(uint8_t command) {
+  uint8_t txbuf[1];
+  uint8_t rxbuf[3] = {0, 0, 0};
 
   i2cAcquireBus(&I2CD1);
-
-  txbuf[0] = MS5611_CMD_CONVERT_D1_1024;
+  txbuf[0] = command;
   i2cMasterTransmitTimeout(&I2CD1, MS5611_I2C_ADDR, txbuf, 1, rxbuf, 0, MS2ST(0x3000));
-  chThdSleepMilliseconds(10);
-  txbuf[0] = MS5611_CMD_READ_ADC;
-  i2cMasterTransmitTimeout(&I2CD1, MS5611_I2C_ADDR, txbuf, 1, rxbuf, 3, MS2ST(0x3000));
-  d1 = (rxbuf[0] << 16) | (rxbuf[1] << 8) | rxbuf[2];
-
-  txbuf[0] = MS5611_CMD_CONVERT_D2_1024;
-  i2cMasterTransmitTimeout(&I2CD1, MS5611_I2C_ADDR, txbuf, 1, rxbuf, 0, MS2ST(0x3000));
-  chThdSleepMilliseconds(10);
-  txbuf[0] = MS5611_CMD_READ_ADC;
-  i2cMasterTransmitTimeout(&I2CD1, MS5611_I2C_ADDR, txbuf, 1, rxbuf, 3, MS2ST(0x3000));
-  d2 = (rxbuf[0] << 16) | (rxbuf[1] << 8) | rxbuf[2];
-
   i2cReleaseBus(&I2CD1);
 
-  dt = d2 - c[5] * 256;
-  temp = 2000 + ((int64_t)dt * (int64_t)c[6]) / 8388608;
+  switch (command & 0xF) {
+    case MS5611_CMD_CONVERT_256:
+      chThdSleepMicroseconds(900);
+      break;
+    case MS5611_CMD_CONVERT_512:
+      chThdSleepMilliseconds(3);
+      break;
+    case MS5611_CMD_CONVERT_1024:
+      chThdSleepMilliseconds(4);
+      break;
+    case MS5611_CMD_CONVERT_2048:
+      chThdSleepMilliseconds(6);
+      break;
+    case MS5611_CMD_CONVERT_4096:
+      chThdSleepMilliseconds(10);
+      break;
+  }
+
+  i2cAcquireBus(&I2CD1);
+  txbuf[0] = MS5611_CMD_READ_ADC;
+  i2cMasterTransmitTimeout(&I2CD1, MS5611_I2C_ADDR, txbuf, 1, rxbuf, 3, MS2ST(0x3000));
+  i2cReleaseBus(&I2CD1);
+
+  return (rxbuf[0] << 16) | (rxbuf[1] << 8) | rxbuf[2];
+}
+
+static void bar_read(void) {
+
+  d1 = get_adc_data(MS5611_CMD_CONVERT_D1 | MS5611_CMD_CONVERT_1024);
+  d2 = get_adc_data(MS5611_CMD_CONVERT_D2 | MS5611_CMD_CONVERT_1024);
+
+  dt = d2 - (c[5] << 8);
+  temp = 2000 + (((int64_t)dt * (int64_t)c[6]) >> 23);
 
 //  off = (int64_t)c2 * 65536 + ((int64_t)c4 * (int64_t)dt) / 128;
 //  sens = (int64_t)c1 * 32768 + ((int64_t)c3 * (int64_t)dt) / 256;
@@ -182,7 +197,8 @@ THD_FUNCTION(thBar, arg) {
   (void)arg;
   chRegSetThreadName("thBar");
 
-  bar_init();
+  if (0 != bar_init(c)) {
+  }
 
   while (true) {
     bar_read();
