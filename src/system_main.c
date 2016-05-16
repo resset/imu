@@ -65,6 +65,6 @@ void HardFaultVector(void) {
     " bx r2                                         \n"
     " get_reg_const: .word get_registers_from_stack \n"
   );
-  asm volatile ("BKPT #01");
+  __asm volatile ("BKPT #01");
   while (true);
 }
