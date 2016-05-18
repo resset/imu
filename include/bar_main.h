@@ -31,7 +31,7 @@ extern uint16_t c[8];
 extern uint32_t d1;
 extern uint32_t d2;
 extern int32_t dt;
-extern int32_t temp;
+extern int64_t temp;
 extern int64_t off;
 extern int64_t sens;
 extern int64_t p;

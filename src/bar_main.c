@@ -20,7 +20,7 @@ uint16_t c[8]; /* Coefficient table.*/
 uint32_t d1;   /* Digital pressure value.*/
 uint32_t d2;   /* Digital temperature value.*/
 int32_t dt;    /* Difference between actual and reference temperature.*/
-int32_t temp;  /* Actual temperature.*/
+int64_t temp;  /* Actual temperature.*/
 int64_t off;   /* Offset at actual temperature.*/
 int64_t sens;  /* Sensitivity at actual temperature.*/
 int64_t p;     /* Temperature compensated pressure.*/
@@ -53,7 +53,7 @@ uint8_t ms5611_crc4(uint16_t n_prom[]) {
   return n_rem ^ 0x0;
 }
 
-static uint8_t bar_init(uint16_t c[]) {
+static uint8_t bar_init(uint16_t coeff[]) {
   uint8_t txbuf[1];
   uint8_t rxbuf[2] = {0, 0};
   uint8_t crc_calculated;
@@ -74,40 +74,40 @@ static uint8_t bar_init(uint16_t c[]) {
 
   txbuf[0] = MS5611_CMD_READ_RESERVED;
   i2cMasterTransmitTimeout(&I2CD1, MS5611_I2C_ADDR, txbuf, 1, rxbuf, 2, MS2ST(0x3000));
-  c[0] = (rxbuf[0] << 8) | rxbuf[1];
+  coeff[0] = (rxbuf[0] << 8) | rxbuf[1];
 
   txbuf[0] = MS5611_CMD_READ_C1;
   i2cMasterTransmitTimeout(&I2CD1, MS5611_I2C_ADDR, txbuf, 1, rxbuf, 2, MS2ST(0x3000));
-  c[1] = (rxbuf[0] << 8) | rxbuf[1];
+  coeff[1] = (rxbuf[0] << 8) | rxbuf[1];
 
   txbuf[0] = MS5611_CMD_READ_C2;
   i2cMasterTransmitTimeout(&I2CD1, MS5611_I2C_ADDR, txbuf, 1, rxbuf, 2, MS2ST(0x3000));
-  c[2] = (rxbuf[0] << 8) | rxbuf[1];
+  coeff[2] = (rxbuf[0] << 8) | rxbuf[1];
 
   txbuf[0] = MS5611_CMD_READ_C3;
   i2cMasterTransmitTimeout(&I2CD1, MS5611_I2C_ADDR, txbuf, 1, rxbuf, 2, MS2ST(0x3000));
-  c[3] = (rxbuf[0] << 8) | rxbuf[1];
+  coeff[3] = (rxbuf[0] << 8) | rxbuf[1];
 
   txbuf[0] = MS5611_CMD_READ_C4;
   i2cMasterTransmitTimeout(&I2CD1, MS5611_I2C_ADDR, txbuf, 1, rxbuf, 2, MS2ST(0x3000));
-  c[4] = (rxbuf[0] << 8) | rxbuf[1];
+  coeff[4] = (rxbuf[0] << 8) | rxbuf[1];
 
   txbuf[0] = MS5611_CMD_READ_C5;
   i2cMasterTransmitTimeout(&I2CD1, MS5611_I2C_ADDR, txbuf, 1, rxbuf, 2, MS2ST(0x3000));
-  c[5] = (rxbuf[0] << 8) | rxbuf[1];
+  coeff[5] = (rxbuf[0] << 8) | rxbuf[1];
 
   txbuf[0] = MS5611_CMD_READ_C6;
   i2cMasterTransmitTimeout(&I2CD1, MS5611_I2C_ADDR, txbuf, 1, rxbuf, 2, MS2ST(0x3000));
-  c[6] = (rxbuf[0] << 8) | rxbuf[1];
+  coeff[6] = (rxbuf[0] << 8) | rxbuf[1];
 
   txbuf[0] = MS5611_CMD_READ_CRC;
   i2cMasterTransmitTimeout(&I2CD1, MS5611_I2C_ADDR, txbuf, 1, rxbuf, 2, MS2ST(0x3000));
-  c[7] = (rxbuf[0] << 8) | rxbuf[1];
+  coeff[7] = (rxbuf[0] << 8) | rxbuf[1];
 
   i2cReleaseBus(&I2CD1);
 
-  crc_calculated = ms5611_crc4(c);
-  if ((uint8_t)(c[7] & 0xF) != crc_calculated) {
+  crc_calculated = ms5611_crc4(coeff);
+  if ((uint8_t)(coeff[7] & 0xF) != crc_calculated) {
     return 1;
   }
 
@@ -157,37 +157,30 @@ static void bar_read(void) {
   dt = d2 - (c[5] << 8);
   temp = 2000 + (((int64_t)dt * (int64_t)c[6]) >> 23);
 
-//  off = (int64_t)c2 * 65536 + ((int64_t)c4 * (int64_t)dt) / 128;
-//  sens = (int64_t)c1 * 32768 + ((int64_t)c3 * (int64_t)dt) / 256;
+  off = (c[2] << 16) + (((int64_t)c[4] * (int64_t)dt) >> 7);
+  sens = (c[1] << 15) + (((int64_t)c[3] * (int64_t)dt) >> 8);
 
-////  // czyjeś
-////  off = (int64_t)c2 * 65536 + (int64_t)c4 * dt / 128;
-////  sens = (int64_t)c1 * 32768 + (int64_t)c3 * dt / 256;
+  if (temp < 2000) {
+    int64_t t2 = 0;
+    int64_t off2 = 0;
+    int64_t sens2 = 0;
 
-  // Tu jest błąd! w 32 bitach to jest liczba ujemna. A powinno być liczone w 64...
-  // Dostaję -947716096 a powinienem 3347251200. sprawdź sobie reprezentację bitową tych liczb...
-  uint32_t rdhi = 0, rdlo = 0;
-  asm("umull %0, %1, %2, %3" : "=r" (rdlo), "=r" (rdhi) : "r" (c[2]), "r" (65536));
-  off = ((uint64_t)rdhi << 32) | rdlo;
-//  off = (uint64_t)c2 * (uint64_t)65536;
-  sens = ((int64_t)c[4] * (int64_t)dt) / 128;
+    t2 = (dt * dt) >> 31;
+    off2 = 5 * (((temp - 2000) * (temp - 2000)) >> 1);
+    sens2 = 5 * (((temp - 2000) * (temp - 2000)) >> 2);
 
-//  if (temp < 2000) {
-//    int temp2 = 0;
-//    int off2 = 0;
-//    int sens2 = 0;
-//
-//    // stuff...
-//
-//    if (temp < -1500) {
-//    }
-//
-//    temp -= temp2;
-//    off -= off2;
-//    sens -= sens2;
-//  }
+    if (temp < -1500) {
+      off2 = off2 + 7 * ((temp + 1500) * (temp + 1500));
+      sens2 = sens2 + 11 * (((temp - 2000) * (temp - 2000)) >> 1);
+    }
 
-//  p = ((((int64_t)d1 * sens) >> 21) - off) >> 15;
+    temp -= t2;
+    off -= off2;
+    sens -= sens2;
+  }
+
+  p = ((((int64_t)d1 * sens) >> 21) - off) >> 15;
+  (void)temp;
 
   return;
 }
@@ -195,6 +188,7 @@ static void bar_read(void) {
 THD_WORKING_AREA(waBar, BAR_THREAD_STACK_SIZE);
 THD_FUNCTION(thBar, arg) {
   (void)arg;
+
   chRegSetThreadName("thBar");
 
   if (0 != bar_init(c)) {

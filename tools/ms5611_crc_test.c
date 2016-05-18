@@ -16,7 +16,7 @@
 
 /*
  * Compile with:
- * gcc -std=c99 -pedantic -Wall -Wshadow -Wextra -o ms5611_crc_test ms5611_crc_test.c
+ * gcc -std=c99 -Wpedantic -Wall -Wshadow -Wextra -o ms5611_crc_test ms5611_crc_test.c
  */
 
 #include <inttypes.h>
