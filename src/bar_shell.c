@@ -37,9 +37,9 @@ void cmd_bar(BaseSequentialStream *chp, int argc, char *argv[]) {
 
       chprintf(chp, "dt: %d\r\n", dt);
       chprintf(chp, "temp: %d\r\n", temp);
-      chprintf(chp, "off: %d\r\n", off);
-      chprintf(chp, "sens: %d\r\n", sens);
-      chprintf(chp, "p: %d\r\n", p);
+      chprintf(chp, "off: %LD\r\n", off);
+      chprintf(chp, "sens: %LD\r\n", sens);
+      chprintf(chp, "p: %LD\r\n", p);
 
       return;
     } else if ((argc == 2) && (strcmp(argv[0], "set") == 0)) {
