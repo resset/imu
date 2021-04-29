@@ -15,7 +15,6 @@
     limitations under the License.
 */
 
-#include "usb_main.h"
 #include "shell_main.h"
 #include "shell_utils.h"
 #include "bar_shell.h"
@@ -33,8 +32,15 @@ static const ShellCommand commands[] = {
   {NULL, NULL}
 };
 
-static const ShellConfig shell_cfg1 = {
-  (BaseSequentialStream *)&SDU1,
+SerialConfig serial_cfg = { 
+  115200,
+  0,
+  0,
+  0
+};
+
+static ShellConfig shell_cfg = {
+  (BaseSequentialStream *)&SD2,
   commands
 };
 
@@ -46,32 +52,23 @@ THD_FUNCTION(thShell, arg) {
   chRegSetThreadName("thShell");
 
   /*
+   * Initializes a serial driver.
+   */
+  sdStart(&SD2, &serial_cfg);
+  palSetPadMode(GPIOA, 2, PAL_MODE_ALTERNATE(7));
+  palSetPadMode(GPIOA, 3, PAL_MODE_ALTERNATE(7));
+
+  /*
    * Shell manager initialization.
    */
   shellInit();
 
-  /*
-   * Initializes a serial-over-USB CDC driver.
-   */
-  sduObjectInit(&SDU1);
-  sduStart(&SDU1, &serusbcfg);
-
-  usbActivate();
-
   while (true) {
-    if (!shelltp) {
-      if (SDU1.config->usbp->state == USB_ACTIVE) {
-        /* Spawns a new shell.*/
-        shelltp = shellCreate(&shell_cfg1, SHELL_WA_SIZE, NORMALPRIO);
-      }
-    }
-    else {
-      /* If the previous shell exited.*/
-      if (chThdTerminatedX(shelltp)) {
-        /* Recovers memory of the previous shell.*/
-        chThdRelease(shelltp);
-        shelltp = NULL;
-      }
+    if (SD2.state == SD_READY) {
+      shelltp = chThdCreateFromHeap(NULL, SHELL_WA_SIZE,
+                                    "shell", NORMALPRIO + 1,
+                                    shellThread, &shell_cfg);
+      chThdWait(shelltp); /* Waiting termination.*/
     }
     chThdSleepMilliseconds(500);
   }

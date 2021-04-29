@@ -63,7 +63,7 @@ static uint8_t bar_init(uint16_t coeff[]) {
   i2cAcquireBus(&I2CD1);
 
   txbuf[0] = MS5611_CMD_RESET;
-  i2cMasterTransmitTimeout(&I2CD1, MS5611_I2C_ADDR, txbuf, 1, rxbuf, 0, MS2ST(0x3000));
+  i2cMasterTransmitTimeout(&I2CD1, MS5611_I2C_ADDR, txbuf, 1, rxbuf, 0, TIME_MS2I(0x3000));
 
   i2cReleaseBus(&I2CD1);
 
@@ -73,35 +73,35 @@ static uint8_t bar_init(uint16_t coeff[]) {
   i2cAcquireBus(&I2CD1);
 
   txbuf[0] = MS5611_CMD_READ_RESERVED;
-  i2cMasterTransmitTimeout(&I2CD1, MS5611_I2C_ADDR, txbuf, 1, rxbuf, 2, MS2ST(0x3000));
+  i2cMasterTransmitTimeout(&I2CD1, MS5611_I2C_ADDR, txbuf, 1, rxbuf, 2, TIME_MS2I(0x3000));
   coeff[0] = (rxbuf[0] << 8) | rxbuf[1];
 
   txbuf[0] = MS5611_CMD_READ_C1;
-  i2cMasterTransmitTimeout(&I2CD1, MS5611_I2C_ADDR, txbuf, 1, rxbuf, 2, MS2ST(0x3000));
+  i2cMasterTransmitTimeout(&I2CD1, MS5611_I2C_ADDR, txbuf, 1, rxbuf, 2, TIME_MS2I(0x3000));
   coeff[1] = (rxbuf[0] << 8) | rxbuf[1];
 
   txbuf[0] = MS5611_CMD_READ_C2;
-  i2cMasterTransmitTimeout(&I2CD1, MS5611_I2C_ADDR, txbuf, 1, rxbuf, 2, MS2ST(0x3000));
+  i2cMasterTransmitTimeout(&I2CD1, MS5611_I2C_ADDR, txbuf, 1, rxbuf, 2, TIME_MS2I(0x3000));
   coeff[2] = (rxbuf[0] << 8) | rxbuf[1];
 
   txbuf[0] = MS5611_CMD_READ_C3;
-  i2cMasterTransmitTimeout(&I2CD1, MS5611_I2C_ADDR, txbuf, 1, rxbuf, 2, MS2ST(0x3000));
+  i2cMasterTransmitTimeout(&I2CD1, MS5611_I2C_ADDR, txbuf, 1, rxbuf, 2, TIME_MS2I(0x3000));
   coeff[3] = (rxbuf[0] << 8) | rxbuf[1];
 
   txbuf[0] = MS5611_CMD_READ_C4;
-  i2cMasterTransmitTimeout(&I2CD1, MS5611_I2C_ADDR, txbuf, 1, rxbuf, 2, MS2ST(0x3000));
+  i2cMasterTransmitTimeout(&I2CD1, MS5611_I2C_ADDR, txbuf, 1, rxbuf, 2, TIME_MS2I(0x3000));
   coeff[4] = (rxbuf[0] << 8) | rxbuf[1];
 
   txbuf[0] = MS5611_CMD_READ_C5;
-  i2cMasterTransmitTimeout(&I2CD1, MS5611_I2C_ADDR, txbuf, 1, rxbuf, 2, MS2ST(0x3000));
+  i2cMasterTransmitTimeout(&I2CD1, MS5611_I2C_ADDR, txbuf, 1, rxbuf, 2, TIME_MS2I(0x3000));
   coeff[5] = (rxbuf[0] << 8) | rxbuf[1];
 
   txbuf[0] = MS5611_CMD_READ_C6;
-  i2cMasterTransmitTimeout(&I2CD1, MS5611_I2C_ADDR, txbuf, 1, rxbuf, 2, MS2ST(0x3000));
+  i2cMasterTransmitTimeout(&I2CD1, MS5611_I2C_ADDR, txbuf, 1, rxbuf, 2, TIME_MS2I(0x3000));
   coeff[6] = (rxbuf[0] << 8) | rxbuf[1];
 
   txbuf[0] = MS5611_CMD_READ_CRC;
-  i2cMasterTransmitTimeout(&I2CD1, MS5611_I2C_ADDR, txbuf, 1, rxbuf, 2, MS2ST(0x3000));
+  i2cMasterTransmitTimeout(&I2CD1, MS5611_I2C_ADDR, txbuf, 1, rxbuf, 2, TIME_MS2I(0x3000));
   coeff[7] = (rxbuf[0] << 8) | rxbuf[1];
 
   i2cReleaseBus(&I2CD1);
@@ -120,7 +120,7 @@ static uint32_t get_adc_data(uint8_t command) {
 
   i2cAcquireBus(&I2CD1);
   txbuf[0] = command;
-  i2cMasterTransmitTimeout(&I2CD1, MS5611_I2C_ADDR, txbuf, 1, rxbuf, 0, MS2ST(0x3000));
+  i2cMasterTransmitTimeout(&I2CD1, MS5611_I2C_ADDR, txbuf, 1, rxbuf, 0, TIME_MS2I(0x3000));
   i2cReleaseBus(&I2CD1);
 
   switch (command & 0xF) {
@@ -143,7 +143,7 @@ static uint32_t get_adc_data(uint8_t command) {
 
   i2cAcquireBus(&I2CD1);
   txbuf[0] = MS5611_CMD_READ_ADC;
-  i2cMasterTransmitTimeout(&I2CD1, MS5611_I2C_ADDR, txbuf, 1, rxbuf, 3, MS2ST(0x3000));
+  i2cMasterTransmitTimeout(&I2CD1, MS5611_I2C_ADDR, txbuf, 1, rxbuf, 3, TIME_MS2I(0x3000));
   i2cReleaseBus(&I2CD1);
 
   return (rxbuf[0] << 16) | (rxbuf[1] << 8) | rxbuf[2];

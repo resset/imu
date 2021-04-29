@@ -24,22 +24,18 @@
 #include "mag_main.h"
 #include "shell_main.h"
 
-int main(void) {
+int main(void)
+{
   halInit();
   chSysInit();
 
   system_init();
 
-  chThdCreateStatic(waBlink, sizeof(waBlink),
-                    NORMALPRIO, thBlink, NULL);
-  chThdCreateStatic(waBar, sizeof(waBar),
-                    NORMALPRIO, thBar, NULL);
-  chThdCreateStatic(waGyr, sizeof(waGyr),
-                    NORMALPRIO, thGyr, NULL);
-  chThdCreateStatic(waMag, sizeof(waMag),
-                    NORMALPRIO, thMag, NULL);
-  chThdCreateStatic(waShell, sizeof(waShell),
-                    NORMALPRIO, thShell, NULL);
+  chThdCreateStatic(waBlink, sizeof(waBlink), NORMALPRIO, thBlink, NULL);
+  chThdCreateStatic(waBar, sizeof(waBar), NORMALPRIO, thBar, NULL);
+  chThdCreateStatic(waGyr, sizeof(waGyr), NORMALPRIO, thGyr, NULL);
+  chThdCreateStatic(waMag, sizeof(waMag), NORMALPRIO, thMag, NULL);
+  chThdCreateStatic(waShell, sizeof(waShell), NORMALPRIO, thShell, NULL);
 
   while (true) {
     chThdSleepMilliseconds(500);
