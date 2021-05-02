@@ -1,9 +1,2 @@
 /.dep
-/boards
 /build
-/ext
-/os
-/test
-/.cproject
-/.project
-/.settings
