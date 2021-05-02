@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2016 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006..2018 Giovanni Di Sirio
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -57,7 +57,7 @@
  * @brief   Enable shell command completion
  */
 #if !defined(SHELL_USE_COMPLETION) || defined(__DOXYGEN__)
-#define SHELL_USE_COMPLETION        TRUE
+#define SHELL_USE_COMPLETION        FALSE
 #endif
 
 /**
@@ -74,9 +74,26 @@
 #define SHELL_USE_ESC_SEQ           TRUE
 #endif
 
-/*===========================================================================*/
-/* Shell command settings                                                    */
-/*===========================================================================*/
+/**
+ * @brief   Prompt string
+ */
+#if !defined(SHELL_PROMPT_STR) || defined(__DOXYGEN__)
+#define SHELL_PROMPT_STR            "ch> "
+#endif
+
+/**
+ * @brief   Newline string
+ */
+#if !defined(SHELL_NEWLINE_STR) || defined(__DOXYGEN__)
+#define SHELL_NEWLINE_STR            "\r\n"
+#endif
+
+/**
+ * @brief   Default shell thread name.
+ */
+#if !defined(SHELL_THREAD_NAME) || defined(__DOXYGEN__)
+#define SHELL_THREAD_NAME           "shell"
+#endif
 
 /**
  * @brief   Enable shell exit command

@@ -15,11 +15,19 @@
     limitations under the License.
 */
 
+#include "shellconf.h"
 #include "shell_main.h"
 #include "shell_utils.h"
 #include "bar_shell.h"
 #include "gyr_shell.h"
 #include "mag_shell.h"
+
+SerialConfig serial_cfg = {
+  115200,
+  0,
+  0,
+  0
+};
 
 #define SHELL_WA_SIZE THD_WORKING_AREA_SIZE(2048)
 
@@ -32,16 +40,18 @@ static const ShellCommand commands[] = {
   {NULL, NULL}
 };
 
-SerialConfig serial_cfg = { 
-  115200,
-  0,
-  0,
-  0
-};
+#if (SHELL_USE_HISTORY == TRUE)
+char commands_buffer[SHELL_MAX_HIST_BUFF];
+#endif
 
 static ShellConfig shell_cfg = {
   (BaseSequentialStream *)&SD2,
   commands
+#if (SHELL_USE_HISTORY == TRUE)
+  ,
+  commands_buffer,
+  SHELL_MAX_HIST_BUFF
+#endif
 };
 
 THD_WORKING_AREA(waShell, 128);
