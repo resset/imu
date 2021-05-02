@@ -17,7 +17,7 @@
 #include "barometer.h"
 #include "barometer_shell.h"
 
-void cmd_bar(BaseSequentialStream *chp, int argc, char *argv[]) {
+void cmd_baro(BaseSequentialStream *chp, int argc, char *argv[]) {
 
   if (argc == 0) {
     goto ERROR;
@@ -49,8 +49,8 @@ void cmd_bar(BaseSequentialStream *chp, int argc, char *argv[]) {
   }
 
 ERROR:
-  chprintf(chp, "Usage: bar get\r\n");
-  chprintf(chp, "       bar set x\r\n");
+  chprintf(chp, "Usage: baro get\r\n");
+  chprintf(chp, "       baro set x\r\n");
   chprintf(chp, "where x is something\r\n");
   chprintf(chp, "and that's it\r\n");
   return;

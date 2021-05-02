@@ -33,8 +33,8 @@ SerialConfig serial_cfg = {
 static const ShellCommand commands[] = {
   {"about", cmd_about},
   {"reset", cmd_reset},
-  {"bar", cmd_bar},
-  {"gyr", cmd_gyr},
+  {"baro", cmd_baro},
+  {"gyro", cmd_gyro},
   {NULL, NULL}
 };
 

@@ -17,7 +17,7 @@
 #include "gyro.h"
 #include "gyro_shell.h"
 
-void cmd_gyr(BaseSequentialStream *chp, int argc, char *argv[]) {
+void cmd_gyro(BaseSequentialStream *chp, int argc, char *argv[]) {
 
   if (argc == 0) {
     goto ERROR;
@@ -34,8 +34,8 @@ void cmd_gyr(BaseSequentialStream *chp, int argc, char *argv[]) {
   }
 
 ERROR:
-  chprintf(chp, "Usage: gyr get\r\n");
-  chprintf(chp, "       gyr set x\r\n");
+  chprintf(chp, "Usage: gyro get\r\n");
+  chprintf(chp, "       gyro set x\r\n");
   chprintf(chp, "where x is something\r\n");
   chprintf(chp, "and that's it\r\n");
   return;

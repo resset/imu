@@ -27,6 +27,6 @@
 
 #include "gyro.h"
 
-void cmd_gyr(BaseSequentialStream *chp, int argc, char *argv[]);
+void cmd_gyro(BaseSequentialStream *chp, int argc, char *argv[]);
 
 #endif /* _GYRO_SHELL_H_ */

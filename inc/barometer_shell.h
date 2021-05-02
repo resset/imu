@@ -27,6 +27,6 @@
 
 #include "barometer.h"
 
-void cmd_bar(BaseSequentialStream *chp, int argc, char *argv[]);
+void cmd_baro(BaseSequentialStream *chp, int argc, char *argv[]);
 
 #endif /* _BAROMETER_SHELL_H_ */
