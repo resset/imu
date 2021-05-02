@@ -31,8 +31,8 @@ SerialConfig serial_cfg = {
 #define SHELL_WA_SIZE THD_WORKING_AREA_SIZE(2048)
 
 static const ShellCommand commands[] = {
-  {"mem", cmd_mem},
-  {"threads", cmd_threads},
+  {"about", cmd_about},
+  {"reset", cmd_reset},
   {"bar", cmd_bar},
   {"gyr", cmd_gyr},
   {NULL, NULL}

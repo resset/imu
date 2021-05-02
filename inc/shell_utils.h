@@ -20,7 +20,7 @@
 #include "hal.h"
 #include "chprintf.h"
 
-void cmd_mem(BaseSequentialStream *chp, int argc, char *argv[]);
-void cmd_threads(BaseSequentialStream *chp, int argc, char *argv[]);
+void cmd_about(BaseSequentialStream *chp, int argc, char *argv[]);
+void cmd_reset(BaseSequentialStream *chp, int argc, char *argv[]);
 
 #endif /* _SHELL_UTILS_H_ */
