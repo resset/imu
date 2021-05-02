@@ -8,7 +8,7 @@
             ],
             "defines": [],
             "compilerPath": "${env:HOME}/.local/bin/arm-none-eabi-gcc",
-            "cStandard": "gnu17",
+            "cStandard": "c99",
             "cppStandard": "gnu++14",
             "intelliSenseMode": "linux-gcc-arm"
         }
