@@ -14,7 +14,7 @@
     limitations under the License.
 */
 
-#include "system_main.h"
+#include "system.h"
 
 void system_init(void) {
   SCB->CCR |= 0x10;

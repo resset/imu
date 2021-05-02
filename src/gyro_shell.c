@@ -14,10 +14,10 @@
     limitations under the License.
 */
 
-#include "mag_main.h"
-#include "mag_shell.h"
+#include "gyro.h"
+#include "gyro_shell.h"
 
-void cmd_mag(BaseSequentialStream *chp, int argc, char *argv[]) {
+void cmd_gyr(BaseSequentialStream *chp, int argc, char *argv[]) {
 
   if (argc == 0) {
     goto ERROR;
@@ -25,7 +25,7 @@ void cmd_mag(BaseSequentialStream *chp, int argc, char *argv[]) {
 
   if (argc == 1) {
     if (strcmp(argv[0], "get") == 0) {
-      chprintf(chp, "got %d\r\n", mag_tmp);
+      chprintf(chp, "got %d\r\n", gyr_tmp);
       return;
     } else if ((argc == 2) && (strcmp(argv[0], "set") == 0)) {
       chprintf(chp, "set\r\n");
@@ -34,8 +34,8 @@ void cmd_mag(BaseSequentialStream *chp, int argc, char *argv[]) {
   }
 
 ERROR:
-  chprintf(chp, "Usage: mag get\r\n");
-  chprintf(chp, "       mag set x\r\n");
+  chprintf(chp, "Usage: gyr get\r\n");
+  chprintf(chp, "       gyr set x\r\n");
   chprintf(chp, "where x is something\r\n");
   chprintf(chp, "and that's it\r\n");
   return;

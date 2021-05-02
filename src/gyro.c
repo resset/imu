@@ -14,29 +14,29 @@
     limitations under the License.
 */
 
-#ifndef _BAR_MAIN_H_
-#define _BAR_MAIN_H_
+#include "gyro.h"
 
-#include "ch.h"
-#include "hal.h"
+int gyr_tmp = 0;
 
-#include "i2c_sensors.h"
-#include "ms5611.h"
+static void gyr_init(void) {
+  return;
+}
 
-#define MS5611_I2C_ADDR MS5611_I2C_ADDR_LOW
+static void gyr_read(void) {
+  gyr_tmp++;
 
-#define BAR_THREAD_STACK_SIZE 256
+  return;
+}
 
-extern uint16_t c[8];
-extern uint32_t d1;
-extern uint32_t d2;
-extern int32_t dt;
-extern int64_t temp;
-extern int64_t off;
-extern int64_t sens;
-extern int64_t p;
+THD_WORKING_AREA(waGyr, 128);
+THD_FUNCTION(thGyr, arg) {
+  (void)arg;
+  chRegSetThreadName("thGyr");
 
-extern THD_WORKING_AREA(waBar, BAR_THREAD_STACK_SIZE);
-THD_FUNCTION(thBar, arg);
+  gyr_init();
 
-#endif /* _BAR_MAIN_H_ */
+  while (true) {
+    gyr_read();
+    chThdSleepMilliseconds(321);
+  }
+}

@@ -14,17 +14,12 @@
     limitations under the License.
 */
 
-#ifndef _GYR_MAIN_H_
-#define _GYR_MAIN_H_
+#ifndef _BLINK_H_
+#define _BLINK_H_
 
-#include "ch.h"
 #include "hal.h"
 
-#include "i2c_sensors.h"
+extern THD_WORKING_AREA(waBlink, 128);
+THD_FUNCTION(thBlink, arg);
 
-extern int gyr_tmp;
-
-extern THD_WORKING_AREA(waGyr, 128);
-THD_FUNCTION(thGyr, arg);
-
-#endif /* _GYR_MAIN_H_ */
+#endif /* _BLINK_H_ */

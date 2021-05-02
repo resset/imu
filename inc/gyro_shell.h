@@ -14,8 +14,8 @@
     limitations under the License.
 */
 
-#ifndef _MAG_SHELL_H_
-#define _MAG_SHELL_H_
+#ifndef _GYRO_SHELL_H_
+#define _GYRO_SHELL_H_
 
 #include <string.h>
 
@@ -25,8 +25,8 @@
 #include "chprintf.h"
 #include "shell.h"
 
-#include "mag_main.h"
+#include "gyro.h"
 
-void cmd_mag(BaseSequentialStream *chp, int argc, char *argv[]);
+void cmd_gyr(BaseSequentialStream *chp, int argc, char *argv[]);
 
-#endif /* _MAG_SHELL_H_ */
+#endif /* _GYRO_SHELL_H_ */

@@ -17,12 +17,11 @@
 #include "ch.h"
 #include "hal.h"
 
-#include "system_main.h"
-#include "blink_main.h"
-#include "bar_main.h"
-#include "gyr_main.h"
-#include "mag_main.h"
-#include "shell_main.h"
+#include "system.h"
+#include "blink.h"
+#include "barometer.h"
+#include "gyro.h"
+#include "shell_init.h"
 
 int main(void)
 {
@@ -34,7 +33,6 @@ int main(void)
   chThdCreateStatic(waBlink, sizeof(waBlink), NORMALPRIO, thBlink, NULL);
   chThdCreateStatic(waBar, sizeof(waBar), NORMALPRIO, thBar, NULL);
   chThdCreateStatic(waGyr, sizeof(waGyr), NORMALPRIO, thGyr, NULL);
-  chThdCreateStatic(waMag, sizeof(waMag), NORMALPRIO, thMag, NULL);
   chThdCreateStatic(waShell, sizeof(waShell), NORMALPRIO, thShell, NULL);
 
   while (true) {

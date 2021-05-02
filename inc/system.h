@@ -14,19 +14,12 @@
     limitations under the License.
 */
 
-#ifndef _BAR_SHELL_H_
-#define _BAR_SHELL_H_
-
-#include <string.h>
+#ifndef _SYSTEM_H_
+#define _SYSTEM_H_
 
 #include "ch.h"
 #include "hal.h"
 
-#include "chprintf.h"
-#include "shell.h"
+void system_init(void);
 
-#include "bar_main.h"
-
-void cmd_bar(BaseSequentialStream *chp, int argc, char *argv[]);
-
-#endif /* _BAR_SHELL_H_ */
+#endif /* _SYSTEM_H_ */

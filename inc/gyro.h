@@ -14,29 +14,17 @@
     limitations under the License.
 */
 
-#include "mag_main.h"
+#ifndef _GYRO_H_
+#define _GYRO_H_
 
-int mag_tmp = 0;
+#include "ch.h"
+#include "hal.h"
 
-static void mag_init(void) {
-  return;
-}
+#include "i2c_sensors.h"
 
-static void mag_read(void) {
-  mag_tmp++;
+extern int gyr_tmp;
 
-  return;
-}
+extern THD_WORKING_AREA(waGyr, 128);
+THD_FUNCTION(thGyr, arg);
 
-THD_WORKING_AREA(waMag, 128);
-THD_FUNCTION(thMag, arg) {
-  (void)arg;
-  chRegSetThreadName("thMag");
-
-  mag_init();
-
-  while (true) {
-    mag_read();
-    chThdSleepMilliseconds(542);
-  }
-}
+#endif /* _GYRO_H_ */

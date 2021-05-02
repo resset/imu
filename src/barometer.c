@@ -14,7 +14,7 @@
     limitations under the License.
 */
 
-#include "bar_main.h"
+#include "barometer.h"
 
 uint16_t c[8]; /* Coefficient table.*/
 uint32_t d1;   /* Digital pressure value.*/

@@ -14,7 +14,7 @@
     limitations under the License.
 */
 
-#include "blink_main.h"
+#include "blink.h"
 
 THD_WORKING_AREA(waBlink, 128);
 THD_FUNCTION(thBlink, arg) {

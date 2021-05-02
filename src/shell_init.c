@@ -16,11 +16,10 @@
 */
 
 #include "shellconf.h"
-#include "shell_main.h"
+#include "shell_init.h"
 #include "shell_utils.h"
-#include "bar_shell.h"
-#include "gyr_shell.h"
-#include "mag_shell.h"
+#include "barometer_shell.h"
+#include "gyro_shell.h"
 
 SerialConfig serial_cfg = {
   115200,
@@ -36,7 +35,6 @@ static const ShellCommand commands[] = {
   {"threads", cmd_threads},
   {"bar", cmd_bar},
   {"gyr", cmd_gyr},
-  {"mag", cmd_mag},
   {NULL, NULL}
 };
 

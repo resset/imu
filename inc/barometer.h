@@ -14,12 +14,29 @@
     limitations under the License.
 */
 
-#ifndef _SYSTEM_MAIN_H_
-#define _SYSTEM_MAIN_H_
+#ifndef _BAROMETER_H_
+#define _BAROMETER_H_
 
 #include "ch.h"
 #include "hal.h"
 
-void system_init(void);
+#include "i2c_sensors.h"
+#include "ms5611.h"
 
-#endif /* _SYSTEM_MAIN_H_ */
+#define MS5611_I2C_ADDR MS5611_I2C_ADDR_LOW
+
+#define BAR_THREAD_STACK_SIZE 256
+
+extern uint16_t c[8];
+extern uint32_t d1;
+extern uint32_t d2;
+extern int32_t dt;
+extern int64_t temp;
+extern int64_t off;
+extern int64_t sens;
+extern int64_t p;
+
+extern THD_WORKING_AREA(waBar, BAR_THREAD_STACK_SIZE);
+THD_FUNCTION(thBar, arg);
+
+#endif /* _BAROMETER_H_ */

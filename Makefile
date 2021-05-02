@@ -118,17 +118,15 @@ LDSCRIPT= $(STARTUPLD)/STM32F407xG.ld
 # C sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
 CSRC = $(ALLCSRC) \
-       ./src/system_main.c \
-       ./src/blink_main.c \
+       ./src/system.c \
+       ./src/blink.c \
        ./src/shell_utils.c \
-       ./src/shell_main.c \
+       ./src/shell_init.c \
        ./src/i2c_sensors.c \
-       ./src/bar_main.c \
-       ./src/bar_shell.c \
-       ./src/gyr_main.c \
-       ./src/gyr_shell.c \
-       ./src/mag_main.c \
-       ./src/mag_shell.c \
+       ./src/barometer.c \
+       ./src/barometer_shell.c \
+       ./src/gyro.c \
+       ./src/gyro_shell.c \
        ./src/main.c
 
 # C++ sources that can be compiled in ARM or THUMB mode depending on the global
@@ -143,7 +141,7 @@ ASMXSRC = $(ALLXASMSRC)
 
 # Inclusion directories.
 INCDIR = $(CONFDIR) $(ALLINC) \
-         ./include
+         ./inc
 
 # Define C warning options here.
 CWARN = -Wall -Wextra -Wundef -Wstrict-prototypes

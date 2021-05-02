@@ -14,12 +14,19 @@
     limitations under the License.
 */
 
-#ifndef _BLINK_MAIN_H_
-#define _BLINK_MAIN_H_
+#ifndef _BAROMETER_SHELL_H_
+#define _BAROMETER_SHELL_H_
 
+#include <string.h>
+
+#include "ch.h"
 #include "hal.h"
 
-extern THD_WORKING_AREA(waBlink, 128);
-THD_FUNCTION(thBlink, arg);
+#include "chprintf.h"
+#include "shell.h"
 
-#endif /* _BLINK_MAIN_H_ */
+#include "barometer.h"
+
+void cmd_bar(BaseSequentialStream *chp, int argc, char *argv[]);
+
+#endif /* _BAROMETER_SHELL_H_ */

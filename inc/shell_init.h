@@ -14,19 +14,13 @@
     limitations under the License.
 */
 
-#ifndef _GYR_SHELL_H_
-#define _GYR_SHELL_H_
+#ifndef _SHELL_INIT_H_
+#define _SHELL_INIT_H_
 
-#include <string.h>
-
-#include "ch.h"
 #include "hal.h"
-
-#include "chprintf.h"
 #include "shell.h"
 
-#include "gyr_main.h"
+extern THD_WORKING_AREA(waShell, 128);
+THD_FUNCTION(thShell, arg);
 
-void cmd_gyr(BaseSequentialStream *chp, int argc, char *argv[]);
-
-#endif /* _GYR_SHELL_H_ */
+#endif /* _SHELL_INIT_H_ */

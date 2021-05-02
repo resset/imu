@@ -14,8 +14,8 @@
     limitations under the License.
 */
 
-#include "bar_main.h"
-#include "bar_shell.h"
+#include "barometer.h"
+#include "barometer_shell.h"
 
 void cmd_bar(BaseSequentialStream *chp, int argc, char *argv[]) {
 
