@@ -46,7 +46,7 @@ void cmd_threads(BaseSequentialStream *chp, int argc, char *argv[]) {
   do {
     chprintf(chp, "%15s %08lx %08lx %4lu %4lu %9s\r\n",
              (uint32_t)tp->name, (uint32_t)tp, (uint32_t)tp->ctx.sp,
-             (uint32_t)tp->prio, (uint32_t)(tp->refs - 1),
+             (uint32_t)tp->realprio, (uint32_t)(tp->refs - 1),
              states[tp->state]);
     tp = chRegNextThread(tp);
   } while (tp != NULL);
