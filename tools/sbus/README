@@ -1,3 +1,3 @@
 gcc -o sbus_decoder.out sbus_decoder.c
-stty -F /dev/ttyUSB0 230400
+stty -F /dev/ttyUSB0 230400 -brkint -icrnl -imaxbel -opost -isig -icanon -iexten -echo
 ./sbus_decoder /dev/ttyUSB0

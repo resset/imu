@@ -35,8 +35,6 @@ uint8_t sbus_decode_packet(uint8_t current_byte)
     if (current_byte == SBUS_HEADER && previous_byte == SBUS_FOOTER) {
       buffer[packet_length] = current_byte;
       packet_length++;
-    } else {
-      printf("x ");
     }
   } else {
     buffer[packet_length] = current_byte;
@@ -46,8 +44,6 @@ uint8_t sbus_decode_packet(uint8_t current_byte)
       packet_length = 0;
       if (current_byte == SBUS_FOOTER) {
         return 1;
-      } else {
-        printf("error ");
       }
     }
   }
@@ -73,12 +69,47 @@ int main(int argc, char **argv)
   int byte;
   while ((byte = fgetc(fhandle)) != EOF) {
     if (1u == sbus_decode_packet((uint8_t)byte)) {
-      uint8_t i = 0;
-      while (i < SBUS_PACKET_LENGTH) {
-        printf("%.2x ", buffer[i]);
-        i++;
+      // uint8_t i = 0;
+      // while (i < SBUS_PACKET_LENGTH) {
+      //   printf("%.2x ", buffer[i]);
+      //   i++;
+      // }
+      // printf("\n");
+
+      uint16_t channels[16];
+      uint8_t channel17, channel18, lost_frame, failsafe;
+
+      channels[0]  = buffer[1]       | ((uint16_t)buffer[2]  << 8  & 0x07FF);
+      channels[1]  = buffer[2]  >> 3 | ((uint16_t)buffer[3]  << 5  & 0x07FF);
+      channels[2]  = buffer[3]  >> 6 |  (uint16_t)buffer[4]  << 2
+                                     | ((uint16_t)buffer[5]  << 10 & 0x07FF);
+      channels[3]  = buffer[5]  >> 1 | ((uint16_t)buffer[6]  << 7  & 0x07FF);
+      channels[4]  = buffer[6]  >> 4 | ((uint16_t)buffer[7]  << 4  & 0x07FF);
+      channels[5]  = buffer[7]  >> 7 |  (uint16_t)buffer[8]  << 1
+                                     | ((uint16_t)buffer[9]  << 9  & 0x07FF);
+      channels[6]  = buffer[9]  >> 2 | ((uint16_t)buffer[10] << 6  & 0x07FF);
+      channels[7]  = buffer[10] >> 5 | ((uint16_t)buffer[11] << 3  & 0x07FF);
+      channels[8]  = buffer[12]      | ((uint16_t)buffer[13] << 8  & 0x07FF);
+      channels[9]  = buffer[13] >> 3 | ((uint16_t)buffer[14] << 5  & 0x07FF);
+      channels[10] = buffer[14] >> 6 |  (uint16_t)buffer[15] << 2
+                                     | ((uint16_t)buffer[16] << 10 & 0x07FF);
+      channels[11] = buffer[16] >> 1 | ((uint16_t)buffer[17] << 7  & 0x07FF);
+      channels[12] = buffer[17] >> 4 | ((uint16_t)buffer[18] << 4  & 0x07FF);
+      channels[13] = buffer[18] >> 7 |  (uint16_t)buffer[19] << 1
+                                     | ((uint16_t)buffer[20] << 9  & 0x07FF);
+      channels[14] = buffer[20] >> 2 | ((uint16_t)buffer[21] << 6  & 0x07FF);
+      channels[15] = buffer[21] >> 5 | ((uint16_t)buffer[22] << 3  & 0x07FF);
+
+      channel17 = buffer[23] & SBUS_CH17_MASK;
+      channel18 = buffer[23] & SBUS_CH18_MASK;
+      lost_frame = buffer[23] & SBUS_LOST_FRAME_MASK;
+      failsafe = buffer[23] & SBUS_FAILSAFE_MASK;
+
+      for (int i = 0; i < 16; i++) {
+        printf("%.4d ", channels[i]);
       }
-      printf("\n");
+      printf("ch17: %d ch18: %d lost_frame: %d failsafe: %d\n",
+             channel17, channel18, lost_frame, failsafe);
     }
   }
 
