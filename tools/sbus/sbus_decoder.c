@@ -11,14 +11,15 @@
 
 uint8_t buffer[SBUS_PACKET_LENGTH];
 
-// typedef struct {
-//   uint16_t channels[16];
-//   uint8_t channel17;
-//   uint8_t channel18;
+typedef struct {
+  uint16_t channels[16];
+  uint8_t channel17;
+  uint8_t channel18;
+  uint8_t lost_frame;
+  uint8_t failsafe;
+} sbus_state_t;
 
-// } sbus_state_t;
-
-// sbus_state_t sbus_state;
+sbus_state_t sbus_state;
 
 /*
  * This algorithm is meant to deliver frames as quick as possible.
@@ -76,40 +77,38 @@ int main(int argc, char **argv)
       // }
       // printf("\n");
 
-      uint16_t channels[16];
-      uint8_t channel17, channel18, lost_frame, failsafe;
+      sbus_state.channels[0]  = buffer[1]       | ((uint16_t)buffer[2]  << 8  & 0x07FF);
+      sbus_state.channels[1]  = buffer[2]  >> 3 | ((uint16_t)buffer[3]  << 5  & 0x07FF);
+      sbus_state.channels[2]  = buffer[3]  >> 6 |  (uint16_t)buffer[4]  << 2
+                                                | ((uint16_t)buffer[5]  << 10 & 0x07FF);
+      sbus_state.channels[3]  = buffer[5]  >> 1 | ((uint16_t)buffer[6]  << 7  & 0x07FF);
+      sbus_state.channels[4]  = buffer[6]  >> 4 | ((uint16_t)buffer[7]  << 4  & 0x07FF);
+      sbus_state.channels[5]  = buffer[7]  >> 7 |  (uint16_t)buffer[8]  << 1
+                                                | ((uint16_t)buffer[9]  << 9  & 0x07FF);
+      sbus_state.channels[6]  = buffer[9]  >> 2 | ((uint16_t)buffer[10] << 6  & 0x07FF);
+      sbus_state.channels[7]  = buffer[10] >> 5 | ((uint16_t)buffer[11] << 3  & 0x07FF);
+      sbus_state.channels[8]  = buffer[12]      | ((uint16_t)buffer[13] << 8  & 0x07FF);
+      sbus_state.channels[9]  = buffer[13] >> 3 | ((uint16_t)buffer[14] << 5  & 0x07FF);
+      sbus_state.channels[10] = buffer[14] >> 6 |  (uint16_t)buffer[15] << 2
+                                                | ((uint16_t)buffer[16] << 10 & 0x07FF);
+      sbus_state.channels[11] = buffer[16] >> 1 | ((uint16_t)buffer[17] << 7  & 0x07FF);
+      sbus_state.channels[12] = buffer[17] >> 4 | ((uint16_t)buffer[18] << 4  & 0x07FF);
+      sbus_state.channels[13] = buffer[18] >> 7 |  (uint16_t)buffer[19] << 1
+                                                | ((uint16_t)buffer[20] << 9  & 0x07FF);
+      sbus_state.channels[14] = buffer[20] >> 2 | ((uint16_t)buffer[21] << 6  & 0x07FF);
+      sbus_state.channels[15] = buffer[21] >> 5 | ((uint16_t)buffer[22] << 3  & 0x07FF);
 
-      channels[0]  = buffer[1]       | ((uint16_t)buffer[2]  << 8  & 0x07FF);
-      channels[1]  = buffer[2]  >> 3 | ((uint16_t)buffer[3]  << 5  & 0x07FF);
-      channels[2]  = buffer[3]  >> 6 |  (uint16_t)buffer[4]  << 2
-                                     | ((uint16_t)buffer[5]  << 10 & 0x07FF);
-      channels[3]  = buffer[5]  >> 1 | ((uint16_t)buffer[6]  << 7  & 0x07FF);
-      channels[4]  = buffer[6]  >> 4 | ((uint16_t)buffer[7]  << 4  & 0x07FF);
-      channels[5]  = buffer[7]  >> 7 |  (uint16_t)buffer[8]  << 1
-                                     | ((uint16_t)buffer[9]  << 9  & 0x07FF);
-      channels[6]  = buffer[9]  >> 2 | ((uint16_t)buffer[10] << 6  & 0x07FF);
-      channels[7]  = buffer[10] >> 5 | ((uint16_t)buffer[11] << 3  & 0x07FF);
-      channels[8]  = buffer[12]      | ((uint16_t)buffer[13] << 8  & 0x07FF);
-      channels[9]  = buffer[13] >> 3 | ((uint16_t)buffer[14] << 5  & 0x07FF);
-      channels[10] = buffer[14] >> 6 |  (uint16_t)buffer[15] << 2
-                                     | ((uint16_t)buffer[16] << 10 & 0x07FF);
-      channels[11] = buffer[16] >> 1 | ((uint16_t)buffer[17] << 7  & 0x07FF);
-      channels[12] = buffer[17] >> 4 | ((uint16_t)buffer[18] << 4  & 0x07FF);
-      channels[13] = buffer[18] >> 7 |  (uint16_t)buffer[19] << 1
-                                     | ((uint16_t)buffer[20] << 9  & 0x07FF);
-      channels[14] = buffer[20] >> 2 | ((uint16_t)buffer[21] << 6  & 0x07FF);
-      channels[15] = buffer[21] >> 5 | ((uint16_t)buffer[22] << 3  & 0x07FF);
-
-      channel17 = buffer[23] & SBUS_CH17_MASK;
-      channel18 = buffer[23] & SBUS_CH18_MASK;
-      lost_frame = buffer[23] & SBUS_LOST_FRAME_MASK;
-      failsafe = buffer[23] & SBUS_FAILSAFE_MASK;
+      sbus_state.channel17 = buffer[23] & SBUS_CH17_MASK ? 1 : 0;
+      sbus_state.channel18 = buffer[23] & SBUS_CH18_MASK ? 1 : 0;
+      sbus_state.lost_frame = buffer[23] & SBUS_LOST_FRAME_MASK ? 1 : 0;
+      sbus_state.failsafe = buffer[23] & SBUS_FAILSAFE_MASK ? 1 : 0;
 
       for (int i = 0; i < 16; i++) {
-        printf("%.4d ", channels[i]);
+        printf("%.4d ", sbus_state.channels[i]);
       }
       printf("ch17: %d ch18: %d lost_frame: %d failsafe: %d\n",
-             channel17, channel18, lost_frame, failsafe);
+             sbus_state.channel17, sbus_state.channel18,
+             sbus_state.lost_frame, sbus_state.failsafe);
     }
   }
 
