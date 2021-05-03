@@ -127,6 +127,8 @@ CSRC = $(ALLCSRC) \
        ./src/barometer_shell.c \
        ./src/gyro.c \
        ./src/gyro_shell.c \
+       ./src/sbus.c \
+       ./src/sbus_shell.c \
        ./src/main.c
 
 # C++ sources that can be compiled in ARM or THUMB mode depending on the global
