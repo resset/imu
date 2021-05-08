@@ -31,7 +31,7 @@
 #define SBUS_LOST_FRAME_MASK 0x04
 #define SBUS_FAILSAFE_MASK   0x08
 
-uint8_t buffer[SBUS_PACKET_LENGTH];
+static uint8_t buffer[SBUS_PACKET_LENGTH];
 
 typedef struct {
   uint16_t channels[16];
@@ -42,6 +42,8 @@ typedef struct {
 } sbus_state_t;
 
 sbus_state_t sbus_state;
+
+static semaphore_t sbus_packet_semaphore;
 
 /*
  * This algorithm is meant to deliver frames as quick as possible.
@@ -75,25 +77,12 @@ uint8_t sbus_decode_packet(uint8_t current_byte)
 }
 
 /*
- * This callback is invoked on a receive error, the errors mask is passed
- * as parameter.
- */
-static void rxerr(UARTDriver *uartp, uartflags_t e)
-{
-  (void)uartp;
-  (void)e;
-}
-
-/*
  * This callback is invoked when a character is received but the application
  * was not ready to receive it, the character is passed as parameter.
  */
 static void rxchar(UARTDriver *uartp, uint16_t c)
 {
   (void)uartp;
-
-  char a[1] = {(char)c};
-  uartStartSend(&UARTD6, 1, a);
 
   if (sbus_decode_packet((uint8_t)c)) {
     sbus_state.channels[0]  = buffer[1]       | ((uint16_t)buffer[2]  << 8  & 0x07FF);
@@ -122,74 +111,20 @@ static void rxchar(UARTDriver *uartp, uint16_t c)
     sbus_state.lost_frame = buffer[23] & SBUS_LOST_FRAME_MASK ? 1 : 0;
     sbus_state.failsafe = buffer[23] & SBUS_FAILSAFE_MASK ? 1 : 0;
 
-    uint16_t position;
-    position = (uint16_t)(0.638 * sbus_state.channels[0] + 857.0);
-    servoSetValue(&servos[0], position);
-    position = (uint16_t)(0.638 * sbus_state.channels[1] + 857.0);
-    servoSetValue(&servos[1], position);
-    position = (uint16_t)(0.638 * sbus_state.channels[2] + 857.0);
-    servoSetValue(&servos[2], position);
-    position = (uint16_t)(0.638 * sbus_state.channels[3] + 857.0);
-    servoSetValue(&servos[3], position);
+    chSemSignal(&sbus_packet_semaphore);
   }
 }
 
-/*
- * This callback is invoked when a receive buffer has been completely written.
- */
-static void rxend(UARTDriver *uartp)
-{
-  (void)uartp;
-}
-
-/*
- * This callback is invoked when configured timeout reached.
- */
-static void rxtimeout(UARTDriver *uartp)
-{
-  (void)uartp;
-}
-
 static UARTConfig uart_cfg = {
-  NULL,
-  NULL,
-  rxend,
+  NULL, /* txend1_cb */
+  NULL, /* txend1_cb */
+  NULL, /* rxend_cb */
   rxchar,
-  rxerr,
-  rxtimeout,
+  NULL, /* rxerr_cb */
+  NULL, /* rxtimeout_cb */
   100000,
   USART_CR1_PCE, /* PS bit cleared means even parity.*/
   USART_CR2_STOP_1,
-  0
-};
-
-/*
- * This callback is invoked when a transmission buffer has been completely
- * read by the driver.
- */
-static void txend1(UARTDriver *uartp)
-{
-  (void)uartp;
-}
-
-/*
- * This callback is invoked when a transmission has physically completed.
- */
-static void txend2(UARTDriver *uartp)
-{
-  (void)uartp;
-}
-
-static UARTConfig uart6_cfg = {
-  txend1,
-  txend2,
-  NULL,
-  NULL,
-  NULL,
-  NULL,
-  230400,
-  0,
-  0,
   0
 };
 
@@ -197,8 +132,6 @@ static void sbus_init(void)
 {
   uartStart(&UARTD3, &uart_cfg);
   palSetPadMode(GPIOD, 9, PAL_MODE_ALTERNATE(7));
-  uartStart(&UARTD6, &uart6_cfg);
-  palSetPadMode(GPIOC, 6, PAL_MODE_ALTERNATE(8));
 }
 
 THD_WORKING_AREA(waSbus, 128);
@@ -206,13 +139,26 @@ THD_FUNCTION(thSbus, arg)
 {
   (void)arg;
 
+  uint16_t position;
+
   chRegSetThreadName("thSbus");
+
+  chSemObjectInit(&sbus_packet_semaphore, 0);
 
   sbus_init();
 
   while (true) {
-    // wait for semaphore here
-    chThdSleepMilliseconds(666);
+    msg_t msg = chSemWait(&sbus_packet_semaphore);
+    if (msg == MSG_OK) {
+      position = (uint16_t)(0.638 * sbus_state.channels[0] + 857.0);
+      servoSetValue(&servos[0], position);
+      position = (uint16_t)(0.638 * sbus_state.channels[1] + 857.0);
+      servoSetValue(&servos[1], position);
+      position = (uint16_t)(0.638 * sbus_state.channels[2] + 857.0);
+      servoSetValue(&servos[2], position);
+      position = (uint16_t)(0.638 * sbus_state.channels[3] + 857.0);
+      servoSetValue(&servos[3], position);
+    }
   }
 }
 
