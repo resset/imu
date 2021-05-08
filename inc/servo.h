@@ -17,13 +17,8 @@
 #ifndef _SERVO_H_
 #define _SERVO_H_
 
-#include <string.h>
-
 #include "ch.h"
 #include "hal.h"
-
-#include "chprintf.h"
-#include "shell.h"
 
 typedef struct ServoPWM_t {
   PWMDriver *pwm_driver;

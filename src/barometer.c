@@ -16,6 +16,12 @@
 
 #include <string.h>
 
+#include "ch.h"
+#include "hal.h"
+#include "chprintf.h"
+
+#include "ms5611.h"
+#include "i2c_sensors.h"
 #include "barometer.h"
 
 uint16_t c[8]; /* Coefficient table.*/

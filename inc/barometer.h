@@ -20,10 +20,6 @@
 #include "ch.h"
 #include "hal.h"
 
-#include "chprintf.h"
-#include "shell.h"
-
-#include "i2c_sensors.h"
 #include "ms5611.h"
 
 #define MS5611_I2C_ADDR MS5611_I2C_ADDR_LOW

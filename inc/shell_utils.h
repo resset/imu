@@ -18,7 +18,6 @@
 #define _SHELL_UTILS_H_
 
 #include "hal.h"
-#include "chprintf.h"
 
 void shellcmd_about(BaseSequentialStream *chp, int argc, char *argv[]);
 void shellcmd_reset(BaseSequentialStream *chp, int argc, char *argv[]);

@@ -17,7 +17,7 @@
 #ifndef _BLINK_H_
 #define _BLINK_H_
 
-#include "hal.h"
+#include "ch.h"
 
 extern THD_WORKING_AREA(waBlink, 128);
 THD_FUNCTION(thBlink, arg);

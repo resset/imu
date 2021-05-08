@@ -17,9 +17,6 @@
 #ifndef _I2C_SENSORS_H_
 #define _I2C_SENSORS_H_
 
-#include "ch.h"
-#include "hal.h"
-
 void i2c_sensors_init(void);
 
 #endif /* _I2C_SENSORS_H_ */

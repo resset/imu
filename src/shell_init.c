@@ -15,13 +15,17 @@
     limitations under the License.
 */
 
-#include "shellconf.h"
-#include "shell_init.h"
-#include "shell_utils.h"
+#include "ch.h"
+#include "hal.h"
+#include "shell.h"
+
 #include "barometer.h"
 #include "gyro.h"
 #include "sbus.h"
 #include "servo.h"
+#include "shellconf.h"
+#include "shell_utils.h"
+#include "shell_init.h"
 
 SerialConfig serial_cfg = {
   115200,

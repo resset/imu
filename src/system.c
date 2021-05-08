@@ -14,6 +14,7 @@
     limitations under the License.
 */
 
+#include "hal.h"
 #include "system.h"
 
 void system_init(void) {

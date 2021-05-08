@@ -14,6 +14,8 @@
     limitations under the License.
 */
 
+#include "hal.h"
+
 #include "i2c_sensors.h"
 
 const I2CConfig i2ccfg = {

@@ -16,8 +16,11 @@
 
 #include <string.h>
 
-#include "sbus.h"
+#include "ch.h"
+#include "hal.h"
 #include "chprintf.h"
+
+#include "sbus.h"
 #include "servo.h"
 
 #define SBUS_PACKET_LENGTH     25

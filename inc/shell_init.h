@@ -17,8 +17,7 @@
 #ifndef _SHELL_INIT_H_
 #define _SHELL_INIT_H_
 
-#include "hal.h"
-#include "shell.h"
+#include "ch.h"
 
 extern THD_WORKING_AREA(waShell, 128);
 THD_FUNCTION(thShell, arg);

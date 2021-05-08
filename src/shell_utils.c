@@ -15,6 +15,9 @@
     limitations under the License.
 */
 
+#include "hal.h"
+#include "chprintf.h"
+
 #include "shell_utils.h"
 
 void shellcmd_about(BaseSequentialStream *chp, int argc, char *argv[])

@@ -14,8 +14,13 @@
     limitations under the License.
 */
 
-#include "servo.h"
+#include <string.h>
+
+#include "ch.h"
+#include "hal.h"
 #include "chprintf.h"
+
+#include "servo.h"
 
 ServoPWM servos[] = {
   {

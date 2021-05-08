@@ -16,6 +16,10 @@
 
 #include <string.h>
 
+#include "ch.h"
+#include "hal.h"
+#include "chprintf.h"
+
 #include "gyro.h"
 
 int gyr_tmp = 0;
