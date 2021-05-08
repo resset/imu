@@ -20,8 +20,6 @@
 #include "ch.h"
 #include "hal.h"
 
-extern int gyr_tmp;
-
 extern THD_WORKING_AREA(waGyr, 128);
 THD_FUNCTION(thGyr, arg);
 

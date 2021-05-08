@@ -128,7 +128,8 @@ static void servo_read(void)
 }
 
 THD_WORKING_AREA(waServo, 128);
-THD_FUNCTION(thServo, arg) {
+THD_FUNCTION(thServo, arg)
+{
   (void)arg;
   chRegSetThreadName("thServo");
 
@@ -140,15 +141,15 @@ THD_FUNCTION(thServo, arg) {
   }
 }
 
-void shellcmd_servo(BaseSequentialStream *chp, int argc, char *argv[]) {
-
+void shellcmd_servo(BaseSequentialStream *chp, int argc, char *argv[])
+{
   if (argc == 0) {
     goto ERROR;
   }
 
   if (argc == 1) {
     if (strcmp(argv[0], "get") == 0) {
-      chprintf(chp, "got %d\r\n", 2);
+      chprintf(chp, "got %d\r\n", 777);
       return;
     } else if ((argc == 2) && (strcmp(argv[0], "set") == 0)) {
       chprintf(chp, "set\r\n");

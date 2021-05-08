@@ -61,10 +61,12 @@ static ShellConfig shell_cfg = {
 };
 
 THD_WORKING_AREA(waShell, 128);
-THD_FUNCTION(thShell, arg) {
+THD_FUNCTION(thShell, arg)
+{
+  (void)arg;
+
   thread_t *shelltp = NULL;
 
-  (void)arg;
   chRegSetThreadName("thShell");
 
   /*

@@ -26,7 +26,8 @@ const I2CConfig i2ccfg = {
 
 bool i2c_sensors_started = 0;
 
-void i2c_sensors_init(void) {
+void i2c_sensors_init(void)
+{
   if (!i2c_sensors_started) {
     /*
      * I2C initialization.

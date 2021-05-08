@@ -17,12 +17,14 @@
 #include "hal.h"
 #include "system.h"
 
-void system_init(void) {
+void system_init(void)
+{
   SCB->CCR |= 0x10;
   return;
 }
 
-void get_registers_from_stack(uint32_t *registers) {
+void get_registers_from_stack(uint32_t *registers)
+{
   volatile uint32_t r0;
   volatile uint32_t r1;
   volatile uint32_t r2;
@@ -54,7 +56,8 @@ void get_registers_from_stack(uint32_t *registers) {
   while (true);
 }
 
-void HardFaultVector(void) {
+void HardFaultVector(void)
+{
   __asm volatile
   (
     " tst lr, #4                                    \n"

@@ -20,8 +20,6 @@
 #include "ch.h"
 #include "hal.h"
 
-extern int sbus;
-
 extern THD_WORKING_AREA(waSbus, 128);
 THD_FUNCTION(thSbus, arg);
 

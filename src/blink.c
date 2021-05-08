@@ -20,8 +20,8 @@
 #include "blink.h"
 
 THD_WORKING_AREA(waBlink, 128);
-THD_FUNCTION(thBlink, arg) {
-
+THD_FUNCTION(thBlink, arg)
+{
   (void)arg;
   chRegSetThreadName("thBlink");
 

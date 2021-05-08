@@ -78,8 +78,8 @@ uint8_t sbus_decode_packet(uint8_t current_byte)
  * This callback is invoked on a receive error, the errors mask is passed
  * as parameter.
  */
-static void rxerr(UARTDriver *uartp, uartflags_t e) {
-
+static void rxerr(UARTDriver *uartp, uartflags_t e)
+{
   (void)uartp;
   (void)e;
 }
@@ -88,8 +88,8 @@ static void rxerr(UARTDriver *uartp, uartflags_t e) {
  * This callback is invoked when a character is received but the application
  * was not ready to receive it, the character is passed as parameter.
  */
-static void rxchar(UARTDriver *uartp, uint16_t c) {
-
+static void rxchar(UARTDriver *uartp, uint16_t c)
+{
   (void)uartp;
 
   char a[1] = {(char)c};
@@ -137,16 +137,16 @@ static void rxchar(UARTDriver *uartp, uint16_t c) {
 /*
  * This callback is invoked when a receive buffer has been completely written.
  */
-static void rxend(UARTDriver *uartp) {
-
+static void rxend(UARTDriver *uartp)
+{
   (void)uartp;
 }
 
 /*
  * This callback is invoked when configured timeout reached.
  */
-static void rxtimeout(UARTDriver *uartp) {
-
+static void rxtimeout(UARTDriver *uartp)
+{
   (void)uartp;
 }
 
@@ -167,16 +167,16 @@ static UARTConfig uart_cfg = {
  * This callback is invoked when a transmission buffer has been completely
  * read by the driver.
  */
-static void txend1(UARTDriver *uartp) {
-
+static void txend1(UARTDriver *uartp)
+{
   (void)uartp;
 }
 
 /*
  * This callback is invoked when a transmission has physically completed.
  */
-static void txend2(UARTDriver *uartp) {
-
+static void txend2(UARTDriver *uartp)
+{
   (void)uartp;
 }
 
@@ -193,19 +193,22 @@ static UARTConfig uart6_cfg = {
   0
 };
 
-static void sbus_init(void) {
+static void sbus_init(void)
+{
   uartStart(&UARTD3, &uart_cfg);
   palSetPadMode(GPIOD, 9, PAL_MODE_ALTERNATE(7));
   uartStart(&UARTD6, &uart6_cfg);
   palSetPadMode(GPIOC, 6, PAL_MODE_ALTERNATE(8));
 }
 
-static void sbus_read(void) {
+static void sbus_read(void)
+{
   return;
 }
 
 THD_WORKING_AREA(waSbus, 128);
-THD_FUNCTION(thSbus, arg) {
+THD_FUNCTION(thSbus, arg)
+{
   (void)arg;
   chRegSetThreadName("thSbus");
 
@@ -217,15 +220,15 @@ THD_FUNCTION(thSbus, arg) {
   }
 }
 
-void shellcmd_sbus(BaseSequentialStream *chp, int argc, char *argv[]) {
-
+void shellcmd_sbus(BaseSequentialStream *chp, int argc, char *argv[])
+{
   if (argc == 0) {
     goto ERROR;
   }
 
   if (argc == 1) {
     if (strcmp(argv[0], "get") == 0) {
-      chprintf(chp, "got %d\r\n", 2);
+      chprintf(chp, "got %d\r\n", 777);
       return;
     } else if ((argc == 2) && (strcmp(argv[0], "set") == 0)) {
       chprintf(chp, "set\r\n");

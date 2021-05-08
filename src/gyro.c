@@ -24,18 +24,19 @@
 
 int gyr_tmp = 0;
 
-static void gyr_init(void) {
+static void gyr_init(void)
+{
   return;
 }
 
-static void gyr_read(void) {
-  gyr_tmp++;
-
+static void gyr_read(void)
+{
   return;
 }
 
 THD_WORKING_AREA(waGyr, 128);
-THD_FUNCTION(thGyr, arg) {
+THD_FUNCTION(thGyr, arg)
+{
   (void)arg;
   chRegSetThreadName("thGyr");
 
@@ -47,15 +48,15 @@ THD_FUNCTION(thGyr, arg) {
   }
 }
 
-void shellcmd_gyro(BaseSequentialStream *chp, int argc, char *argv[]) {
-
+void shellcmd_gyro(BaseSequentialStream *chp, int argc, char *argv[])
+{
   if (argc == 0) {
     goto ERROR;
   }
 
   if (argc == 1) {
     if (strcmp(argv[0], "get") == 0) {
-      chprintf(chp, "got %d\r\n", gyr_tmp);
+      chprintf(chp, "got %d\r\n", 777);
       return;
     } else if ((argc == 2) && (strcmp(argv[0], "set") == 0)) {
       chprintf(chp, "set\r\n");

@@ -33,7 +33,8 @@ int64_t off;   /* Offset at actual temperature.*/
 int64_t sens;  /* Sensitivity at actual temperature.*/
 int64_t p;     /* Temperature compensated pressure.*/
 
-uint8_t ms5611_crc4(uint16_t n_prom[]) {
+uint8_t ms5611_crc4(uint16_t n_prom[])
+{
   uint16_t n_rem;
   uint16_t crc_read;
 
@@ -61,7 +62,8 @@ uint8_t ms5611_crc4(uint16_t n_prom[]) {
   return n_rem ^ 0x0;
 }
 
-static uint8_t bar_init(uint16_t coeff[]) {
+static uint8_t bar_init(uint16_t coeff[])
+{
   uint8_t txbuf[1];
   uint8_t rxbuf[2] = {0, 0};
   uint8_t crc_calculated;
@@ -122,7 +124,8 @@ static uint8_t bar_init(uint16_t coeff[]) {
   return 0;
 }
 
-static uint32_t get_adc_data(uint8_t command) {
+static uint32_t get_adc_data(uint8_t command)
+{
   uint8_t txbuf[1];
   uint8_t rxbuf[3] = {0, 0, 0};
 
@@ -157,8 +160,8 @@ static uint32_t get_adc_data(uint8_t command) {
   return (rxbuf[0] << 16) | (rxbuf[1] << 8) | rxbuf[2];
 }
 
-static void bar_read(void) {
-
+static void bar_read(void)
+{
   d1 = get_adc_data(MS5611_CMD_CONVERT_D1 | MS5611_CMD_CONVERT_1024);
   d2 = get_adc_data(MS5611_CMD_CONVERT_D2 | MS5611_CMD_CONVERT_1024);
 
@@ -194,7 +197,8 @@ static void bar_read(void) {
 }
 
 THD_WORKING_AREA(waBar, BAR_THREAD_STACK_SIZE);
-THD_FUNCTION(thBar, arg) {
+THD_FUNCTION(thBar, arg)
+{
   (void)arg;
 
   chRegSetThreadName("thBar");
@@ -208,8 +212,8 @@ THD_FUNCTION(thBar, arg) {
   }
 }
 
-void shellcmd_baro(BaseSequentialStream *chp, int argc, char *argv[]) {
-
+void shellcmd_baro(BaseSequentialStream *chp, int argc, char *argv[])
+{
   if (argc == 0) {
     goto ERROR;
   }
