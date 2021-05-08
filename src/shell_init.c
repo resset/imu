@@ -20,6 +20,8 @@
 #include "shell_utils.h"
 #include "barometer_shell.h"
 #include "gyro_shell.h"
+#include "sbus_shell.h"
+#include "servo.h"
 
 SerialConfig serial_cfg = {
   115200,
@@ -35,6 +37,8 @@ static const ShellCommand commands[] = {
   {"reset", cmd_reset},
   {"baro", cmd_baro},
   {"gyro", cmd_gyro},
+  {"sbus", cmd_sbus},
+  {"servo", cmd_servo},
   {NULL, NULL}
 };
 

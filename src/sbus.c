@@ -16,6 +16,7 @@
 
 #include "sbus.h"
 #include "chprintf.h"
+#include "servo.h"
 
 #define SBUS_PACKET_LENGTH     25
 #define SBUS_HEADER          0x0f
@@ -115,6 +116,16 @@ static void rxchar(UARTDriver *uartp, uint16_t c) {
     sbus_state.channel18 = buffer[23] & SBUS_CH18_MASK ? 1 : 0;
     sbus_state.lost_frame = buffer[23] & SBUS_LOST_FRAME_MASK ? 1 : 0;
     sbus_state.failsafe = buffer[23] & SBUS_FAILSAFE_MASK ? 1 : 0;
+
+    uint16_t position;
+    position = (uint16_t)(0.638 * sbus_state.channels[0] + 857.0);
+    servoSetValue(&servos[0], position);
+    position = (uint16_t)(0.638 * sbus_state.channels[1] + 857.0);
+    servoSetValue(&servos[1], position);
+    position = (uint16_t)(0.638 * sbus_state.channels[2] + 857.0);
+    servoSetValue(&servos[2], position);
+    position = (uint16_t)(0.638 * sbus_state.channels[3] + 857.0);
+    servoSetValue(&servos[3], position);
   }
 }
 

@@ -23,6 +23,7 @@
 #include "gyro.h"
 #include "sbus.h"
 #include "shell_init.h"
+#include "servo.h"
 
 int main(void)
 {
@@ -36,6 +37,7 @@ int main(void)
   chThdCreateStatic(waGyr, sizeof(waGyr), NORMALPRIO, thGyr, NULL);
   chThdCreateStatic(waSbus, sizeof(waSbus), NORMALPRIO, thSbus, NULL);
   chThdCreateStatic(waShell, sizeof(waShell), NORMALPRIO, thShell, NULL);
+  chThdCreateStatic(waServo, sizeof(waServo), NORMALPRIO, thServo, NULL);
 
   while (true) {
     chThdSleepMilliseconds(500);
