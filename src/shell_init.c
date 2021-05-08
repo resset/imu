@@ -18,9 +18,9 @@
 #include "shellconf.h"
 #include "shell_init.h"
 #include "shell_utils.h"
-#include "barometer_shell.h"
-#include "gyro_shell.h"
-#include "sbus_shell.h"
+#include "barometer.h"
+#include "gyro.h"
+#include "sbus.h"
 #include "servo.h"
 
 SerialConfig serial_cfg = {
@@ -33,12 +33,12 @@ SerialConfig serial_cfg = {
 #define SHELL_WA_SIZE THD_WORKING_AREA_SIZE(2048)
 
 static const ShellCommand commands[] = {
-  {"about", cmd_about},
-  {"reset", cmd_reset},
-  {"baro", cmd_baro},
-  {"gyro", cmd_gyro},
-  {"sbus", cmd_sbus},
-  {"servo", cmd_servo},
+  {"about", shellcmd_about},
+  {"reset", shellcmd_reset},
+  {"baro", shellcmd_baro},
+  {"gyro", shellcmd_gyro},
+  {"sbus", shellcmd_sbus},
+  {"servo", shellcmd_servo},
   {NULL, NULL}
 };
 

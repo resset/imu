@@ -45,6 +45,6 @@ extern ServoPWM servos[];
 extern THD_WORKING_AREA(waServo, 128);
 THD_FUNCTION(thServo, arg);
 
-void cmd_servo(BaseSequentialStream *chp, int argc, char *argv[]);
+void shellcmd_servo(BaseSequentialStream *chp, int argc, char *argv[]);
 
 #endif /* _SERVO_H_ */

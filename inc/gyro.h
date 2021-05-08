@@ -20,11 +20,16 @@
 #include "ch.h"
 #include "hal.h"
 
+#include "chprintf.h"
+#include "shell.h"
+
 #include "i2c_sensors.h"
 
 extern int gyr_tmp;
 
 extern THD_WORKING_AREA(waGyr, 128);
 THD_FUNCTION(thGyr, arg);
+
+void shellcmd_gyro(BaseSequentialStream *chp, int argc, char *argv[]);
 
 #endif /* _GYRO_H_ */

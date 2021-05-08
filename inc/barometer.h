@@ -20,6 +20,9 @@
 #include "ch.h"
 #include "hal.h"
 
+#include "chprintf.h"
+#include "shell.h"
+
 #include "i2c_sensors.h"
 #include "ms5611.h"
 
@@ -38,5 +41,7 @@ extern int64_t p;
 
 extern THD_WORKING_AREA(waBar, BAR_THREAD_STACK_SIZE);
 THD_FUNCTION(thBar, arg);
+
+void shellcmd_baro(BaseSequentialStream *chp, int argc, char *argv[]);
 
 #endif /* _BAROMETER_H_ */

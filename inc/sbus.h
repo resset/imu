@@ -19,6 +19,8 @@
 
 #include "ch.h"
 #include "hal.h"
+#include "chprintf.h"
+#include "shell.h"
 
 #include "i2c_sensors.h"
 
@@ -26,5 +28,7 @@ extern int sbus;
 
 extern THD_WORKING_AREA(waSbus, 128);
 THD_FUNCTION(thSbus, arg);
+
+void shellcmd_sbus(BaseSequentialStream *chp, int argc, char *argv[]);
 
 #endif /* _SBUS_H_ */

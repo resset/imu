@@ -14,6 +14,8 @@
     limitations under the License.
 */
 
+#include <string.h>
+
 #include "gyro.h"
 
 int gyr_tmp = 0;
@@ -39,4 +41,28 @@ THD_FUNCTION(thGyr, arg) {
     gyr_read();
     chThdSleepMilliseconds(321);
   }
+}
+
+void shellcmd_gyro(BaseSequentialStream *chp, int argc, char *argv[]) {
+
+  if (argc == 0) {
+    goto ERROR;
+  }
+
+  if (argc == 1) {
+    if (strcmp(argv[0], "get") == 0) {
+      chprintf(chp, "got %d\r\n", gyr_tmp);
+      return;
+    } else if ((argc == 2) && (strcmp(argv[0], "set") == 0)) {
+      chprintf(chp, "set\r\n");
+      return;
+    }
+  }
+
+ERROR:
+  chprintf(chp, "Usage: gyro get\r\n");
+  chprintf(chp, "       gyro set x\r\n");
+  chprintf(chp, "where x is something\r\n");
+  chprintf(chp, "and that's it\r\n");
+  return;
 }

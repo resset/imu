@@ -135,7 +135,7 @@ THD_FUNCTION(thServo, arg) {
   }
 }
 
-void cmd_servo(BaseSequentialStream *chp, int argc, char *argv[]) {
+void shellcmd_servo(BaseSequentialStream *chp, int argc, char *argv[]) {
 
   if (argc == 0) {
     goto ERROR;

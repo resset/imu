@@ -17,7 +17,7 @@
 
 #include "shell_utils.h"
 
-void cmd_about(BaseSequentialStream *chp, int argc, char *argv[])
+void shellcmd_about(BaseSequentialStream *chp, int argc, char *argv[])
 {
   (void)argv;
   (void)argc;
@@ -26,7 +26,7 @@ void cmd_about(BaseSequentialStream *chp, int argc, char *argv[])
   chprintf(chp, "TODO\r\n");
 }
 
-void cmd_reset(BaseSequentialStream *chp, int argc, char *argv[])
+void shellcmd_reset(BaseSequentialStream *chp, int argc, char *argv[])
 {
   (void)argv;
   (void)argc;

@@ -22,8 +22,8 @@
 #include "barometer.h"
 #include "gyro.h"
 #include "sbus.h"
-#include "shell_init.h"
 #include "servo.h"
+#include "shell_init.h"
 
 int main(void)
 {
@@ -36,8 +36,8 @@ int main(void)
   chThdCreateStatic(waBar, sizeof(waBar), NORMALPRIO, thBar, NULL);
   chThdCreateStatic(waGyr, sizeof(waGyr), NORMALPRIO, thGyr, NULL);
   chThdCreateStatic(waSbus, sizeof(waSbus), NORMALPRIO, thSbus, NULL);
-  chThdCreateStatic(waShell, sizeof(waShell), NORMALPRIO, thShell, NULL);
   chThdCreateStatic(waServo, sizeof(waServo), NORMALPRIO, thServo, NULL);
+  chThdCreateStatic(waShell, sizeof(waShell), NORMALPRIO, thShell, NULL);
 
   while (true) {
     chThdSleepMilliseconds(500);

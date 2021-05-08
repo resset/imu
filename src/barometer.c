@@ -14,6 +14,8 @@
     limitations under the License.
 */
 
+#include <string.h>
+
 #include "barometer.h"
 
 uint16_t c[8]; /* Coefficient table.*/
@@ -198,4 +200,43 @@ THD_FUNCTION(thBar, arg) {
     bar_read();
     chThdSleepMilliseconds(500);
   }
+}
+
+void shellcmd_baro(BaseSequentialStream *chp, int argc, char *argv[]) {
+
+  if (argc == 0) {
+    goto ERROR;
+  }
+
+  if (argc == 1) {
+    if (strcmp(argv[0], "get") == 0) {
+
+      chprintf(chp, "c1: %d\r\n", c[1]);
+      chprintf(chp, "c2: %d\r\n", c[2]);
+      chprintf(chp, "c3: %d\r\n", c[3]);
+      chprintf(chp, "c4: %d\r\n", c[4]);
+      chprintf(chp, "c5: %d\r\n", c[5]);
+      chprintf(chp, "c6: %d\r\n", c[6]);
+      chprintf(chp, "d1: %d\r\n", d1);
+      chprintf(chp, "d2: %d\r\n\r\n", d2);
+
+      chprintf(chp, "dt: %d\r\n", dt);
+      chprintf(chp, "temp: %d\r\n", temp);
+      chprintf(chp, "off: %LD\r\n", off);
+      chprintf(chp, "sens: %LD\r\n", sens);
+      chprintf(chp, "p: %LD\r\n", p);
+
+      return;
+    } else if ((argc == 2) && (strcmp(argv[0], "set") == 0)) {
+      chprintf(chp, "set\r\n");
+      return;
+    }
+  }
+
+ERROR:
+  chprintf(chp, "Usage: baro get\r\n");
+  chprintf(chp, "       baro set x\r\n");
+  chprintf(chp, "where x is something\r\n");
+  chprintf(chp, "and that's it\r\n");
+  return;
 }

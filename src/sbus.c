@@ -14,6 +14,8 @@
     limitations under the License.
 */
 
+#include <string.h>
+
 #include "sbus.h"
 #include "chprintf.h"
 #include "servo.h"
@@ -210,4 +212,28 @@ THD_FUNCTION(thSbus, arg) {
     sbus_read();
     chThdSleepMilliseconds(321);
   }
+}
+
+void shellcmd_sbus(BaseSequentialStream *chp, int argc, char *argv[]) {
+
+  if (argc == 0) {
+    goto ERROR;
+  }
+
+  if (argc == 1) {
+    if (strcmp(argv[0], "get") == 0) {
+      chprintf(chp, "got %d\r\n", 2);
+      return;
+    } else if ((argc == 2) && (strcmp(argv[0], "set") == 0)) {
+      chprintf(chp, "set\r\n");
+      return;
+    }
+  }
+
+ERROR:
+  chprintf(chp, "Usage: sbus get\r\n");
+  chprintf(chp, "       sbus set x\r\n");
+  chprintf(chp, "where x is something\r\n");
+  chprintf(chp, "and that's it\r\n");
+  return;
 }
