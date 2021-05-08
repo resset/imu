@@ -201,45 +201,27 @@ static void sbus_init(void)
   palSetPadMode(GPIOC, 6, PAL_MODE_ALTERNATE(8));
 }
 
-static void sbus_read(void)
-{
-  return;
-}
-
 THD_WORKING_AREA(waSbus, 128);
 THD_FUNCTION(thSbus, arg)
 {
   (void)arg;
+
   chRegSetThreadName("thSbus");
 
   sbus_init();
 
   while (true) {
-    sbus_read();
-    chThdSleepMilliseconds(321);
+    // wait for semaphore here
+    chThdSleepMilliseconds(666);
   }
 }
 
 void shellcmd_sbus(BaseSequentialStream *chp, int argc, char *argv[])
 {
-  if (argc == 0) {
-    goto ERROR;
-  }
+  (void)argc;
+  (void)argv;
 
-  if (argc == 1) {
-    if (strcmp(argv[0], "get") == 0) {
-      chprintf(chp, "got %d\r\n", 777);
-      return;
-    } else if ((argc == 2) && (strcmp(argv[0], "set") == 0)) {
-      chprintf(chp, "set\r\n");
-      return;
-    }
-  }
+  chprintf(chp, "sbus\r\n");
 
-ERROR:
-  chprintf(chp, "Usage: sbus get\r\n");
-  chprintf(chp, "       sbus set x\r\n");
-  chprintf(chp, "where x is something\r\n");
-  chprintf(chp, "and that's it\r\n");
   return;
 }
