@@ -24,7 +24,7 @@ const I2CConfig i2ccfg = {
   FAST_DUTY_CYCLE_2,
 };
 
-bool i2c_sensors_started = 0;
+bool i2c_sensors_started = false;
 
 void i2c_sensors_init(void)
 {
@@ -37,6 +37,8 @@ void i2c_sensors_init(void)
     palSetPadMode(GPIOB, 9, PAL_MODE_ALTERNATE(4) | PAL_STM32_OTYPE_OPENDRAIN); /* SDA */
 
     i2cStart(&I2CD1, &i2ccfg);
+
+    i2c_sensors_started = true;
   }
 
   return;

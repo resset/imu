@@ -119,11 +119,9 @@ static void servo_init(void)
 
 static void servo_read(void)
 {
-  static uint16_t position = 1500;
-
+  //static uint16_t position = 1500;
   //servoSetValue(&servos[0], position);
-  position = (position + 100) % 2000;
-
+  //position = (position + 100) % 2000;
   return;
 }
 
@@ -131,6 +129,7 @@ THD_WORKING_AREA(waServo, 128);
 THD_FUNCTION(thServo, arg)
 {
   (void)arg;
+
   chRegSetThreadName("thServo");
 
   servo_init();

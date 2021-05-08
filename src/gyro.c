@@ -38,6 +38,7 @@ THD_WORKING_AREA(waGyr, 128);
 THD_FUNCTION(thGyr, arg)
 {
   (void)arg;
+
   chRegSetThreadName("thGyr");
 
   gyr_init();
