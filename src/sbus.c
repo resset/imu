@@ -43,7 +43,7 @@ typedef struct {
 
 sbus_state_t sbus_state;
 
-static semaphore_t sbus_packet_semaphore;
+static binary_semaphore_t sbus_packet_bsem;
 
 /*
  * This algorithm is meant to deliver frames as quick as possible.
@@ -111,10 +111,12 @@ static void rxchar(UARTDriver *uartp, uint16_t c)
     sbus_state.lost_frame = buffer[23] & SBUS_LOST_FRAME_MASK ? 1 : 0;
     sbus_state.failsafe = buffer[23] & SBUS_FAILSAFE_MASK ? 1 : 0;
 
-    chSemSignal(&sbus_packet_semaphore);
+    chBSemSignal(&sbus_packet_bsem);
   }
 }
 
+/* SBUS specific UART configuration. Unbeknown to the firmware there is a logic
+   inverter (transistor) on the RX line. Yeah, SBUS is inverted.*/
 static UARTConfig uart_cfg = {
   NULL, /* txend1_cb */
   NULL, /* txend1_cb */
@@ -143,12 +145,12 @@ THD_FUNCTION(thSbus, arg)
 
   chRegSetThreadName("thSbus");
 
-  chSemObjectInit(&sbus_packet_semaphore, 0);
+  chBSemObjectInit(&sbus_packet_bsem, true);
 
   sbus_init();
 
   while (true) {
-    msg_t msg = chSemWait(&sbus_packet_semaphore);
+    msg_t msg = chBSemWait(&sbus_packet_bsem);
     if (msg == MSG_OK) {
       position = (uint16_t)(0.638 * sbus_state.channels[0] + 857.0);
       servoSetValue(&servos[0], position);
@@ -158,6 +160,7 @@ THD_FUNCTION(thSbus, arg)
       servoSetValue(&servos[2], position);
       position = (uint16_t)(0.638 * sbus_state.channels[3] + 857.0);
       servoSetValue(&servos[3], position);
+      chThdSleepMilliseconds(500);
     }
   }
 }
