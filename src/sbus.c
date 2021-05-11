@@ -160,7 +160,6 @@ THD_FUNCTION(thSbus, arg)
       servoSetValue(&servos[2], position);
       position = (uint16_t)(0.638 * sbus_state.channels[3] + 857.0);
       servoSetValue(&servos[3], position);
-      chThdSleepMilliseconds(500);
     }
   }
 }
@@ -170,7 +169,21 @@ void shellcmd_sbus(BaseSequentialStream *chp, int argc, char *argv[])
   (void)argc;
   (void)argv;
 
-  chprintf(chp, "sbus\r\n");
+  while (chnGetTimeout((BaseChannel *)chp, TIME_IMMEDIATE) == Q_TIMEOUT) {
+    chprintf(chp, "%4d %4d %4d %4d %4d %4d %4d %4d %4d %4d %4d %4d %4d %4d %4d %4d ",
+             sbus_state.channels[0], sbus_state.channels[1],
+             sbus_state.channels[2], sbus_state.channels[3],
+             sbus_state.channels[4], sbus_state.channels[5],
+             sbus_state.channels[6], sbus_state.channels[7],
+             sbus_state.channels[8], sbus_state.channels[9],
+             sbus_state.channels[10], sbus_state.channels[11],
+             sbus_state.channels[12], sbus_state.channels[13],
+             sbus_state.channels[14], sbus_state.channels[15]);
+    chprintf(chp, "ch17: %d ch18: %d lost_frame: %d failsafe: %d\r\n",
+             sbus_state.channel17, sbus_state.channel18,
+             sbus_state.lost_frame, sbus_state.failsafe);
+    chThdSleepMilliseconds(2);
+  }
 
   return;
 }
