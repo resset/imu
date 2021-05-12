@@ -141,14 +141,6 @@ static void servo_init(void)
   servoInit(&servos[3]);
 }
 
-static void servo_read(void)
-{
-  //static uint16_t position = 1500;
-  //servoSetValue(&servos[0], position);
-  //position = (position + 100) % 2000;
-  return;
-}
-
 THD_WORKING_AREA(waServo, 128);
 THD_FUNCTION(thServo, arg)
 {
@@ -159,7 +151,6 @@ THD_FUNCTION(thServo, arg)
   servo_init();
 
   while (true) {
-    servo_read();
     chThdSleepMilliseconds(1000);
   }
 }
