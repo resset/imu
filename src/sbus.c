@@ -152,6 +152,7 @@ THD_FUNCTION(thSbus, arg)
   while (true) {
     msg_t msg = chBSemWait(&sbus_packet_bsem);
     if (msg == MSG_OK) {
+      /* Example channel values change from 224 to 1759 for servos and up to 1793 for RSSI.*/
       position = (uint16_t)(0.638 * sbus_state.channels[0] + 857.0);
       servoPosition(&servos[0], position);
       position = (uint16_t)(0.638 * sbus_state.channels[1] + 857.0);
