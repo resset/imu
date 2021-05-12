@@ -133,14 +133,6 @@ void servoPosition(ServoPWM *servo, uint16_t position)
   pwmEnableChannel(servo->pwm_driver, servo->pwm_channel, (pwmcnt_t)servo->position);
 }
 
-static void servo_init(void)
-{
-  servoInit(&servos[0]);
-  servoInit(&servos[1]);
-  servoInit(&servos[2]);
-  servoInit(&servos[3]);
-}
-
 THD_WORKING_AREA(waServo, 128);
 THD_FUNCTION(thServo, arg)
 {
@@ -148,7 +140,10 @@ THD_FUNCTION(thServo, arg)
 
   chRegSetThreadName("thServo");
 
-  servo_init();
+  servoInit(&servos[0]);
+  servoInit(&servos[1]);
+  servoInit(&servos[2]);
+  servoInit(&servos[3]);
 
   while (true) {
     chThdSleepMilliseconds(1000);

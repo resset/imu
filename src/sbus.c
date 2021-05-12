@@ -130,12 +130,6 @@ static UARTConfig uart_cfg = {
   0
 };
 
-static void sbus_init(void)
-{
-  uartStart(&UARTD3, &uart_cfg);
-  palSetPadMode(GPIOD, 9, PAL_MODE_ALTERNATE(7));
-}
-
 THD_WORKING_AREA(waSbus, 128);
 THD_FUNCTION(thSbus, arg)
 {
@@ -147,7 +141,8 @@ THD_FUNCTION(thSbus, arg)
 
   chBSemObjectInit(&sbus_packet_bsem, true);
 
-  sbus_init();
+  uartStart(&UARTD3, &uart_cfg);
+  palSetPadMode(GPIOD, 9, PAL_MODE_ALTERNATE(7));
 
   while (true) {
     msg_t msg = chBSemWait(&sbus_packet_bsem);
