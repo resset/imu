@@ -26,16 +26,20 @@ typedef struct ServoPWM_t {
   ioportid_t port;
   ioportmask_t pin;
   iomode_t mode;
-  uint16_t min;
-  uint16_t max;
+  uint16_t min_position;
+  uint16_t max_position;
+  uint16_t position;
 } ServoPWM;
 
-void servoInit(ServoPWM *servo);
-void servoSetMin(ServoPWM *servo, uint16_t value);
-void servoSetMax(ServoPWM *servo, uint16_t value);
-void servoSetValue(ServoPWM *servo, uint16_t value);
-
 extern ServoPWM servos[];
+
+void servoInit(ServoPWM *servo);
+void servoSetMinPosition(ServoPWM *servo, uint16_t position);
+void servoSetMaxPosition(ServoPWM *servo, uint16_t position);
+void servoMax(ServoPWM *servo);
+void servoMin(ServoPWM *servo);
+void servoMiddle(ServoPWM *servo);
+void servoPosition(ServoPWM *servo, uint16_t position);
 
 extern THD_WORKING_AREA(waServo, 128);
 THD_FUNCTION(thServo, arg);

@@ -153,13 +153,13 @@ THD_FUNCTION(thSbus, arg)
     msg_t msg = chBSemWait(&sbus_packet_bsem);
     if (msg == MSG_OK) {
       position = (uint16_t)(0.638 * sbus_state.channels[0] + 857.0);
-      servoSetValue(&servos[0], position);
+      servoPosition(&servos[0], position);
       position = (uint16_t)(0.638 * sbus_state.channels[1] + 857.0);
-      servoSetValue(&servos[1], position);
+      servoPosition(&servos[1], position);
       position = (uint16_t)(0.638 * sbus_state.channels[2] + 857.0);
-      servoSetValue(&servos[2], position);
+      servoPosition(&servos[2], position);
       position = (uint16_t)(0.638 * sbus_state.channels[3] + 857.0);
-      servoSetValue(&servos[3], position);
+      servoPosition(&servos[3], position);
     }
   }
 }

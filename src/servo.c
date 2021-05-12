@@ -30,7 +30,8 @@ ServoPWM servos[] = {
     4,                     /* Pin PB4.*/
     PAL_MODE_ALTERNATE(2), /* AF 2.*/
     1000,                  /* Min value.*/
-    2000                   /* Max value.*/
+    2000,                  /* Max value.*/
+    1500                   /* Current value.*/
   },
   {
     &PWMD3,
@@ -39,7 +40,8 @@ ServoPWM servos[] = {
     5,
     PAL_MODE_ALTERNATE(2),
     1000,
-    2000
+    2000,
+    1500
   },
   {
     &PWMD3,
@@ -48,7 +50,8 @@ ServoPWM servos[] = {
     0,
     PAL_MODE_ALTERNATE(2),
     1000,
-    2000
+    2000,
+    1500
   },
   {
     &PWMD3,
@@ -57,7 +60,8 @@ ServoPWM servos[] = {
     1,
     PAL_MODE_ALTERNATE(2),
     1000,
-    2000
+    2000,
+    1500
   }
 };
 
@@ -77,36 +81,56 @@ static PWMConfig pwmcfg = {
 
 void servoInit(ServoPWM *servo)
 {
+  palSetPadMode(servo->port, servo->pin, servo->mode);
+
   PWMChannelConfig chcfg = {
     PWM_OUTPUT_ACTIVE_HIGH, /* Channel active logic level.*/
     NULL                    /* Channel callback pointer.*/
   };
-  pwmcfg.channels[servo->pwm_channel] = chcfg; // ?
-
-  palSetPadMode(servo->port, servo->pin, servo->mode);
-
+  /* Enable channel.*/
+  pwmcfg.channels[servo->pwm_channel] = chcfg;
   pwmStart(servo->pwm_driver, &pwmcfg);
+  if (servo->position > 0) {
+    servoPosition(servo, servo->position);
+  }
 }
 
-void servoSetValue(ServoPWM *servo, uint16_t value)
+void servoSetMaxPosition(ServoPWM *servo, uint16_t position)
 {
-  if (value > servo->max) {
-    value = servo->max;
-  } else if (value < servo->min) {
-    value = servo->min;
+  servo->max_position = position;
+}
+
+void servoSetMinPosition(ServoPWM *servo, uint16_t position)
+{
+  servo->min_position = position;
+}
+
+void servoMax(ServoPWM *servo)
+{
+  servoPosition(servo, servo->max_position);
+}
+
+void servoMin(ServoPWM *servo)
+{
+  servoPosition(servo, servo->min_position);
+}
+
+void servoMiddle(ServoPWM *servo)
+{
+  servoPosition(servo, (servo->max_position + servo->min_position) / 2);
+}
+
+void servoPosition(ServoPWM *servo, uint16_t position)
+{
+  if (position > servo->max_position) {
+    servo->position = servo->max_position;
+  } else if (position < servo->min_position) {
+    servo->position = servo->min_position;
+  } else {
+    servo->position = position;
   }
 
-  pwmEnableChannel(servo->pwm_driver, servo->pwm_channel, (pwmcnt_t)value);
-}
-
-void servoSetMax(ServoPWM *servo, uint16_t value)
-{
-  servo->max = value;
-}
-
-void servoSetMin(ServoPWM *servo, uint16_t value)
-{
-  servo->min = value;
+  pwmEnableChannel(servo->pwm_driver, servo->pwm_channel, (pwmcnt_t)servo->position);
 }
 
 static void servo_init(void)
