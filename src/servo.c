@@ -166,24 +166,13 @@ THD_FUNCTION(thServo, arg)
 
 void shellcmd_servo(BaseSequentialStream *chp, int argc, char *argv[])
 {
-  if (argc == 0) {
-    goto ERROR;
-  }
+  (void)argc;
+  (void)argv;
 
-  if (argc == 1) {
-    if (strcmp(argv[0], "get") == 0) {
-      chprintf(chp, "got %d\r\n", 777);
-      return;
-    } else if ((argc == 2) && (strcmp(argv[0], "set") == 0)) {
-      chprintf(chp, "set\r\n");
-      return;
-    }
+  while (chnGetTimeout((BaseChannel *)chp, TIME_IMMEDIATE) == Q_TIMEOUT) {
+    chprintf(chp, "%4d %4d %4d %4d\r\n",
+             servos[0].position, servos[1].position,
+             servos[2].position, servos[3].position);
+    chThdSleepMilliseconds(2);
   }
-
-ERROR:
-  chprintf(chp, "Usage: servo get\r\n");
-  chprintf(chp, "       servo set x\r\n");
-  chprintf(chp, "where x is something\r\n");
-  chprintf(chp, "and that's it\r\n");
-  return;
 }
