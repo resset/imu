@@ -20,8 +20,8 @@
 #include "ch.h"
 #include "hal.h"
 
-extern THD_WORKING_AREA(waGyr, 128);
-THD_FUNCTION(thGyr, arg);
+extern THD_WORKING_AREA(waGyro, 128);
+THD_FUNCTION(thGyro, arg);
 
 void shellcmd_gyro(BaseSequentialStream *chp, int argc, char *argv[]);
 

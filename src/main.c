@@ -33,8 +33,8 @@ int main(void)
   system_init();
 
   chThdCreateStatic(waBlink, sizeof(waBlink), NORMALPRIO, thBlink, NULL);
-  chThdCreateStatic(waBar, sizeof(waBar), NORMALPRIO, thBar, NULL);
-  chThdCreateStatic(waGyr, sizeof(waGyr), NORMALPRIO, thGyr, NULL);
+  //chThdCreateStatic(waBar, sizeof(waBar), NORMALPRIO, thBar, NULL);
+  chThdCreateStatic(waGyro, sizeof(waGyro), NORMALPRIO, thGyro, NULL);
   chThdCreateStatic(waSbus, sizeof(waSbus), NORMALPRIO, thSbus, NULL);
   chThdCreateStatic(waServo, sizeof(waServo), NORMALPRIO, thServo, NULL);
   chThdCreateStatic(waShell, sizeof(waShell), NORMALPRIO, thShell, NULL);
