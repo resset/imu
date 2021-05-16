@@ -27,12 +27,13 @@
 #define MPU6050_ADDR MPU6050_ADDR_LOW
 
 typedef struct {
-  uint16_t accel_xout;
-  uint16_t accel_yout;
-  uint16_t accel_zout;
-  uint16_t gyro_xout;
-  uint16_t gyro_yout;
-  uint16_t gyro_zout;
+  int16_t accel_xout;
+  int16_t accel_yout;
+  int16_t accel_zout;
+  int16_t gyro_xout;
+  int16_t gyro_yout;
+  int16_t gyro_zout;
+  int16_t temp_out;
 } gyro_data_t;
 
 gyro_data_t gyro_data;
@@ -93,11 +94,18 @@ static void gyro_read(void)
   i2cAcquireBus(&I2CD1);
 
   txbuf[0] = 0x3B;
-  imu_transmit(txbuf, 1, rxbuf, 6);
+  imu_transmit(txbuf, 1, rxbuf, 14);
 
-  gyro_data.accel_xout = (((uint16_t)rxbuf[0]) << 8) | rxbuf[1];
-  gyro_data.accel_yout = (((uint16_t)rxbuf[2]) << 8) | rxbuf[3];
-  gyro_data.accel_zout = (((uint16_t)rxbuf[4]) << 8) | rxbuf[5];
+  gyro_data.accel_xout = (int16_t)(rxbuf[0] << 8 | rxbuf[1]);
+  gyro_data.accel_yout = (int16_t)(rxbuf[2] << 8 | rxbuf[3]);
+  gyro_data.accel_zout = (int16_t)(rxbuf[4] << 8 | rxbuf[5]);
+
+  /* Temperature in deg. C * 10 must be calculated.*/
+  gyro_data.temp_out = (int16_t)((int16_t)rxbuf[6] << 8 | rxbuf[7]) / 34 + 365;
+
+  gyro_data.gyro_xout = (int16_t)(rxbuf[8] << 8 | rxbuf[9]);
+  gyro_data.gyro_yout = (int16_t)(rxbuf[10] << 8 | rxbuf[11]);
+  gyro_data.gyro_zout = (int16_t)(rxbuf[12] << 8 | rxbuf[13]);
 
   i2cReleaseBus(&I2CD1);
 }
@@ -123,8 +131,10 @@ void shellcmd_gyro(BaseSequentialStream *chp, int argc, char *argv[])
   (void)argv;
 
   while (chnGetTimeout((BaseChannel *)chp, TIME_IMMEDIATE) == Q_TIMEOUT) {
-    chprintf(chp, "%6d %6d %6d\r\n",
-             gyro_data.accel_xout, gyro_data.accel_yout, gyro_data.accel_zout);
+    chprintf(chp, "%6d %6d %6d   %6d %6d %6d   %d\r\n",
+             gyro_data.accel_xout, gyro_data.accel_yout, gyro_data.accel_zout,
+             gyro_data.gyro_xout, gyro_data.gyro_yout, gyro_data.gyro_zout,
+             gyro_data.temp_out);
     chThdSleepMilliseconds(50);
   }
 }
