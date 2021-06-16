@@ -158,8 +158,7 @@ CPPWARN = -Wall -Wextra -Wundef
 #
 
 # List all user C define here, like -D_DEBUG=1
-# Remove for non revision X or Y devices.
-UDEFS = -DSTM32_ENFORCE_H7_REV_XY -DSHELL_CMD_TEST_ENABLED=FALSE -DSHELL_CONFIG_FILE
+UDEFS = -DSHELL_CMD_TEST_ENABLED=FALSE -DSHELL_CONFIG_FILE
 
 # Define ASM defines here
 UADEFS =
