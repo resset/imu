@@ -73,8 +73,8 @@ THD_FUNCTION(thShell, arg)
    * Initializes a serial driver.
    */
   sdStart(&SD2, &serial_cfg);
-  palSetPadMode(GPIOA, 2, PAL_MODE_ALTERNATE(7));
-  palSetPadMode(GPIOA, 3, PAL_MODE_ALTERNATE(7));
+  palSetPadMode(GPIOA, 2, PAL_MODE_ALTERNATE(7)); /* TX */
+  palSetPadMode(GPIOA, 3, PAL_MODE_ALTERNATE(7)); /* RX */
 
   /*
    * Shell manager initialization.
