@@ -69,10 +69,10 @@
  * Clock tree static settings.
  * Reading STM32 Reference Manual is required.
  */
-#define STM32_HSI_ENABLED                   TRUE
-#define STM32_LSI_ENABLED                   TRUE
-#define STM32_CSI_ENABLED                   TRUE
-#define STM32_HSI48_ENABLED                 TRUE
+#define STM32_HSI_ENABLED                   FALSE
+#define STM32_LSI_ENABLED                   FALSE
+#define STM32_CSI_ENABLED                   FALSE
+#define STM32_HSI48_ENABLED                 FALSE
 #define STM32_HSE_ENABLED                   TRUE
 #define STM32_LSE_ENABLED                   TRUE
 #define STM32_HSIDIV                        STM32_HSIDIV_DIV1
@@ -87,18 +87,18 @@
 #define STM32_PLL1_P_ENABLED                TRUE
 #define STM32_PLL1_Q_ENABLED                TRUE
 #define STM32_PLL1_R_ENABLED                TRUE
-#define STM32_PLL1_DIVM_VALUE               4
-#define STM32_PLL1_DIVN_VALUE               400
+#define STM32_PLL1_DIVM_VALUE               10
+#define STM32_PLL1_DIVN_VALUE               384
 #define STM32_PLL1_FRACN_VALUE              0
 #define STM32_PLL1_DIVP_VALUE               2
-#define STM32_PLL1_DIVQ_VALUE               16
+#define STM32_PLL1_DIVQ_VALUE               20
 #define STM32_PLL1_DIVR_VALUE               8
 #define STM32_PLL2_ENABLED                  TRUE
 #define STM32_PLL2_P_ENABLED                TRUE
 #define STM32_PLL2_Q_ENABLED                TRUE
 #define STM32_PLL2_R_ENABLED                TRUE
-#define STM32_PLL2_DIVM_VALUE               4
-#define STM32_PLL2_DIVN_VALUE               400
+#define STM32_PLL2_DIVM_VALUE               10
+#define STM32_PLL2_DIVN_VALUE               320
 #define STM32_PLL2_FRACN_VALUE              0
 #define STM32_PLL2_DIVP_VALUE               40
 #define STM32_PLL2_DIVQ_VALUE               8
@@ -107,8 +107,8 @@
 #define STM32_PLL3_P_ENABLED                TRUE
 #define STM32_PLL3_Q_ENABLED                TRUE
 #define STM32_PLL3_R_ENABLED                TRUE
-#define STM32_PLL3_DIVM_VALUE               4
-#define STM32_PLL3_DIVN_VALUE               400
+#define STM32_PLL3_DIVM_VALUE               10
+#define STM32_PLL3_DIVN_VALUE               320
 #define STM32_PLL3_FRACN_VALUE              0
 #define STM32_PLL3_DIVP_VALUE               8
 #define STM32_PLL3_DIVQ_VALUE               8
@@ -131,10 +131,10 @@
  * Peripherals clocks static settings.
  * Reading STM32 Reference Manual is required.
  */
-#define STM32_MCO1SEL                       STM32_MCO1SEL_HSI_CK
-#define STM32_MCO1PRE_VALUE                 4
-#define STM32_MCO2SEL                       STM32_MCO2SEL_SYS_CK
-#define STM32_MCO2PRE_VALUE                 4
+#define STM32_MCO1SEL                       STM32_MCO1SEL_HSE_CK
+#define STM32_MCO1PRE_VALUE                 5
+#define STM32_MCO2SEL                       STM32_MCO2SEL_HSE_CK
+#define STM32_MCO2PRE_VALUE                 5
 #define STM32_TIMPRE_ENABLE                 TRUE
 #define STM32_HRTIMSEL                      0
 #define STM32_STOPKERWUCK                   0
