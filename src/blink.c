@@ -28,8 +28,8 @@ THD_FUNCTION(thBlink, arg)
 
   while (true) {
     palClearPad(GPIOA, GPIOA_LED);
-    chThdSleepMilliseconds(1000);
+    chThdSleepMilliseconds(500);
     palSetPad(GPIOA, GPIOA_LED);
-    chThdSleepMilliseconds(1000);
+    chThdSleepMilliseconds(500);
   }
 }
