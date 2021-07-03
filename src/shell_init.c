@@ -51,7 +51,7 @@ char commands_buffer[SHELL_MAX_HIST_BUFF];
 #endif
 
 static ShellConfig shell_cfg = {
-  (BaseSequentialStream *)&SD2,
+  (BaseSequentialStream *)&SD3,
   commands
 #if (SHELL_USE_HISTORY == TRUE)
   ,
@@ -72,9 +72,9 @@ THD_FUNCTION(thShell, arg)
   /*
    * Initializes a serial driver.
    */
-  sdStart(&SD2, &serial_cfg);
-  palSetPadMode(GPIOA, 2, PAL_MODE_ALTERNATE(7)); /* TX */
-  palSetPadMode(GPIOA, 3, PAL_MODE_ALTERNATE(7)); /* RX */
+  sdStart(&SD3, &serial_cfg);
+  palSetPadMode(GPIOD, 8, PAL_MODE_ALTERNATE(7)); /* TX */
+  palSetPadMode(GPIOD, 9, PAL_MODE_ALTERNATE(7)); /* RX */
 
   /*
    * Shell manager initialization.
@@ -82,7 +82,7 @@ THD_FUNCTION(thShell, arg)
   shellInit();
 
   while (true) {
-    if (SD2.state == SD_READY) {
+    if (SD3.state == SD_READY) {
       shelltp = chThdCreateFromHeap(NULL, SHELL_WA_SIZE,
                                     "shell", NORMALPRIO + 1,
                                     shellThread, &shell_cfg);

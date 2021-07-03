@@ -141,7 +141,7 @@ THD_FUNCTION(thSbus, arg)
 
   chBSemObjectInit(&sbus_packet_bsem, true);
 
-  uartStart(&UARTD3, &uart_cfg);
+  uartStart(&UARTD2, &uart_cfg);
   palSetPadMode(GPIOD, 9, PAL_MODE_ALTERNATE(7));
 
   while (true) {
