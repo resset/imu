@@ -91,7 +91,7 @@
 #define STM32_PLL1_DIVN_VALUE               384
 #define STM32_PLL1_FRACN_VALUE              0
 #define STM32_PLL1_DIVP_VALUE               2
-#define STM32_PLL1_DIVQ_VALUE               20
+#define STM32_PLL1_DIVQ_VALUE               8
 #define STM32_PLL1_DIVR_VALUE               8
 #define STM32_PLL2_ENABLED                  TRUE
 #define STM32_PLL2_P_ENABLED                TRUE
@@ -100,7 +100,7 @@
 #define STM32_PLL2_DIVM_VALUE               10
 #define STM32_PLL2_DIVN_VALUE               320
 #define STM32_PLL2_FRACN_VALUE              0
-#define STM32_PLL2_DIVP_VALUE               40
+#define STM32_PLL2_DIVP_VALUE               8
 #define STM32_PLL2_DIVQ_VALUE               8
 #define STM32_PLL2_DIVR_VALUE               8
 #define STM32_PLL3_ENABLED                  TRUE
@@ -108,11 +108,11 @@
 #define STM32_PLL3_Q_ENABLED                TRUE
 #define STM32_PLL3_R_ENABLED                TRUE
 #define STM32_PLL3_DIVM_VALUE               10
-#define STM32_PLL3_DIVN_VALUE               320
+#define STM32_PLL3_DIVN_VALUE               288
 #define STM32_PLL3_FRACN_VALUE              0
-#define STM32_PLL3_DIVP_VALUE               8
-#define STM32_PLL3_DIVQ_VALUE               8
-#define STM32_PLL3_DIVR_VALUE               8
+#define STM32_PLL3_DIVP_VALUE               6
+#define STM32_PLL3_DIVQ_VALUE               6
+#define STM32_PLL3_DIVR_VALUE               15
 
 /*
  * Core clocks dynamic settings (can be changed at runtime).
@@ -155,7 +155,7 @@
 #define STM32_LPTIM1SEL                     STM32_LPTIM1SEL_PCLK1
 #define STM32_CECSEL                        STM32_CECSEL_LSE_CK
 #define STM32_USBSEL                        STM32_USBSEL_PLL1_Q_CK
-#define STM32_I2C123SEL                     STM32_I2C123SEL_PCLK1
+#define STM32_I2C123SEL                     STM32_I2C123SEL_PLL3_R_CK
 #define STM32_RNGSEL                        STM32_RNGSEL_HSI48_CK
 #define STM32_USART16SEL                    STM32_USART16SEL_PCLK2
 #define STM32_USART234578SEL                STM32_USART234578SEL_PCLK1

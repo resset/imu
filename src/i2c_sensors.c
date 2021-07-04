@@ -19,9 +19,11 @@
 #include "i2c_sensors.h"
 
 const I2CConfig i2ccfg = {
-  OPMODE_I2C,
-  400000,
-  FAST_DUTY_CYCLE_2,
+  STM32_TIMINGR_PRESC(0x0U) |
+  STM32_TIMINGR_SCLDEL(0x9U) | STM32_TIMINGR_SDADEL(0x0U) |
+  STM32_TIMINGR_SCLH(0x19U) | STM32_TIMINGR_SCLL(0x4BU),
+  0,
+  0
 };
 
 bool i2c_sensors_started = false;
@@ -32,9 +34,9 @@ void i2c_sensors_init(void)
     /*
      * I2C initialization.
      */
-    palSetPadMode(GPIOC, 13, PAL_MODE_INPUT | PAL_STM32_PUPDR_FLOATING);        /* TP IRQ */
-    palSetPadMode(GPIOB, 8, PAL_MODE_ALTERNATE(4) | PAL_STM32_OTYPE_OPENDRAIN); /* SCL */
-    palSetPadMode(GPIOB, 9, PAL_MODE_ALTERNATE(4) | PAL_STM32_OTYPE_OPENDRAIN); /* SDA */
+    /* palSetPadMode(GPIOC, 13, PAL_MODE_INPUT | PAL_STM32_PUPDR_FLOATING);        / * TP IRQ FIXME.*/
+    palSetPadMode(GPIOB, 6, PAL_MODE_ALTERNATE(4) | PAL_STM32_OTYPE_OPENDRAIN); /* SCL */
+    palSetPadMode(GPIOB, 7, PAL_MODE_ALTERNATE(4) | PAL_STM32_OTYPE_OPENDRAIN); /* SDA */
 
     i2cStart(&I2CD1, &i2ccfg);
 
