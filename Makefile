@@ -89,7 +89,7 @@ PROJECT = imu
 MCU  = cortex-m7
 
 # Imported source files and paths.
-CHIBIOS  := ../ChibiOS_20.3.3
+CHIBIOS  := ../ChibiOS_21.6.0
 CONFDIR  := ./cfg
 BUILDDIR := ./build
 DEPDIR   := ./.dep
@@ -105,7 +105,7 @@ include ./boards/DevEBox_H743/board.mk
 include $(CHIBIOS)/os/hal/osal/rt-nil/osal.mk
 # RTOS files (optional).
 include $(CHIBIOS)/os/rt/rt.mk
-include $(CHIBIOS)/os/common/ports/ARMCMx/compilers/GCC/mk/port_v7m.mk
+include $(CHIBIOS)/os/common/ports/ARMv7-M/compilers/GCC/mk/port.mk
 # Auto-build files in ./source recursively.
 include $(CHIBIOS)/tools/mk/autobuild.mk
 # Other files (optional).

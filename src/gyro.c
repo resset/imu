@@ -47,8 +47,8 @@ inline static void imu_transmit(uint8_t *txbuf, size_t txbuf_len, uint8_t *rxbuf
 
 static int gyro_init(void)
 {
-  __attribute__((aligned(32))) uint8_t txbuf[CACHE_SIZE_ALIGN(uint8_t, 2)];
-  __attribute__((aligned(32))) uint8_t rxbuf[CACHE_SIZE_ALIGN(uint8_t, 2)];
+  CC_ALIGN_DATA(32) uint8_t txbuf[CACHE_SIZE_ALIGN(uint8_t, 2)];
+  CC_ALIGN_DATA(32) uint8_t rxbuf[CACHE_SIZE_ALIGN(uint8_t, 2)];
 
   i2c_sensors_init();
   i2cAcquireBus(&I2CD1);
@@ -92,8 +92,8 @@ static int gyro_init(void)
 
 static void gyro_read(void)
 {
-  __attribute__((aligned(32))) uint8_t txbuf[CACHE_SIZE_ALIGN(uint8_t, 2)];
-  __attribute__((aligned(32))) uint8_t rxbuf[CACHE_SIZE_ALIGN(uint8_t, 24)];
+  CC_ALIGN_DATA(32) uint8_t txbuf[CACHE_SIZE_ALIGN(uint8_t, 2)];
+  CC_ALIGN_DATA(32) uint8_t rxbuf[CACHE_SIZE_ALIGN(uint8_t, 24)];
 
   i2cAcquireBus(&I2CD1);
 

@@ -76,6 +76,7 @@ static PWMConfig pwmcfg = {
     {PWM_OUTPUT_DISABLED, NULL} /* Up to PWM_CHANNELS.*/
   },       /* Channels configurations.*/
   0,       /* CR2.*/
+  0,       /* BDTR.*/
   0        /* DIER.*/
 };
 
