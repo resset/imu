@@ -36,7 +36,7 @@ int main(void)
   //chThdCreateStatic(waBar, sizeof(waBar), NORMALPRIO, thBar, NULL);
   chThdCreateStatic(waGyro, sizeof(waGyro), NORMALPRIO, thGyro, NULL);
   sbus_thread = chThdCreateStatic(waSbus, sizeof(waSbus), NORMALPRIO, thSbus, NULL);
-  //chThdCreateStatic(waServo, sizeof(waServo), NORMALPRIO, thServo, NULL);
+  chThdCreateStatic(waServo, sizeof(waServo), NORMALPRIO, thServo, NULL);
   chThdCreateStatic(waShell, sizeof(waShell), NORMALPRIO, thShell, NULL);
 
   while (true) {

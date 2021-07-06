@@ -26,8 +26,8 @@ ServoPWM servos[] = {
   {
     &PWMD3,                /* Timer 3.*/
     0,                     /* Channel 0.*/
-    GPIOB,                 /* Port B.*/
-    4,                     /* Pin PB4.*/
+    GPIOA,                 /* Port A.*/
+    6,                     /* Pin PA6.*/
     PAL_MODE_ALTERNATE(2), /* AF 2.*/
     1000,                  /* Min value.*/
     2000,                  /* Max value.*/
@@ -36,8 +36,8 @@ ServoPWM servos[] = {
   {
     &PWMD3,
     1,
-    GPIOB,
-    5,
+    GPIOA,
+    7,
     PAL_MODE_ALTERNATE(2),
     1000,
     2000,
