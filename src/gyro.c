@@ -40,12 +40,15 @@ gyro_data_t gyro_data;
 
 inline static void imu_transmit(uint8_t *txbuf, size_t txbuf_len, uint8_t *rxbuf, size_t rxbuf_len)
 {
+  cacheBufferFlush(txbuf, CACHE_SIZE_ALIGN(uint8_t, txbuf_len));
+  cacheBufferInvalidate(rxbuf, CACHE_SIZE_ALIGN(uint8_t, rxbuf_len));
   i2cMasterTransmitTimeout(&I2CD1, MPU6050_ADDR, txbuf, txbuf_len, rxbuf, rxbuf_len, TIME_INFINITE);
 }
 
 static int gyro_init(void)
 {
-  uint8_t txbuf[] = {0, 0}, rxbuf[] = {0, 0};
+  CC_ALIGN_DATA(32) uint8_t txbuf[CACHE_SIZE_ALIGN(uint8_t, 2)];
+  CC_ALIGN_DATA(32) uint8_t rxbuf[CACHE_SIZE_ALIGN(uint8_t, 2)];
 
   i2c_sensors_init();
   i2cAcquireBus(&I2CD1);
@@ -89,7 +92,8 @@ static int gyro_init(void)
 
 static void gyro_read(void)
 {
-  uint8_t txbuf[] = {0, 0}, rxbuf[24];
+  CC_ALIGN_DATA(32) uint8_t txbuf[CACHE_SIZE_ALIGN(uint8_t, 2)];
+  CC_ALIGN_DATA(32) uint8_t rxbuf[CACHE_SIZE_ALIGN(uint8_t, 24)];
 
   i2cAcquireBus(&I2CD1);
 

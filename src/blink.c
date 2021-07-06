@@ -27,25 +27,9 @@ THD_FUNCTION(thBlink, arg)
   chRegSetThreadName("thBlink");
 
   while (true) {
-    palClearPad(GPIOD, GPIOD_LED4);
-    palSetPad(GPIOD, GPIOD_LED3);
-    palSetPad(GPIOD, GPIOD_LED5);
-    palSetPad(GPIOD, GPIOD_LED6);
-    chThdSleepMilliseconds(300);
-    palSetPad(GPIOD, GPIOD_LED4);
-    palClearPad(GPIOD, GPIOD_LED3);
-    palSetPad(GPIOD, GPIOD_LED5);
-    palSetPad(GPIOD, GPIOD_LED6);
-    chThdSleepMilliseconds(300);
-    palSetPad(GPIOD, GPIOD_LED4);
-    palSetPad(GPIOD, GPIOD_LED3);
-    palClearPad(GPIOD, GPIOD_LED5);
-    palSetPad(GPIOD, GPIOD_LED6);
-    chThdSleepMilliseconds(300);
-    palSetPad(GPIOD, GPIOD_LED4);
-    palSetPad(GPIOD, GPIOD_LED3);
-    palSetPad(GPIOD, GPIOD_LED5);
-    palClearPad(GPIOD, GPIOD_LED6);
-    chThdSleepMilliseconds(300);
+    palClearPad(GPIOA, GPIOA_LED);
+    chThdSleepMilliseconds(500);
+    palSetPad(GPIOA, GPIOA_LED);
+    chThdSleepMilliseconds(500);
   }
 }

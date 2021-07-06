@@ -11,9 +11,9 @@
             "request": "launch",
             "type": "cortex-debug",
             "servertype": "openocd",
-            "device": "STM32F407VG",
+            "device": "STM32H743VI",
             "configFiles": [
-                "board/stm32f4discovery.cfg"
+                "./tools/openocd/devebox_h743vi_noreset.cfg"
             ],
             "runToEntryPoint": "main"
         }
