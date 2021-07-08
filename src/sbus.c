@@ -38,8 +38,6 @@
 
 thread_t *sbus_thread;
 
-static binary_semaphore_t rx_data_bsem;
-
 static uint8_t rxbuffer[SIO_FIFO_LENGTH];
 static uint8_t buffer[SBUS_PACKET_LENGTH];
 
@@ -180,8 +178,6 @@ THD_FUNCTION(thSbus, arg)
   size_t n;
 
   chRegSetThreadName("thSbus");
-
-  chBSemObjectInit(&rx_data_bsem, true);
 
   sioStart(&SIOD2, &sio2_config);
   sioStartOperation(&SIOD2, &sio2_operation);
