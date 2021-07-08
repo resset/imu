@@ -20,6 +20,11 @@
 void system_init(void)
 {
   SCB->CCR |= 0x10;
+
+  sdStart(&SD7, NULL);
+  palSetPadMode(GPIOE, 8, PAL_MODE_ALTERNATE(7)); /* TX */
+  palSetPadMode(GPIOE, 7, PAL_MODE_ALTERNATE(7)); /* RX */
+
   return;
 }
 
