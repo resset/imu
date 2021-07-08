@@ -23,6 +23,7 @@
 #include "gyro.h"
 #include "sbus.h"
 #include "servo.h"
+#include "gps.h"
 #include "shellconf.h"
 #include "shell_utils.h"
 #include "shell_init.h"
@@ -43,6 +44,7 @@ static const ShellCommand commands[] = {
   {"gyro", shellcmd_gyro},
   {"sbus", shellcmd_sbus},
   {"servo", shellcmd_servo},
+  {"gps", shellcmd_servo},
   {NULL, NULL}
 };
 

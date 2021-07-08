@@ -385,7 +385,7 @@
 #define STM32_SIO_USE_UART5                 FALSE
 #define STM32_SIO_USE_USART6                FALSE
 #define STM32_SIO_USE_UART7                 FALSE
-#define STM32_SIO_USE_UART8                 FALSE
+#define STM32_SIO_USE_UART8                 TRUE
 #define STM32_SIO_USE_LPUART1               FALSE
 
 /*

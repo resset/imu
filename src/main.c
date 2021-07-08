@@ -23,6 +23,7 @@
 #include "gyro.h"
 #include "sbus.h"
 #include "servo.h"
+#include "gps.h"
 #include "shell_init.h"
 
 int main(void)
@@ -37,6 +38,7 @@ int main(void)
   chThdCreateStatic(waGyro, sizeof(waGyro), NORMALPRIO, thGyro, NULL);
   sbus_thread = chThdCreateStatic(waSbus, sizeof(waSbus), NORMALPRIO, thSbus, NULL);
   chThdCreateStatic(waServo, sizeof(waServo), NORMALPRIO, thServo, NULL);
+  gps_thread = chThdCreateStatic(waGps, sizeof(waGps), NORMALPRIO, thGps, NULL);
   chThdCreateStatic(waShell, sizeof(waShell), NORMALPRIO, thShell, NULL);
 
   while (true) {
