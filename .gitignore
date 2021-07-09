@@ -1,4 +1,5 @@
 /.dep
 /.vscode/settings.json
 /build
+.venv
 *.out
