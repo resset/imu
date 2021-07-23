@@ -111,7 +111,7 @@ static int gyro_init(void)
   txbuf[1] = 0x10;
   imu_send(txbuf, 2);
 
-  /* Set low pass filter cutoff frequency (DLPF_CFG). We set 42 Hz.
+  /* Set low pass filter cutoff frequency (DLPF_CFG). We set 42 Hz for gyro.
    * NOTE: it is preferable not to use MPU's filter. External software
    * filter (eg. biquad) in embedded environment will have better performance.
    */
