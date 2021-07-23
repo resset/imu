@@ -45,6 +45,12 @@ inline static void imu_transmit(uint8_t *txbuf, size_t txbuf_len, uint8_t *rxbuf
   i2cMasterTransmitTimeout(&I2CD1, MPU6050_ADDR, txbuf, txbuf_len, rxbuf, rxbuf_len, TIME_INFINITE);
 }
 
+inline static void imu_send(uint8_t *txbuf, size_t txbuf_len)
+{
+  cacheBufferFlush(txbuf, CACHE_SIZE_ALIGN(uint8_t, txbuf_len));
+  i2cMasterTransmitTimeout(&I2CD1, MPU6050_ADDR, txbuf, txbuf_len, NULL, 0, TIME_INFINITE);
+}
+
 static int gyro_init(void)
 {
   CC_ALIGN_DATA(32) uint8_t txbuf[CACHE_SIZE_ALIGN(uint8_t, 2)];
@@ -58,7 +64,7 @@ static int gyro_init(void)
    */
   txbuf[0] = MPU6050_PWR_MGMT_1;
   txbuf[1] = 0x80;
-  imu_transmit(txbuf, 2, rxbuf, 0);
+  imu_send(txbuf, 2);
   chThdSleepMilliseconds(100);
   /* Here we check if the reset is done.*/
   do {
@@ -66,15 +72,16 @@ static int gyro_init(void)
     txbuf[0] = MPU6050_PWR_MGMT_1;
     imu_transmit(txbuf, 1, rxbuf, 1);
   } while (rxbuf[0] & 0x80);
-  /* LAst step is to reset analog to digital paths of all sensors.*/
+  /* Last step is to reset analog to digital paths of all sensors.*/
   txbuf[0] = MPU6050_SIGNAL_PATH_RESET;
   txbuf[1] = 0x07;
-  imu_transmit(txbuf, 2, rxbuf, 0);
+  imu_send(txbuf, 2);
   chThdSleepMilliseconds(100);
+
   /* Set clock source to gyro X.*/
   txbuf[0] = MPU6050_PWR_MGMT_1;
   txbuf[1] = 0x01;
-  imu_transmit(txbuf, 2, rxbuf, 0);
+  imu_send(txbuf, 2);
 
   /* Test for MPU6050.*/
   txbuf[0] = MPU6050_WHO_AM_I;
@@ -82,10 +89,11 @@ static int gyro_init(void)
 
   i2cReleaseBus(&I2CD1);
 
+  /* This should be a check of registers written.*/
   if (rxbuf[0] == 0x68) {
     return 0;
   } else {
-    // TODO: register fatal error, quit task
+    /* TODO: register fatal error, quit task.*/
     return 1;
   }
 }
