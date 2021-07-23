@@ -59,8 +59,8 @@ static int gyro_init(void)
   i2c_sensors_init();
   i2cAcquireBus(&I2CD1);
 
-  /* Reset MPU6050. Note: apparently this is needed for SPI connection in MPU6000 only,
-   * but it shouldn't hurt on I2C either.
+  /* Reset MPU6050. Note: apparently this is needed for SPI connection
+   * in MPU6000 only, but it shouldn't hurt on I2C either.
    */
   txbuf[0] = MPU6050_PWR_MGMT_1;
   txbuf[1] = 0x80;
@@ -83,6 +83,49 @@ static int gyro_init(void)
   txbuf[1] = 0x01;
   imu_send(txbuf, 2);
 
+  /* Disable standby modes.*/
+  txbuf[0] = MPU6050_PWR_MGMT_2;
+  txbuf[1] = 0x00;
+  imu_send(txbuf, 2);
+
+  /* Disable interrupts.*/
+  txbuf[0] = MPU6050_INT_ENABLE;
+  txbuf[1] = 0x00;
+  imu_send(txbuf, 2);
+
+  /* Disable FIFO.*/
+  txbuf[0] = MPU6050_FIFO_EN;
+  txbuf[1] = 0x00;
+  imu_send(txbuf, 2);
+  txbuf[0] = MPU6050_USER_CTRL;
+  txbuf[1] = 0x00;
+  imu_send(txbuf, 2);
+
+  /* Set gyroscope sensitivity to +/- 1000 deg/s.*/
+  txbuf[0] = MPU6050_GYRO_CONFIG;
+  txbuf[1] = 0x10;
+  imu_send(txbuf, 2);
+
+  /* Set accelerometer sensitivity to +/- 8 g.*/
+  txbuf[0] = MPU6050_ACCEL_CONFIG;
+  txbuf[1] = 0x10;
+  imu_send(txbuf, 2);
+
+  /* Set low pass filter cutoff frequency (DLPF_CFG). We set 42 Hz.
+   * NOTE: it is preferable not to use MPU's filter. External software
+   * filter (eg. biquad) in embedded environment will have better performance.
+   */
+  txbuf[0] = MPU6050_CONFIG;
+  txbuf[1] = 0x03;
+  imu_send(txbuf, 2);
+
+  /* Set data rate (if DLPF_CFG == 0 then 8 kHz is divided, otherwise 1 kHz).
+   * Since we use LPF, our data rate is 1 kHz.
+   */
+  txbuf[0] = MPU6050_SMPRT_DIV;
+  txbuf[1] = 0x00;
+  imu_send(txbuf, 2);
+
   /* Test for MPU6050.*/
   txbuf[0] = MPU6050_WHO_AM_I;
   imu_transmit(txbuf, 1, rxbuf, 1);
@@ -90,7 +133,7 @@ static int gyro_init(void)
   i2cReleaseBus(&I2CD1);
 
   /* This should be a check of registers written.*/
-  if (rxbuf[0] == 0x68) {
+  if (rxbuf[0] == MPU6050_WHO_AM_I_IDENTITY) {
     return 0;
   } else {
     /* TODO: register fatal error, quit task.*/

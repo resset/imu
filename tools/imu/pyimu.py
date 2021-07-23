@@ -66,10 +66,10 @@ def mpu_init():
     # Disable standby modes.
     bus.write_to(MPU6050_PWR_MGMT_2, b"\x00")
 
-    # Disable interrupts
+    # Disable interrupts.
     bus.write_to(MPU6050_INT_ENABLE, b"\x00")
 
-    # Disable FIFO
+    # Disable FIFO.
     bus.write_to(MPU6050_FIFO_EN, b"\x00")
     bus.write_to(MPU6050_USER_CTRL, b"\x00")
 
@@ -79,7 +79,7 @@ def mpu_init():
     # Set accelerometer sensitivity to +/- 8 g.
     bus.write_to(MPU6050_ACCEL_CONFIG, b"\x10")
 
-    # Set low pass filter cutoff frequency (DLPF_CFG). We set 42 Hz.
+    # Set low pass filter cutoff frequency (DLPF_CFG). We set 42 Hz for gyro.
     # NOTE: it is preferable not to use MPU's filter. External software
     # filter (eg. biquad) in embedded environment will have better performance.
     bus.write_to(MPU6050_CONFIG, b"\x03")
