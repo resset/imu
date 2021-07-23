@@ -20,11 +20,11 @@
 #include "hal.h"
 #include "chprintf.h"
 
-#include "gps.h"
+#include "gnss.h"
 
-thread_t *gps_thread;
+thread_t *gnss_thread;
 
-/* GPS specific SIO configuration. GPS serial parameters are:
+/* GNSS specific SIO configuration. GNSS serial parameters are:
  * - baud rate of 9600
  * - 8 data bits
  * - no parity
@@ -41,13 +41,13 @@ static SIOConfig sio8_config = {
 static void rxfifo(SIODriver *siop)
 {
   (void)siop;
-  chEvtSignalI(gps_thread, EVENT_MASK(1));
+  chEvtSignalI(gnss_thread, EVENT_MASK(1));
 }
 
 static void rxidle(SIODriver *siop)
 {
   (void)siop;
-  chEvtSignalI(gps_thread, EVENT_MASK(0));
+  chEvtSignalI(gnss_thread, EVENT_MASK(0));
 }
 
 static SIOOperation sio8_operation = {
@@ -58,22 +58,22 @@ static SIOOperation sio8_operation = {
   .rx_evt_cb  = NULL
 };
 
-THD_WORKING_AREA(waGps, 128);
-THD_FUNCTION(thGps, arg)
+THD_WORKING_AREA(waGnss, 128);
+THD_FUNCTION(thGnss, arg)
 {
   (void)arg;
 
   eventmask_t evt;
 
-  chRegSetThreadName("thGps");
+  chRegSetThreadName("thGnss");
 
   sioStart(&SIOD8, &sio8_config);
   sioStartOperation(&SIOD8, &sio8_operation);
   palSetPadMode(GPIOE, 1, PAL_MODE_ALTERNATE(8)); /* TX */
   palSetPadMode(GPIOE, 0, PAL_MODE_ALTERNATE(8)); /* RX */
 
-  /* This loop is suited to GPS transmission timing characteristics.
-     Its event processing expect GPS_PACKET_LENGTH bytes in a sequence,
+  /* This loop is suited to GNSS transmission timing characteristics.
+     Its event processing expect GNSS_PACKET_LENGTH bytes in a sequence,
      then an idle period on which it triggers packet processing. First idle
      event is used for synchronization.*/
   while (true) {
@@ -91,7 +91,7 @@ THD_FUNCTION(thGps, arg)
   }
 }
 
-void shellcmd_gps(BaseSequentialStream *chp, int argc, char *argv[])
+void shellcmd_gnss(BaseSequentialStream *chp, int argc, char *argv[])
 {
   (void)argc;
   (void)argv;

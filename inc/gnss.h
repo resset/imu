@@ -14,16 +14,16 @@
     limitations under the License.
 */
 
-#ifndef _GPS_H_
-#define _GPS_H_
+#ifndef _GNSS_H_
+#define _GNSS_H_
 
 #include "ch.h"
 #include "hal.h"
 
-extern THD_WORKING_AREA(waGps, 128);
-THD_FUNCTION(thGps, arg);
-extern thread_t *gps_thread;
+extern THD_WORKING_AREA(waGnss, 128);
+THD_FUNCTION(thGnss, arg);
+extern thread_t *gnss_thread;
 
-void shellcmd_gps(BaseSequentialStream *chp, int argc, char *argv[]);
+void shellcmd_gnss(BaseSequentialStream *chp, int argc, char *argv[]);
 
-#endif /* _GPS_H_ */
+#endif /* _GNSS_H_ */
