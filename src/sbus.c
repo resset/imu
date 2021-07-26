@@ -102,13 +102,17 @@ static SIOConfig sio2_config = {
 static void rxfifo(SIODriver *siop)
 {
   (void)siop;
+  chSysLockFromISR();
   chEvtSignalI(sbus_thread, EVT_DATA);
+  chSysUnlockFromISR();
 }
 
 static void rxidle(SIODriver *siop)
 {
   (void)siop;
+  chSysLockFromISR();
   chEvtSignalI(sbus_thread, EVT_RESET);
+  chSysUnlockFromISR();
 }
 
 static SIOOperation sio2_operation = {

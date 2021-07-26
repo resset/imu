@@ -41,13 +41,17 @@ static SIOConfig sio8_config = {
 static void rxfifo(SIODriver *siop)
 {
   (void)siop;
+  chSysLockFromISR();
   chEvtSignalI(gnss_thread, EVENT_MASK(1));
+  chSysUnlockFromISR();
 }
 
 static void rxidle(SIODriver *siop)
 {
   (void)siop;
+  chSysLockFromISR();
   chEvtSignalI(gnss_thread, EVENT_MASK(0));
+  chSysUnlockFromISR();
 }
 
 static SIOOperation sio8_operation = {
