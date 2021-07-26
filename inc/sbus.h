@@ -22,7 +22,6 @@
 
 extern THD_WORKING_AREA(waSbus, 128);
 THD_FUNCTION(thSbus, arg);
-extern thread_t *sbus_thread;
 
 void shellcmd_sbus(BaseSequentialStream *chp, int argc, char *argv[]);
 

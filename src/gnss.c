@@ -22,7 +22,7 @@
 
 #include "gnss.h"
 
-thread_t *gnss_thread;
+static thread_t *gnss_thread = NULL;
 
 /* GNSS specific SIO configuration. GNSS serial parameters are:
  * - baud rate of 9600
@@ -70,6 +70,7 @@ THD_FUNCTION(thGnss, arg)
   eventmask_t evt;
 
   chRegSetThreadName("thGnss");
+  gnss_thread = chThdGetSelfX();
 
   sioStart(&SIOD8, &sio8_config);
   sioStartOperation(&SIOD8, &sio8_operation);

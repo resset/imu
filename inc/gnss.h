@@ -22,7 +22,6 @@
 
 extern THD_WORKING_AREA(waGnss, 128);
 THD_FUNCTION(thGnss, arg);
-extern thread_t *gnss_thread;
 
 void shellcmd_gnss(BaseSequentialStream *chp, int argc, char *argv[]);
 

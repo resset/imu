@@ -36,9 +36,9 @@ int main(void)
   chThdCreateStatic(waBlink, sizeof(waBlink), NORMALPRIO, thBlink, NULL);
   //chThdCreateStatic(waBar, sizeof(waBar), NORMALPRIO, thBar, NULL);
   chThdCreateStatic(waGyro, sizeof(waGyro), NORMALPRIO, thGyro, NULL);
-  sbus_thread = chThdCreateStatic(waSbus, sizeof(waSbus), NORMALPRIO, thSbus, NULL);
+  chThdCreateStatic(waSbus, sizeof(waSbus), NORMALPRIO, thSbus, NULL);
   chThdCreateStatic(waServo, sizeof(waServo), NORMALPRIO, thServo, NULL);
-  gnss_thread = chThdCreateStatic(waGnss, sizeof(waGnss), NORMALPRIO, thGnss, NULL);
+  chThdCreateStatic(waGnss, sizeof(waGnss), NORMALPRIO, thGnss, NULL);
   chThdCreateStatic(waShell, sizeof(waShell), NORMALPRIO, thShell, NULL);
 
   while (true) {
