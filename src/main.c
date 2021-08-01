@@ -29,7 +29,12 @@ int main(void)
   /* Common functions start.*/
   system_init();
 
-  /* Create and start threads. From now on, all code execution is governed there.*/
+  /* Change main() thread priority to the lowest value.
+     This thread has no specific function.*/
+  chThdSetPriority(LOWPRIO);
+
+  /* Create and start threads. From now on, all code execution
+     is governed there.*/
   tasks_init();
 
   while (true) {

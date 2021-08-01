@@ -27,7 +27,7 @@
 
 void tasks_init(void)
 {
-  chThdCreateStatic(waBlink, sizeof(waBlink), LOWPRIO, thBlink, NULL);
+  chThdCreateStatic(waBlink, sizeof(waBlink), LOWPRIO + 1, thBlink, NULL);
   //chThdCreateStatic(waBar, sizeof(waBar), NORMALPRIO, thBar, NULL);
   chThdCreateStatic(waGyro, sizeof(waGyro), NORMALPRIO, thGyro, NULL);
   chThdCreateStatic(waSbus, sizeof(waSbus), NORMALPRIO, thSbus, NULL);
