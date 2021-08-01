@@ -14,27 +14,9 @@
     limitations under the License.
 */
 
-#include "ch.h"
-#include "hal.h"
+#ifndef _TASKS_H_
+#define _TASKS_H_
 
-#include "system.h"
-#include "tasks.h"
+void tasks_init(void);
 
-int main(void)
-{
-  /* HAL and RTOS initialization.*/
-  halInit();
-  chSysInit();
-
-  /* Common functions start.*/
-  system_init();
-
-  /* Create and start threads. From now on, all code execution is governed there.*/
-  tasks_init();
-
-  while (true) {
-    chThdSleepSeconds(10);
-  }
-
-  return 0;
-}
+#endif /* _TASKS_H_ */

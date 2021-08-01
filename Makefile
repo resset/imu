@@ -128,6 +128,7 @@ CSRC = $(ALLCSRC) \
        ./src/sbus.c \
        ./src/servo.c \
        ./src/gnss.c \
+       ./src/tasks.c \
        ./src/main.c
 
 # C++ sources that can be compiled in ARM or THUMB mode depending on the global

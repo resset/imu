@@ -15,26 +15,23 @@
 */
 
 #include "ch.h"
-#include "hal.h"
 
-#include "system.h"
 #include "tasks.h"
+#include "blink.h"
+#include "barometer.h"
+#include "gyro.h"
+#include "sbus.h"
+#include "servo.h"
+#include "gnss.h"
+#include "shell_init.h"
 
-int main(void)
+void tasks_init(void)
 {
-  /* HAL and RTOS initialization.*/
-  halInit();
-  chSysInit();
-
-  /* Common functions start.*/
-  system_init();
-
-  /* Create and start threads. From now on, all code execution is governed there.*/
-  tasks_init();
-
-  while (true) {
-    chThdSleepSeconds(10);
-  }
-
-  return 0;
+  chThdCreateStatic(waBlink, sizeof(waBlink), LOWPRIO, thBlink, NULL);
+  //chThdCreateStatic(waBar, sizeof(waBar), NORMALPRIO, thBar, NULL);
+  chThdCreateStatic(waGyro, sizeof(waGyro), NORMALPRIO, thGyro, NULL);
+  chThdCreateStatic(waSbus, sizeof(waSbus), NORMALPRIO, thSbus, NULL);
+  chThdCreateStatic(waServo, sizeof(waServo), NORMALPRIO, thServo, NULL);
+  chThdCreateStatic(waGnss, sizeof(waGnss), NORMALPRIO, thGnss, NULL);
+  chThdCreateStatic(waShell, sizeof(waShell), NORMALPRIO, thShell, NULL);
 }
