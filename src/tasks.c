@@ -27,11 +27,12 @@
 
 void tasks_init(void)
 {
-  chThdCreateStatic(waBlink, sizeof(waBlink), LOWPRIO + 1, thBlink, NULL);
+  chThdCreateStatic(waImu, sizeof(waImu), HIGHPRIO, thImu, NULL);
   //chThdCreateStatic(waBar, sizeof(waBar), NORMALPRIO, thBar, NULL);
-  chThdCreateStatic(waImu, sizeof(waImu), NORMALPRIO, thImu, NULL);
   chThdCreateStatic(waSbus, sizeof(waSbus), NORMALPRIO, thSbus, NULL);
   chThdCreateStatic(waServo, sizeof(waServo), NORMALPRIO, thServo, NULL);
   chThdCreateStatic(waGnss, sizeof(waGnss), NORMALPRIO, thGnss, NULL);
-  chThdCreateStatic(waShell, sizeof(waShell), NORMALPRIO, thShell, NULL);
+
+  chThdCreateStatic(waShell, sizeof(waShell), LOWPRIO + 2, thShell, NULL);
+  chThdCreateStatic(waBlink, sizeof(waBlink), LOWPRIO + 1, thBlink, NULL);
 }
