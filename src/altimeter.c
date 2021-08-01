@@ -22,7 +22,7 @@
 
 #include "ms5611.h"
 #include "i2c_sensors.h"
-#include "barometer.h"
+#include "altimeter.h"
 
 uint16_t c[8]; /* Coefficient table.*/
 uint32_t d1;   /* Digital pressure value.*/
@@ -196,12 +196,12 @@ static void bar_read(void)
   return;
 }
 
-THD_WORKING_AREA(waBar, BAR_THREAD_STACK_SIZE);
-THD_FUNCTION(thBar, arg)
+THD_WORKING_AREA(waAltimeter, ALTIMETER_THREAD_STACK_SIZE);
+THD_FUNCTION(thAltimeter, arg)
 {
   (void)arg;
 
-  chRegSetThreadName("thBar");
+  chRegSetThreadName("thAltimeter");
 
   if (0 != bar_init(c)) {
   }
@@ -212,7 +212,7 @@ THD_FUNCTION(thBar, arg)
   }
 }
 
-void shellcmd_baro(BaseSequentialStream *chp, int argc, char *argv[])
+void shellcmd_altimeter(BaseSequentialStream *chp, int argc, char *argv[])
 {
   if (argc == 0) {
     goto ERROR;

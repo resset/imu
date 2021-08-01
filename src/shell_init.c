@@ -19,11 +19,11 @@
 #include "hal.h"
 #include "shell.h"
 
-#include "barometer.h"
 #include "imu.h"
+#include "gnss.h"
+#include "altimeter.h"
 #include "sbus.h"
 #include "servo.h"
-#include "gnss.h"
 #include "shellconf.h"
 #include "shell_utils.h"
 #include "shell_init.h"
@@ -40,11 +40,11 @@ SerialConfig serial_cfg = {
 static const ShellCommand commands[] = {
   {"about", shellcmd_about},
   {"reset", shellcmd_reset},
-  {"baro", shellcmd_baro},
   {"imu", shellcmd_imu},
+  {"gnss", shellcmd_servo},
+  {"alti", shellcmd_altimeter},
   {"sbus", shellcmd_sbus},
   {"servo", shellcmd_servo},
-  {"gnss", shellcmd_servo},
   {NULL, NULL}
 };
 

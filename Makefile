@@ -122,13 +122,13 @@ CSRC = $(ALLCSRC) \
        ./src/blink.c \
        ./src/shell_utils.c \
        ./src/shell_init.c \
-       ./src/i2c_sensors.c \
-       ./src/barometer.c \
-       ./src/imu.c \
-       ./src/sbus.c \
        ./src/servo.c \
+       ./src/sbus.c \
+       ./src/i2c_sensors.c \
+       ./src/altimeter.c \
        ./src/gnss.c \
        ./src/controller.c \
+       ./src/imu.c \
        ./src/tasks.c \
        ./src/main.c
 

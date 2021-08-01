@@ -14,8 +14,8 @@
     limitations under the License.
 */
 
-#ifndef _BAROMETER_H_
-#define _BAROMETER_H_
+#ifndef _ALTIMETER_H_
+#define _ALTIMETER_H_
 
 #include "ch.h"
 #include "hal.h"
@@ -24,7 +24,7 @@
 
 #define MS5611_I2C_ADDR MS5611_I2C_ADDR_LOW
 
-#define BAR_THREAD_STACK_SIZE 256
+#define ALTIMETER_THREAD_STACK_SIZE 256
 
 extern uint16_t c[8];
 extern uint32_t d1;
@@ -35,9 +35,9 @@ extern int64_t off;
 extern int64_t sens;
 extern int64_t p;
 
-extern THD_WORKING_AREA(waBar, BAR_THREAD_STACK_SIZE);
-THD_FUNCTION(thBar, arg);
+extern THD_WORKING_AREA(waAltimeter, ALTIMETER_THREAD_STACK_SIZE);
+THD_FUNCTION(thAltimeter, arg);
 
-void shellcmd_baro(BaseSequentialStream *chp, int argc, char *argv[]);
+void shellcmd_altimeter(BaseSequentialStream *chp, int argc, char *argv[]);
 
-#endif /* _BAROMETER_H_ */
+#endif /* _ALTIMETER_H_ */
