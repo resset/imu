@@ -128,6 +128,7 @@ CSRC = $(ALLCSRC) \
        ./src/sbus.c \
        ./src/servo.c \
        ./src/gnss.c \
+       ./src/controller.c \
        ./src/tasks.c \
        ./src/main.c
 

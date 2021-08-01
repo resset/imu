@@ -17,21 +17,25 @@
 #include "ch.h"
 
 #include "tasks.h"
-#include "blink.h"
-#include "barometer.h"
 #include "imu.h"
+#include "controller.h"
+#include "gnss.h"
+#include "barometer.h"
 #include "sbus.h"
 #include "servo.h"
-#include "gnss.h"
 #include "shell_init.h"
+#include "blink.h"
 
 void tasks_init(void)
 {
   chThdCreateStatic(waImu, sizeof(waImu), HIGHPRIO, thImu, NULL);
+  chThdCreateStatic(waController, sizeof(waController), HIGHPRIO - 1, thController, NULL);
+
+  chThdCreateStatic(waGnss, sizeof(waGnss), NORMALPRIO, thGnss, NULL);
   //chThdCreateStatic(waBar, sizeof(waBar), NORMALPRIO, thBar, NULL);
   chThdCreateStatic(waSbus, sizeof(waSbus), NORMALPRIO, thSbus, NULL);
+
   chThdCreateStatic(waServo, sizeof(waServo), NORMALPRIO, thServo, NULL);
-  chThdCreateStatic(waGnss, sizeof(waGnss), NORMALPRIO, thGnss, NULL);
 
   chThdCreateStatic(waShell, sizeof(waShell), LOWPRIO + 2, thShell, NULL);
   chThdCreateStatic(waBlink, sizeof(waBlink), LOWPRIO + 1, thBlink, NULL);
