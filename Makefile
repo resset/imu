@@ -122,6 +122,7 @@ CSRC = $(ALLCSRC) \
        ./src/blink.c \
        ./src/shell_utils.c \
        ./src/shell_init.c \
+       ./src/blackbox.c \
        ./src/servo.c \
        ./src/ground_control.c \
        ./src/i2c_sensors.c \

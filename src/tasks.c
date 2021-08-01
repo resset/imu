@@ -23,6 +23,7 @@
 #include "altimeter.h"
 #include "ground_control.h"
 #include "servo.h"
+#include "blackbox.h"
 #include "shell_init.h"
 #include "blink.h"
 
@@ -37,6 +38,7 @@ void tasks_init(void)
 
   chThdCreateStatic(waServo, sizeof(waServo), NORMALPRIO, thServo, NULL);
 
+  chThdCreateStatic(waBlackbox, sizeof(waBlackbox), LOWPRIO + 3, thBlackbox, NULL);
   chThdCreateStatic(waShell, sizeof(waShell), LOWPRIO + 2, thShell, NULL);
   chThdCreateStatic(waBlink, sizeof(waBlink), LOWPRIO + 1, thBlink, NULL);
 }
