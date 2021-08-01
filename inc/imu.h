@@ -14,15 +14,15 @@
     limitations under the License.
 */
 
-#ifndef _GYRO_H_
-#define _GYRO_H_
+#ifndef _IMU_H_
+#define _IMU_H_
 
 #include "ch.h"
 #include "hal.h"
 
-extern THD_WORKING_AREA(waGyro, 128);
-THD_FUNCTION(thGyro, arg);
+extern THD_WORKING_AREA(waImu, 128);
+THD_FUNCTION(thImu, arg);
 
-void shellcmd_gyro(BaseSequentialStream *chp, int argc, char *argv[]);
+void shellcmd_imu(BaseSequentialStream *chp, int argc, char *argv[]);
 
-#endif /* _GYRO_H_ */
+#endif /* _IMU_H_ */

@@ -22,7 +22,7 @@
 
 #include "mpu6050.h"
 #include "i2c_sensors.h"
-#include "gyro.h"
+#include "imu.h"
 
 #define MPU6050_ADDR MPU6050_ADDR_LOW
 
@@ -165,12 +165,12 @@ static void gyro_read(void)
   i2cReleaseBus(&I2CD1);
 }
 
-THD_WORKING_AREA(waGyro, 128);
-THD_FUNCTION(thGyro, arg)
+THD_WORKING_AREA(waImu, 128);
+THD_FUNCTION(thImu, arg)
 {
   (void)arg;
 
-  chRegSetThreadName("thGyro");
+  chRegSetThreadName("thImu");
 
   gyro_init();
 
@@ -180,7 +180,7 @@ THD_FUNCTION(thGyro, arg)
   }
 }
 
-void shellcmd_gyro(BaseSequentialStream *chp, int argc, char *argv[])
+void shellcmd_imu(BaseSequentialStream *chp, int argc, char *argv[])
 {
   (void)argc;
   (void)argv;

@@ -20,7 +20,7 @@
 #include "shell.h"
 
 #include "barometer.h"
-#include "gyro.h"
+#include "imu.h"
 #include "sbus.h"
 #include "servo.h"
 #include "gnss.h"
@@ -41,7 +41,7 @@ static const ShellCommand commands[] = {
   {"about", shellcmd_about},
   {"reset", shellcmd_reset},
   {"baro", shellcmd_baro},
-  {"gyro", shellcmd_gyro},
+  {"imu", shellcmd_imu},
   {"sbus", shellcmd_sbus},
   {"servo", shellcmd_servo},
   {"gnss", shellcmd_servo},

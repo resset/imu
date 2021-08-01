@@ -124,7 +124,7 @@ CSRC = $(ALLCSRC) \
        ./src/shell_init.c \
        ./src/i2c_sensors.c \
        ./src/barometer.c \
-       ./src/gyro.c \
+       ./src/imu.c \
        ./src/sbus.c \
        ./src/servo.c \
        ./src/gnss.c \
