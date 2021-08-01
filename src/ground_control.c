@@ -20,7 +20,7 @@
 #include "hal.h"
 #include "chprintf.h"
 
-#include "sbus.h"
+#include "ground_control.h"
 #include "servo.h"
 
 #define SBUS_PACKET_LENGTH     25
@@ -36,7 +36,7 @@
 #define EVT_RESET EVENT_MASK(0)
 #define EVT_DATA  EVENT_MASK(1)
 
-static thread_t *sbus_thread = NULL;
+static thread_t *ground_control_thread = NULL;
 
 static uint8_t rxbuffer[SIO_FIFO_LENGTH];
 static uint8_t buffer[SBUS_PACKET_LENGTH];
@@ -103,7 +103,7 @@ static void rxfifo(SIODriver *siop)
 {
   (void)siop;
   chSysLockFromISR();
-  chEvtSignalI(sbus_thread, EVT_DATA);
+  chEvtSignalI(ground_control_thread, EVT_DATA);
   chSysUnlockFromISR();
 }
 
@@ -111,7 +111,7 @@ static void rxidle(SIODriver *siop)
 {
   (void)siop;
   chSysLockFromISR();
-  chEvtSignalI(sbus_thread, EVT_RESET);
+  chEvtSignalI(ground_control_thread, EVT_RESET);
   chSysUnlockFromISR();
 }
 
@@ -172,8 +172,8 @@ void servo_notify(void)
   servoPosition(&servos[3], position);
 }
 
-THD_WORKING_AREA(waSbus, 128);
-THD_FUNCTION(thSbus, arg)
+THD_WORKING_AREA(waGroundControl, 128);
+THD_FUNCTION(thGroundControl, arg)
 {
   (void)arg;
 
@@ -181,8 +181,8 @@ THD_FUNCTION(thSbus, arg)
   size_t pos = 0;
   size_t n;
 
-  chRegSetThreadName("thSbus");
-  sbus_thread = chThdGetSelfX();
+  chRegSetThreadName("thGroundControl");
+  ground_control_thread = chThdGetSelfX();
 
   sioStart(&SIOD2, &sio2_config);
   sioStartOperation(&SIOD2, &sio2_operation);
@@ -227,7 +227,7 @@ THD_FUNCTION(thSbus, arg)
   }
 }
 
-void shellcmd_sbus(BaseSequentialStream *chp, int argc, char *argv[])
+void shellcmd_ground_control(BaseSequentialStream *chp, int argc, char *argv[])
 {
   (void)argc;
   (void)argv;

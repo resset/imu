@@ -14,15 +14,15 @@
     limitations under the License.
 */
 
-#ifndef _SBUS_H_
-#define _SBUS_H_
+#ifndef _GROUND_CONTROL_H_
+#define _GROUND_CONTROL_H_
 
 #include "ch.h"
 #include "hal.h"
 
-extern THD_WORKING_AREA(waSbus, 128);
-THD_FUNCTION(thSbus, arg);
+extern THD_WORKING_AREA(waGroundControl, 128);
+THD_FUNCTION(thGroundControl, arg);
 
-void shellcmd_sbus(BaseSequentialStream *chp, int argc, char *argv[]);
+void shellcmd_ground_control(BaseSequentialStream *chp, int argc, char *argv[]);
 
-#endif /* _SBUS_H_ */
+#endif /* _GROUND_CONTROL_H_ */

@@ -123,7 +123,7 @@ CSRC = $(ALLCSRC) \
        ./src/shell_utils.c \
        ./src/shell_init.c \
        ./src/servo.c \
-       ./src/sbus.c \
+       ./src/ground_control.c \
        ./src/i2c_sensors.c \
        ./src/altimeter.c \
        ./src/gnss.c \

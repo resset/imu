@@ -22,7 +22,7 @@
 #include "imu.h"
 #include "gnss.h"
 #include "altimeter.h"
-#include "sbus.h"
+#include "ground_control.h"
 #include "servo.h"
 #include "shellconf.h"
 #include "shell_utils.h"
@@ -43,7 +43,7 @@ static const ShellCommand commands[] = {
   {"imu", shellcmd_imu},
   {"gnss", shellcmd_servo},
   {"alti", shellcmd_altimeter},
-  {"sbus", shellcmd_sbus},
+  {"gndc", shellcmd_ground_control},
   {"servo", shellcmd_servo},
   {NULL, NULL}
 };

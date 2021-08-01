@@ -21,7 +21,7 @@
 #include "controller.h"
 #include "gnss.h"
 #include "altimeter.h"
-#include "sbus.h"
+#include "ground_control.h"
 #include "servo.h"
 #include "shell_init.h"
 #include "blink.h"
@@ -33,7 +33,7 @@ void tasks_init(void)
 
   chThdCreateStatic(waGnss, sizeof(waGnss), NORMALPRIO, thGnss, NULL);
   //chThdCreateStatic(waAltimeter, sizeof(waAltimeter), NORMALPRIO, thAltimeter, NULL);
-  chThdCreateStatic(waSbus, sizeof(waSbus), NORMALPRIO, thSbus, NULL);
+  chThdCreateStatic(waGroundControl, sizeof(waGroundControl), NORMALPRIO, thGroundControl, NULL);
 
   chThdCreateStatic(waServo, sizeof(waServo), NORMALPRIO, thServo, NULL);
 
