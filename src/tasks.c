@@ -29,7 +29,7 @@
 
 void tasks_init(void)
 {
-  chThdCreateStatic(waImu, sizeof(waImu), HIGHPRIO, thImu, NULL);
+  //chThdCreateStatic(waImu, sizeof(waImu), HIGHPRIO, thImu, NULL);
   chThdCreateStatic(waController, sizeof(waController), HIGHPRIO - 1, thController, NULL);
 
   chThdCreateStatic(waGnss, sizeof(waGnss), NORMALPRIO, thGnss, NULL);
