@@ -174,9 +174,14 @@ THD_FUNCTION(thImu, arg)
 
   gyro_init();
 
+  systime_t time = chVTGetSystemTime();
   while (true) {
+    /* Fire the thread every 400 us (2.5 kHz). This is a maximum we can achieve
+       for accelerometer, gyroscope and temperature data on MPU6050.*/
+    time = chTimeAddX(time, TIME_US2I(400));
     gyro_read();
-    chThdSleepMilliseconds(321);
+
+    chThdSleepUntil(time);
   }
 }
 
