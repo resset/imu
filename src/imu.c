@@ -21,8 +21,15 @@
 #include "chprintf.h"
 
 #include "mpu6050.h"
-#include "i2c_sensors.h"
 #include "imu.h"
+
+static const I2CConfig i2ccfg = {
+  STM32_TIMINGR_PRESC(0x0U) |
+  STM32_TIMINGR_SCLDEL(0x9U) | STM32_TIMINGR_SDADEL(0x0U) |
+  STM32_TIMINGR_SCLH(0x19U) | STM32_TIMINGR_SCLL(0x4BU),
+  0,
+  0
+};
 
 #define MPU6050_ADDR MPU6050_ADDR_LOW
 
@@ -56,7 +63,11 @@ static int gyro_init(void)
   CC_ALIGN_DATA(32) uint8_t txbuf[CACHE_SIZE_ALIGN(uint8_t, 2)];
   CC_ALIGN_DATA(32) uint8_t rxbuf[CACHE_SIZE_ALIGN(uint8_t, 2)];
 
-  i2c_sensors_init();
+  palSetPadMode(GPIOB, 6, PAL_MODE_ALTERNATE(4) | PAL_STM32_OTYPE_OPENDRAIN); /* SCL */
+  palSetPadMode(GPIOB, 7, PAL_MODE_ALTERNATE(4) | PAL_STM32_OTYPE_OPENDRAIN); /* SDA */
+
+  i2cStart(&I2CD1, &i2ccfg);
+
   i2cAcquireBus(&I2CD1);
 
   /* Reset MPU6050. Note: apparently this is needed for SPI connection
