@@ -1,0 +1,20 @@
+Shell:
+SERIAL - USART3 PD8(TX) PD9(RX) AF7
+
+Ground Control (radio):
+SIO - USART2 PA3(RX) AF7
+
+Servo:
+PWM - TIM3 PA6 PA7 PB0 PB1 AF2
+
+Altimeter:
+I2C - I2C1 PB7(SDA) PB6(SCL) AF4 [FIXME: PB6 in conflict with QSPI_BK1_NCS]
+
+Gnss:
+SIO - UART8 PE1(TX) PE0(RX) AF8
+
+Debug UART:
+SIO - UART7 PE8(TX) PE7(RX) AF7
+
+LEDs:
+PAL - GPIO PA1 PD10 PD14
