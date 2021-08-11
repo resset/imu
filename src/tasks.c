@@ -33,7 +33,7 @@ void tasks_init(void)
   chThdCreateStatic(waController, sizeof(waController), HIGHPRIO - 1, thController, NULL);
 
   chThdCreateStatic(waGnss, sizeof(waGnss), NORMALPRIO, thGnss, NULL);
-  //chThdCreateStatic(waAltimeter, sizeof(waAltimeter), NORMALPRIO, thAltimeter, NULL);
+  chThdCreateStatic(waAltimeter, sizeof(waAltimeter), NORMALPRIO, thAltimeter, NULL);
   chThdCreateStatic(waGroundControl, sizeof(waGroundControl), NORMALPRIO, thGroundControl, NULL);
 
   chThdCreateStatic(waServo, sizeof(waServo), NORMALPRIO, thServo, NULL);
