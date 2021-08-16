@@ -11,27 +11,40 @@ dig_P6 = -7
 dig_P7 = 15500
 dig_P8 = -14600
 dig_P9 = 6000
-p_adc = 519888
 t_adc = 415148
+p_adc = 519888
 
-# My test data
-dig_T1 = 61802
-dig_T2 = -925
-dig_T3 = 12800
-dig_P1 = 29843
-dig_P2 = 26326
-dig_P3 = -12277
-dig_P4 = 9247
-dig_P5 = 11519
-dig_P6 = -1537
-dig_P7 = -29636
-dig_P8 = -1850
-dig_P9 = 28695
-p_adc = 324257
-t_adc = 542560
+# My test - sensor #1
+dig_T1 = 27377
+dig_T2 = 25596
+dig_T3 = 50
+dig_P1 = 37748
+dig_P2 = -10650
+dig_P3 = 3024
+dig_P4 = 7972
+dig_P5 = -212
+dig_P6 = -7
+dig_P7 = 15500
+dig_P8 = -14600
+dig_P9 = 6000
+t_adc = 533744
+p_adc = 325383
 
-p_adc = 324481
-t_adc = 543072
+# My test - sensor #2
+# dig_T1 = 27782
+# dig_T2 = 25943
+# dig_T3 = 50
+# dig_P1 = 38273
+# dig_P2 = -10526
+# dig_P3 = 3024
+# dig_P4 = 7253
+# dig_P5 = -217
+# dig_P6 = -7
+# dig_P7 = 15500
+# dig_P8 = -14600
+# dig_P9 = 6000
+# t_adc = 538600
+# p_adc = 328749
 
 # Pimoroni test data (no readouts)
 # dig_T1 = 28009
@@ -89,6 +102,7 @@ var1 = ((((1) << 47) + var1)) * (dig_P1) >> 33
 if var1 == 0:
     print('ERROR')
 pressure = 1048576 - p_adc
+ # Force integer calculation
 pressure = int((((pressure << 31) - var2) * 3125) / var1)
 var1 = ((dig_P9) * (pressure >> 13) * (pressure >> 13)) >> 25
 var2 = ((dig_P8) * pressure) >> 19

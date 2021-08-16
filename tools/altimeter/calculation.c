@@ -27,10 +27,8 @@ static int32_t bmp280_compensate_temperature(altimeter_data_t *ad)
   int32_t var1, var2;
 
   var1 = ((((ad->t_adc >> 3) - ((int32_t)ad->dig_T1 << 1))) * ((int32_t)ad->dig_T2)) >> 11;
-  var2 = (
-           ((((ad->t_adc >> 4) - ((int32_t)ad->dig_T1)) * ((ad->t_adc >> 4) - ((int32_t)ad->dig_T1))) >> 12)
-           * ((/*int32_t*/int64_t)ad->dig_T3)
-         ) >> 14;
+  var2 = (((((ad->t_adc >> 4) - ((int32_t)ad->dig_T1)) * ((ad->t_adc >> 4) - ((int32_t)ad->dig_T1))) >> 12)
+          * ((int32_t)ad->dig_T3)) >> 14;
   ad->t_fine = var1 + var2;
   ad->temperature = (ad->t_fine * 5 + 128) >> 8;
   return ad->temperature;
@@ -76,23 +74,23 @@ int main(void)
   // altimeter_data.dig_P7 = 15500;
   // altimeter_data.dig_P8 = -14600;
   // altimeter_data.dig_P9 = 6000;
-  // altimeter_data.p_adc = 519888;
   // altimeter_data.t_adc = 415148;
+  // altimeter_data.p_adc = 519888;
 
-  altimeter_data.dig_T1 = 61802;
-  altimeter_data.dig_T2 = -925;
-  altimeter_data.dig_T3 = 12800;
-  altimeter_data.dig_P1 = 29843;
-  altimeter_data.dig_P2 = 26326;
-  altimeter_data.dig_P3 = -12277;
-  altimeter_data.dig_P4 = 9247;
-  altimeter_data.dig_P5 = 11519;
-  altimeter_data.dig_P6 = -1537;
-  altimeter_data.dig_P7 = -29636;
-  altimeter_data.dig_P8 = -1850;
-  altimeter_data.dig_P9 = 28695;
-  altimeter_data.p_adc = 324481;
-  altimeter_data.t_adc = 543072;
+  altimeter_data.dig_T1 = 27377;
+  altimeter_data.dig_T2 = 25596;
+  altimeter_data.dig_T3 = 50;
+  altimeter_data.dig_P1 = 37748;
+  altimeter_data.dig_P2 = -10650;
+  altimeter_data.dig_P3 = 3024;
+  altimeter_data.dig_P4 = 7972;
+  altimeter_data.dig_P5 = -212;
+  altimeter_data.dig_P6 = -7;
+  altimeter_data.dig_P7 = 15500;
+  altimeter_data.dig_P8 = -14600;
+  altimeter_data.dig_P9 = 6000;
+  altimeter_data.t_adc = 533744;
+  altimeter_data.p_adc = 325383;
 
   bmp280_compensate_temperature(&altimeter_data);
   bmp280_compensate_pressure(&altimeter_data);
