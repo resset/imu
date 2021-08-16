@@ -1,3 +1,5 @@
+/* gcc -g -o calculation.out calculation.c */
+
 #include <stdint.h>
 #include <stdio.h>
 

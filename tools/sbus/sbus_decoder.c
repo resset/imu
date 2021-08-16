@@ -1,3 +1,5 @@
+/* gcc -o sbus_decoder.out sbus_decoder.c */
+
 #include <stdint.h>
 #include <stdio.h>
 
