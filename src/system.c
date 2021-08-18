@@ -39,6 +39,10 @@ void get_registers_from_stack(uint32_t *registers)
   volatile uint32_t lr;
   volatile uint32_t pc;
   volatile uint32_t psr;
+  volatile uint32_t CFSR;
+  volatile uint32_t HFSR;
+  volatile uint32_t MMAR;
+  volatile uint32_t BFAR;
 
   r0 = registers[0];
   r1 = registers[1];
@@ -50,6 +54,20 @@ void get_registers_from_stack(uint32_t *registers)
   pc = registers[6];
   psr = registers[7];
 
+  /* Configurable Fault Status Register
+     Consists of MMFSR, BFSR and UFSR.*/
+  CFSR = (*((volatile uint32_t*)(0xE000ED28)));
+  /* Hard Fault Status Register */
+  HFSR = (*((volatile uint32_t*)(0xE000ED2C)));
+  /* Read the Fault Address Registers. These may not contain valid values.
+     Check MMARVALID in MMFSR and BFARVALID in BFSR to see if they are valid
+     values.*/
+  /* MemManage Fault Address Register */
+  MMAR = (*((volatile uint32_t*)(0xE000ED34)));
+  /* Bus Fault Address Register */
+  BFAR = (*((volatile uint32_t*)(0xE000ED38)));
+  /* No AFSR.*/
+
   (void)r0;
   (void)r1;
   (void)r2;
@@ -58,11 +76,15 @@ void get_registers_from_stack(uint32_t *registers)
   (void)lr;
   (void)pc;
   (void)psr;
+  (void)CFSR;
+  (void)HFSR;
+  (void)MMAR;
+  (void)BFAR;
 
   while (true);
 }
 
-void HardFaultVector(void)
+void HardFault_Handler(void)
 {
   __asm volatile
   (
@@ -74,7 +96,7 @@ void HardFaultVector(void)
     " ldr r2, get_reg_const                         \n"
     " bx r2                                         \n"
     " get_reg_const: .word get_registers_from_stack \n"
+    " bkpt #0                                       \n"
   );
-  __asm volatile ("BKPT #01");
   while (true);
 }
