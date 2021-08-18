@@ -193,7 +193,7 @@ THD_FUNCTION(thAltimeter, arg)
   altimeter_init();
 
   while (true) {
-    //altimeter_read();
+    altimeter_read();
     chThdSleepMilliseconds(500);
   }
 }
