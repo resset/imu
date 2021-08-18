@@ -79,13 +79,15 @@ int altimeter_init(void)
      t_sb = 000 (0.5 ms)
      filter = 111 (x16)
      Bit 3 cannot be written, hence this read before the write.
+
+     NOTE: we have to use aligned memory in i2c_transmit/i2c_send,
+     this is why the operations are performed on rxbuf.
   */
-  uint8_t config_register;
   txbuf[0] = BMP280_CONFIG;
-  i2c_transmit(txbuf, 1, &config_register, 1);
-  config_register = config_register & 0x03;
+  i2c_transmit(txbuf, 1, rxbuf, 1);
+  rxbuf[0] = rxbuf[0] & 0x03;
   txbuf[0] = BMP280_CONFIG;
-  txbuf[1] = 0x1C | config_register;
+  txbuf[1] = 0x1C | rxbuf[0];
   i2c_send(txbuf, 2);
 
   /* ctrl_meas register
