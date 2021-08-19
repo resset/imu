@@ -20,35 +20,17 @@
 #include "ch.h"
 #include "hal.h"
 
+#include "pg.h"
 #include "bmp280.h"
-
-typedef struct {
-  uint16_t dig_T1;
-  int16_t dig_T2;
-  int16_t dig_T3;
-  uint16_t dig_P1;
-  int16_t dig_P2;
-  int16_t dig_P3;
-  int16_t dig_P4;
-  int16_t dig_P5;
-  int16_t dig_P6;
-  int16_t dig_P7;
-  int16_t dig_P8;
-  int16_t dig_P9;
-  int32_t t_adc;
-  int32_t t_fine;
-  int32_t p_adc;
-  int32_t temperature;
-  uint32_t pressure;
-  int32_t altitude;
-} altimeter_data_t;
-
-#define ALTIMETER_THREAD_STACK_SIZE 256
 
 #define BMP280_ADDR BMP280_ADDR_LOW
 
+#define ALTIMETER_THREAD_STACK_SIZE 256
+
 extern THD_WORKING_AREA(waAltimeter, ALTIMETER_THREAD_STACK_SIZE);
 THD_FUNCTION(thAltimeter, arg);
+
+pg_result_t altimeter_state_zero(void);
 
 void shellcmd_altimeter(BaseSequentialStream *chp, int argc, char *argv[]);
 
