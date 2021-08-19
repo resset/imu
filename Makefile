@@ -125,7 +125,6 @@ CSRC = $(ALLCSRC) \
        ./src/blackbox.c \
        ./src/servo.c \
        ./src/ground_control.c \
-       ./src/i2c_sensors.c \
        ./src/altimeter.c \
        ./src/gnss.c \
        ./src/controller.c \
@@ -174,7 +173,7 @@ UINCDIR =
 ULIBDIR =
 
 # List all user libraries here
-ULIBS =
+ULIBS = -lm
 
 #
 # End of user section

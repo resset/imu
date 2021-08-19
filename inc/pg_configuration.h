@@ -14,9 +14,10 @@
     limitations under the License.
 */
 
-#ifndef _I2C_SENSORS_H_
-#define _I2C_SENSORS_H_
+#ifndef _PG_CONFIGURATION_H_
+#define _PG_CONFIGURATION_H_
 
-void i2c_sensors_init(void);
+/* By defining this constant we start altitude calculation immediately.*/
+#define PG_CFG_ALT_ZERO_ON_INIT
 
-#endif /* _I2C_SENSORS_H_ */
+#endif /* _PG_CONFIGURATION_H_ */

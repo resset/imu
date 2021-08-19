@@ -42,7 +42,7 @@ static const ShellCommand commands[] = {
   {"reset", shellcmd_reset},
   {"imu", shellcmd_imu},
   {"gnss", shellcmd_servo},
-  {"alti", shellcmd_altimeter},
+  {"alt", shellcmd_altimeter},
   {"gndc", shellcmd_ground_control},
   {"servo", shellcmd_servo},
   {NULL, NULL}

@@ -14,24 +14,14 @@
     limitations under the License.
 */
 
-#ifndef _ALTIMETER_H_
-#define _ALTIMETER_H_
+#ifndef _PG_H_
+#define _PG_H_
 
-#include "ch.h"
-#include "hal.h"
+#include "pg_configuration.h"
 
-#include "pg.h"
-#include "bmp280.h"
+typedef enum {
+  PG_OK = 0,
+  PG_ERROR
+} pg_result_t;
 
-#define BMP280_ADDR BMP280_ADDR_LOW
-
-#define ALTIMETER_THREAD_STACK_SIZE 256
-
-extern THD_WORKING_AREA(waAltimeter, ALTIMETER_THREAD_STACK_SIZE);
-THD_FUNCTION(thAltimeter, arg);
-
-pg_result_t altimeter_state_zero(void);
-
-void shellcmd_altimeter(BaseSequentialStream *chp, int argc, char *argv[]);
-
-#endif /* _ALTIMETER_H_ */
+#endif /* _PG_H_ */

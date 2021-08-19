@@ -15,185 +15,247 @@
 */
 
 #include <string.h>
+#include <math.h>
 
 #include "ch.h"
 #include "hal.h"
 #include "chprintf.h"
 
-#include "ms5611.h"
-#include "i2c_sensors.h"
+#include "pg.h"
 #include "altimeter.h"
 
-uint16_t c[8]; /* Coefficient table.*/
-uint32_t d1;   /* Digital pressure value.*/
-uint32_t d2;   /* Digital temperature value.*/
-int32_t dt;    /* Difference between actual and reference temperature.*/
-int64_t temp;  /* Actual temperature.*/
-int64_t off;   /* Offset at actual temperature.*/
-int64_t sens;  /* Sensitivity at actual temperature.*/
-int64_t p;     /* Temperature compensated pressure.*/
+typedef struct {
+  uint16_t dig_T1;
+  int16_t dig_T2;
+  int16_t dig_T3;
+  uint16_t dig_P1;
+  int16_t dig_P2;
+  int16_t dig_P3;
+  int16_t dig_P4;
+  int16_t dig_P5;
+  int16_t dig_P6;
+  int16_t dig_P7;
+  int16_t dig_P8;
+  int16_t dig_P9;
+  int32_t t_adc;
+  int32_t t_fine;
+  int32_t p_adc;
+  int32_t temperature_raw;
+  float temperature;
+  uint32_t pressure_raw;
+  float pressure;
+  float pressure_reference;
+  float altitude;
+} altimeter_data_t;
 
-uint8_t ms5611_crc4(uint16_t n_prom[])
+altimeter_data_t altimeter_data;
+
+typedef enum {
+  ALTIMETER_STATE_INIT,
+  ALTIMETER_STATE_NOP,
+  ALTIMETER_STATE_ZERO,
+  ALTIMETER_STATE_READY,
+  ALTIMETER_FATAL_ERROR
+} altimeter_state_t;
+
+static altimeter_state_t altimeter_state;
+
+static const I2CConfig i2ccfg = {
+  STM32_TIMINGR_PRESC(0x0U) |
+  STM32_TIMINGR_SCLDEL(0x9U) | STM32_TIMINGR_SDADEL(0x0U) |
+  STM32_TIMINGR_SCLH(0x19U) | STM32_TIMINGR_SCLL(0x4BU),
+  0,
+  0
+};
+
+static void i2c_transmit(uint8_t *txbuf, size_t txbuf_len, uint8_t *rxbuf, size_t rxbuf_len)
 {
-  uint16_t n_rem;
-  uint16_t crc_read;
-
-  n_rem = 0x0;
-  crc_read = n_prom[7];
-  n_prom[7] = (0xFF00 & (n_prom[7]));
-
-  for (uint8_t cnt = 0; 16 > cnt; ++cnt) {
-    if (cnt % 2 == 1) {
-        n_rem ^= (uint16_t)((n_prom[cnt >> 1]) & 0x00FF);
-    } else  {
-        n_rem ^= (uint16_t)(n_prom[cnt >> 1] >> 8);
-    }
-    for (uint8_t n_bit = 8; 0 < n_bit; --n_bit) {
-      if (n_rem & (0x8000)) {
-        n_rem = (n_rem << 1) ^ 0x3000;
-      } else {
-        n_rem = (n_rem << 1);
-      }
-    }
-  }
-  n_rem = (0x000F & (n_rem >> 12));
-  n_prom[7] = crc_read;
-
-  return n_rem ^ 0x0;
+  cacheBufferFlush(txbuf, CACHE_SIZE_ALIGN(uint8_t, txbuf_len));
+  cacheBufferInvalidate(rxbuf, CACHE_SIZE_ALIGN(uint8_t, rxbuf_len));
+  i2cMasterTransmitTimeout(&I2CD1, BMP280_ADDR, txbuf, txbuf_len, rxbuf, rxbuf_len, TIME_INFINITE);
 }
 
-static uint8_t bar_init(uint16_t coeff[])
+static void i2c_send(uint8_t *txbuf, size_t txbuf_len)
 {
-  uint8_t txbuf[1];
-  uint8_t rxbuf[2] = {0, 0};
-  uint8_t crc_calculated;
-
-  i2c_sensors_init();
-
-  i2cAcquireBus(&I2CD1);
-
-  txbuf[0] = MS5611_CMD_RESET;
-  i2cMasterTransmitTimeout(&I2CD1, MS5611_I2C_ADDR, txbuf, 1, rxbuf, 0, TIME_MS2I(0x3000));
-
-  i2cReleaseBus(&I2CD1);
-
-  /* Datasheet of MS5611 says 2.8 ms.*/
-  chThdSleepMilliseconds(3);
-
-  i2cAcquireBus(&I2CD1);
-
-  txbuf[0] = MS5611_CMD_READ_RESERVED;
-  i2cMasterTransmitTimeout(&I2CD1, MS5611_I2C_ADDR, txbuf, 1, rxbuf, 2, TIME_MS2I(0x3000));
-  coeff[0] = (rxbuf[0] << 8) | rxbuf[1];
-
-  txbuf[0] = MS5611_CMD_READ_C1;
-  i2cMasterTransmitTimeout(&I2CD1, MS5611_I2C_ADDR, txbuf, 1, rxbuf, 2, TIME_MS2I(0x3000));
-  coeff[1] = (rxbuf[0] << 8) | rxbuf[1];
-
-  txbuf[0] = MS5611_CMD_READ_C2;
-  i2cMasterTransmitTimeout(&I2CD1, MS5611_I2C_ADDR, txbuf, 1, rxbuf, 2, TIME_MS2I(0x3000));
-  coeff[2] = (rxbuf[0] << 8) | rxbuf[1];
-
-  txbuf[0] = MS5611_CMD_READ_C3;
-  i2cMasterTransmitTimeout(&I2CD1, MS5611_I2C_ADDR, txbuf, 1, rxbuf, 2, TIME_MS2I(0x3000));
-  coeff[3] = (rxbuf[0] << 8) | rxbuf[1];
-
-  txbuf[0] = MS5611_CMD_READ_C4;
-  i2cMasterTransmitTimeout(&I2CD1, MS5611_I2C_ADDR, txbuf, 1, rxbuf, 2, TIME_MS2I(0x3000));
-  coeff[4] = (rxbuf[0] << 8) | rxbuf[1];
-
-  txbuf[0] = MS5611_CMD_READ_C5;
-  i2cMasterTransmitTimeout(&I2CD1, MS5611_I2C_ADDR, txbuf, 1, rxbuf, 2, TIME_MS2I(0x3000));
-  coeff[5] = (rxbuf[0] << 8) | rxbuf[1];
-
-  txbuf[0] = MS5611_CMD_READ_C6;
-  i2cMasterTransmitTimeout(&I2CD1, MS5611_I2C_ADDR, txbuf, 1, rxbuf, 2, TIME_MS2I(0x3000));
-  coeff[6] = (rxbuf[0] << 8) | rxbuf[1];
-
-  txbuf[0] = MS5611_CMD_READ_CRC;
-  i2cMasterTransmitTimeout(&I2CD1, MS5611_I2C_ADDR, txbuf, 1, rxbuf, 2, TIME_MS2I(0x3000));
-  coeff[7] = (rxbuf[0] << 8) | rxbuf[1];
-
-  i2cReleaseBus(&I2CD1);
-
-  crc_calculated = ms5611_crc4(coeff);
-  if ((uint8_t)(coeff[7] & 0xF) != crc_calculated) {
-    return 1;
-  }
-
-  return 0;
+  cacheBufferFlush(txbuf, CACHE_SIZE_ALIGN(uint8_t, txbuf_len));
+  i2cMasterTransmitTimeout(&I2CD1, BMP280_ADDR, txbuf, txbuf_len, NULL, 0, TIME_INFINITE);
 }
 
-static uint32_t get_adc_data(uint8_t command)
+pg_result_t altimeter_init(void)
 {
-  uint8_t txbuf[1];
-  uint8_t rxbuf[3] = {0, 0, 0};
+  CC_ALIGN_DATA(32) uint8_t txbuf[CACHE_SIZE_ALIGN(uint8_t, 2)];
+  CC_ALIGN_DATA(32) uint8_t rxbuf[CACHE_SIZE_ALIGN(uint8_t, 24)];
+
+  /*
+   * I2C initialization.
+   */
+  palSetPadMode(GPIOB, 6, PAL_MODE_ALTERNATE(4) | PAL_STM32_OTYPE_OPENDRAIN); /* SCL */
+  palSetPadMode(GPIOB, 7, PAL_MODE_ALTERNATE(4) | PAL_STM32_OTYPE_OPENDRAIN); /* SDA */
+
+  i2cStart(&I2CD1, &i2ccfg);
 
   i2cAcquireBus(&I2CD1);
-  txbuf[0] = command;
-  i2cMasterTransmitTimeout(&I2CD1, MS5611_I2C_ADDR, txbuf, 1, rxbuf, 0, TIME_MS2I(0x3000));
-  i2cReleaseBus(&I2CD1);
 
-  switch (command & 0xF) {
-    case MS5611_CMD_CONVERT_256:
-      chThdSleepMicroseconds(900);
-      break;
-    case MS5611_CMD_CONVERT_512:
-      chThdSleepMilliseconds(3);
-      break;
-    case MS5611_CMD_CONVERT_1024:
-      chThdSleepMilliseconds(4);
-      break;
-    case MS5611_CMD_CONVERT_2048:
-      chThdSleepMilliseconds(6);
-      break;
-    case MS5611_CMD_CONVERT_4096:
-      chThdSleepMilliseconds(10);
-      break;
+  /* Force power-on reset.*/
+  txbuf[0] = BMP280_RESET;
+  txbuf[1] = BMP280_VAL_RESET;
+  i2c_send(txbuf, 2);
+  chThdSleepMilliseconds(100);
+
+  /* Test for BMP280.*/
+  txbuf[0] = BMP280_ID;
+  i2c_transmit(txbuf, 1, rxbuf, 1);
+
+  if (rxbuf[0] != BMP280_VAL_ID) {
+    return PG_ERROR;
   }
 
-  i2cAcquireBus(&I2CD1);
-  txbuf[0] = MS5611_CMD_READ_ADC;
-  i2cMasterTransmitTimeout(&I2CD1, MS5611_I2C_ADDR, txbuf, 1, rxbuf, 3, TIME_MS2I(0x3000));
+  /* config register
+     t_sb = 000 (0.5 ms)
+     filter = 111 (x16)
+     Bit 3 cannot be written, hence this read before the write.
+
+     NOTE: we have to use aligned memory in i2c_transmit/i2c_send,
+     this is why the operations are performed on rxbuf.
+  */
+  txbuf[0] = BMP280_CONFIG;
+  i2c_transmit(txbuf, 1, rxbuf, 1);
+  rxbuf[0] = rxbuf[0] & 0x03;
+  txbuf[0] = BMP280_CONFIG;
+  txbuf[1] = 0x1C | rxbuf[0];
+  i2c_send(txbuf, 2);
+
+  /* ctrl_meas register
+     osrs_t = 010 (x2, 17-bit, 0.0025 deg. C)
+     osrs_p = 101 (x16, 20-bit, 0.16 Pa)
+     mode = 11 (normal)
+     With settings like this and IIR filter coefficient equaling 16,
+     output data rate is 26.3 Hz.
+  */
+  txbuf[0] = BMP280_CTRL_MEAS;
+  txbuf[1] = 0x57;
+  i2c_send(txbuf, 2);
+
+  /* Calibration data readout.*/
+  txbuf[0] = BMP280_DIG_T1_LSB;
+  i2c_transmit(txbuf, 1, rxbuf, 24);
+  altimeter_data.dig_T1 = ((uint16_t)rxbuf[1]) << 8 | rxbuf[0];
+  altimeter_data.dig_T2 = ((uint16_t)rxbuf[3]) << 8 | rxbuf[2];
+  altimeter_data.dig_T3 = ((uint16_t)rxbuf[5]) << 8 | rxbuf[4];
+  altimeter_data.dig_P1 = ((uint16_t)rxbuf[7]) << 8 | rxbuf[6];
+  altimeter_data.dig_P2 = ((uint16_t)rxbuf[9]) << 8 | rxbuf[8];
+  altimeter_data.dig_P3 = ((uint16_t)rxbuf[11]) << 8 | rxbuf[10];
+  altimeter_data.dig_P4 = ((uint16_t)rxbuf[13]) << 8 | rxbuf[12];
+  altimeter_data.dig_P5 = ((uint16_t)rxbuf[15]) << 8 | rxbuf[14];
+  altimeter_data.dig_P6 = ((uint16_t)rxbuf[17]) << 8 | rxbuf[16];
+  altimeter_data.dig_P7 = ((uint16_t)rxbuf[19]) << 8 | rxbuf[18];
+  altimeter_data.dig_P8 = ((uint16_t)rxbuf[21]) << 8 | rxbuf[20];
+  altimeter_data.dig_P9 = ((uint16_t)rxbuf[23]) << 8 | rxbuf[22];
+
   i2cReleaseBus(&I2CD1);
 
-  return (rxbuf[0] << 16) | (rxbuf[1] << 8) | rxbuf[2];
+  return PG_OK;
 }
 
-static void bar_read(void)
+static pg_result_t bmp280_compensate_temperature(altimeter_data_t *ad)
 {
-  d1 = get_adc_data(MS5611_CMD_CONVERT_D1 | MS5611_CMD_CONVERT_1024);
-  d2 = get_adc_data(MS5611_CMD_CONVERT_D2 | MS5611_CMD_CONVERT_1024);
+  int32_t var1, var2;
 
-  dt = d2 - (c[5] << 8);
-  temp = 2000 + (((int64_t)dt * (int64_t)c[6]) >> 23);
+  var1 = ((((ad->t_adc >> 3) - ((int32_t)ad->dig_T1 << 1))) * ((int32_t)ad->dig_T2)) >> 11;
+  var2 = (((((ad->t_adc >> 4) - ((int32_t)ad->dig_T1)) * ((ad->t_adc >> 4) - ((int32_t)ad->dig_T1))) >> 12)
+          * ((int32_t)ad->dig_T3)) >> 14;
+  ad->t_fine = var1 + var2;
+  ad->temperature_raw = (ad->t_fine * 5 + 128) >> 8;
 
-  off = (c[2] << 16) + (((int64_t)c[4] * (int64_t)dt) >> 7);
-  sens = (c[1] << 15) + (((int64_t)c[3] * (int64_t)dt) >> 8);
+  return PG_OK;
+}
 
-  if (temp < 2000) {
-    int64_t t2 = 0;
-    int64_t off2 = 0;
-    int64_t sens2 = 0;
+static pg_result_t bmp280_compensate_pressure(altimeter_data_t *ad)
+{
+  int64_t var1, var2, p;
 
-    t2 = (dt * dt) >> 31;
-    off2 = 5 * (((temp - 2000) * (temp - 2000)) >> 1);
-    sens2 = 5 * (((temp - 2000) * (temp - 2000)) >> 2);
+  var1 = ((int64_t)ad->t_fine) - 128000;
+  var2 = var1 * var1 * (int64_t)ad->dig_P6;
+  var2 = var2 + ((var1 * (int64_t)ad->dig_P5) << 17);
+  var2 = var2 + (((int64_t)ad->dig_P4) << 35);
+  var1 = ((var1 * var1 * (int64_t)ad->dig_P3) >> 8) + ((var1 * (int64_t)ad->dig_P2) << 12);
+  var1 = (((((int64_t)1) << 47) + var1)) * ((int64_t)ad->dig_P1) >> 33;
+  if (var1 == 0) {
+    ad->pressure_raw = 0;
+    return PG_ERROR;
+  }
+  p = 1048576 - ad->p_adc;
+  p = (((p << 31) - var2) * 3125) / var1;
+  var1 = (((int64_t)ad->dig_P9) * (p >> 13) * (p >> 13)) >> 25;
+  var2 = (((int64_t)ad->dig_P8) * p) >> 19;
+  p = ((p + var1 + var2) >> 8) + (((int64_t)ad->dig_P7) << 4);
+  ad->pressure_raw = (uint32_t)p;
 
-    if (temp < -1500) {
-      off2 = off2 + 7 * ((temp + 1500) * (temp + 1500));
-      sens2 = sens2 + 11 * (((temp - 2000) * (temp - 2000)) >> 1);
+  return PG_OK;
+}
+
+static pg_result_t altimeter_read(void)
+{
+  CC_ALIGN_DATA(32) uint8_t txbuf[CACHE_SIZE_ALIGN(uint8_t, 2)];
+  CC_ALIGN_DATA(32) uint8_t rxbuf[CACHE_SIZE_ALIGN(uint8_t, 24)];
+
+  txbuf[0] = BMP280_PRESS_MSB;
+
+  i2cAcquireBus(&I2CD1);
+  i2c_transmit(txbuf, 1, rxbuf, 6);
+  i2cReleaseBus(&I2CD1);
+
+  altimeter_data.t_adc = (int32_t)rxbuf[3] << 12 | (int32_t)rxbuf[4] << 4 | (int32_t)rxbuf[5] >> 4;
+  altimeter_data.p_adc = (int32_t)rxbuf[0] << 12 | (int32_t)rxbuf[1] << 4 | (int32_t)rxbuf[2] >> 4;
+
+  if (altimeter_data.t_adc != 0x80000 && altimeter_data.p_adc != 0x80000) {
+    bmp280_compensate_temperature(&altimeter_data);
+    altimeter_data.temperature = (float)altimeter_data.temperature_raw / 100.0;
+    if (bmp280_compensate_pressure(&altimeter_data) == PG_OK) {
+      altimeter_data.pressure = (float)altimeter_data.pressure_raw / 256.0;
+      return PG_OK;
     }
-
-    temp -= t2;
-    off -= off2;
-    sens -= sens2;
   }
 
-  p = ((((int64_t)d1 * sens) >> 21) - off) >> 15;
-  (void)temp;
+  return PG_ERROR;
+}
 
-  return;
+static pg_result_t altimeter_zero(void)
+{
+  uint8_t i = 0, guard = 0;
+  while (i < 10 && guard != 100) {
+    if (altimeter_read() == PG_OK) {
+      altimeter_data.pressure_reference += altimeter_data.pressure;
+      i++;
+    }
+    guard++;
+  }
+  if (guard != 100) {
+    altimeter_data.pressure_reference /= 10.0f;
+    return PG_OK;
+  } else {
+    altimeter_data.pressure_reference = 0.0f;
+    return PG_ERROR;
+  }
+}
+
+static void altimeter_altitude(void)
+{
+  altimeter_data.altitude = (
+      (powf(altimeter_data.pressure / altimeter_data.pressure_reference, 0.1902665f) - 1)
+      *
+      (altimeter_data.temperature + 273.15f)
+    ) / (-0.0065f);
+}
+
+pg_result_t altimeter_state_zero(void)
+{
+  if (altimeter_state == ALTIMETER_STATE_READY) {
+    altimeter_state = ALTIMETER_STATE_ZERO;
+    return PG_OK;
+  } else {
+    return PG_ERROR;
+  }
 }
 
 THD_WORKING_AREA(waAltimeter, ALTIMETER_THREAD_STACK_SIZE);
@@ -203,50 +265,55 @@ THD_FUNCTION(thAltimeter, arg)
 
   chRegSetThreadName("thAltimeter");
 
-  if (0 != bar_init(c)) {
-  }
-
   while (true) {
-    bar_read();
-    chThdSleepMilliseconds(500);
+    switch (altimeter_state) {
+      case ALTIMETER_STATE_INIT:
+        if (altimeter_init() == PG_OK) {
+#ifdef PG_CFG_ALT_ZERO_ON_INIT
+        altimeter_state = ALTIMETER_STATE_ZERO;
+#else
+        altimeter_state = ALTIMETER_STATE_NOP;
+#endif
+        } else {
+          altimeter_state = ALTIMETER_FATAL_ERROR;
+        }
+        break;
+      case ALTIMETER_STATE_NOP:
+        break;
+      case ALTIMETER_STATE_ZERO:
+        if (altimeter_zero() == PG_OK) {
+          altimeter_state = ALTIMETER_STATE_READY;
+        } else {
+          altimeter_state = ALTIMETER_FATAL_ERROR;
+        }
+        break;
+      case ALTIMETER_STATE_READY:
+        /* In this stage we do not expect the altimeter_read to return error.
+           Filter memory should be already fed.*/
+        if (altimeter_read() == PG_OK) {
+          altimeter_altitude();
+        } else {
+          altimeter_state = ALTIMETER_FATAL_ERROR;
+        }
+        break;
+      case ALTIMETER_FATAL_ERROR:
+        return;
+    }
+
+    chThdSleepMilliseconds(50);
   }
 }
 
 void shellcmd_altimeter(BaseSequentialStream *chp, int argc, char *argv[])
 {
-  if (argc == 0) {
-    goto ERROR;
+  (void)argc;
+  (void)argv;
+
+  while (chnGetTimeout((BaseChannel *)chp, TIME_IMMEDIATE) == Q_TIMEOUT) {
+    chprintf(chp, "%6d deg. C * 10, %6d, Pa %6d cm\r\n",
+             altimeter_data.temperature_raw,
+             altimeter_data.pressure_raw / 256,
+             (int32_t)(altimeter_data.altitude * 100.0f));
+    chThdSleepMilliseconds(50);
   }
-
-  if (argc == 1) {
-    if (strcmp(argv[0], "get") == 0) {
-
-      chprintf(chp, "c1: %d\r\n", c[1]);
-      chprintf(chp, "c2: %d\r\n", c[2]);
-      chprintf(chp, "c3: %d\r\n", c[3]);
-      chprintf(chp, "c4: %d\r\n", c[4]);
-      chprintf(chp, "c5: %d\r\n", c[5]);
-      chprintf(chp, "c6: %d\r\n", c[6]);
-      chprintf(chp, "d1: %d\r\n", d1);
-      chprintf(chp, "d2: %d\r\n\r\n", d2);
-
-      chprintf(chp, "dt: %d\r\n", dt);
-      chprintf(chp, "temp: %d\r\n", temp);
-      chprintf(chp, "off: %LD\r\n", off);
-      chprintf(chp, "sens: %LD\r\n", sens);
-      chprintf(chp, "p: %LD\r\n", p);
-
-      return;
-    } else if ((argc == 2) && (strcmp(argv[0], "set") == 0)) {
-      chprintf(chp, "set\r\n");
-      return;
-    }
-  }
-
-ERROR:
-  chprintf(chp, "Usage: baro get\r\n");
-  chprintf(chp, "       baro set x\r\n");
-  chprintf(chp, "where x is something\r\n");
-  chprintf(chp, "and that's it\r\n");
-  return;
 }
