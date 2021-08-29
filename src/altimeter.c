@@ -223,14 +223,14 @@ static pg_result_t altimeter_read(void)
 static pg_result_t altimeter_zero(void)
 {
   uint8_t i = 0, guard = 0;
-  while (i < 10 && guard != 100) {
+  while (i < 10 && guard != PG_CFG_ALT_ZERO_SAMPLES) {
     if (altimeter_read() == PG_OK) {
       altimeter_data.pressure_reference += altimeter_data.pressure;
       i++;
     }
     guard++;
   }
-  if (guard != 100) {
+  if (guard != PG_CFG_ALT_ZERO_SAMPLES) {
     altimeter_data.pressure_reference /= 10.0f;
     return PG_OK;
   } else {
