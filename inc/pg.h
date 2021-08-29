@@ -21,7 +21,8 @@
 
 typedef enum {
   PG_OK = 0,
-  PG_ERROR
+  PG_ERROR,
+  PG_UNRELIABLE_OUTPUT
 } pg_result_t;
 
 #endif /* _PG_H_ */

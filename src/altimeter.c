@@ -159,6 +159,7 @@ pg_result_t altimeter_init(void)
 
 static pg_result_t bmp280_compensate_temperature(altimeter_data_t *ad)
 {
+  pg_result_t ret;
   int32_t var1, var2;
 
   var1 = ((((ad->t_adc >> 3) - ((int32_t)ad->dig_T1 << 1))) * ((int32_t)ad->dig_T2)) >> 11;
@@ -167,11 +168,22 @@ static pg_result_t bmp280_compensate_temperature(altimeter_data_t *ad)
   ad->t_fine = var1 + var2;
   ad->temperature_raw = (ad->t_fine * 5 + 128) >> 8;
 
-  return PG_OK;
+  if (ad->temperature_raw < BMP280_MIN_TEMP_INT) {
+    ad->temperature_raw = BMP280_MIN_TEMP_INT;
+    ret = PG_UNRELIABLE_OUTPUT;
+  } else if (ad->temperature_raw > BMP280_MAX_TEMP_INT) {
+    ad->temperature_raw = BMP280_MAX_TEMP_INT;
+    ret = PG_UNRELIABLE_OUTPUT;
+  } else {
+    ret = PG_OK;
+  }
+
+  return ret;
 }
 
 static pg_result_t bmp280_compensate_pressure(altimeter_data_t *ad)
 {
+  pg_result_t ret;
   int64_t var1, var2, p;
 
   var1 = ((int64_t)ad->t_fine) - 128000;
@@ -191,7 +203,17 @@ static pg_result_t bmp280_compensate_pressure(altimeter_data_t *ad)
   p = ((p + var1 + var2) >> 8) + (((int64_t)ad->dig_P7) << 4);
   ad->pressure_raw = (uint32_t)p;
 
-  return PG_OK;
+  if (ad->pressure_raw < BMP280_MIN_PRES_64INT) {
+    ad->pressure_raw = BMP280_MIN_PRES_64INT;
+    ret = PG_UNRELIABLE_OUTPUT;
+  } else if (ad->pressure_raw > BMP280_MAX_PRES_64INT) {
+    ad->pressure_raw = BMP280_MAX_PRES_64INT;
+    ret = PG_UNRELIABLE_OUTPUT;
+  } else {
+    ret = PG_OK;
+  }
+
+  return ret;
 }
 
 static pg_result_t altimeter_read(void)
@@ -284,6 +306,7 @@ THD_FUNCTION(thAltimeter, arg)
         if (altimeter_zero() == PG_OK) {
           altimeter_state = ALTIMETER_STATE_READY;
         } else {
+          /* TODO: we shoud probably try few more times.*/
           altimeter_state = ALTIMETER_FATAL_ERROR;
         }
         break;
@@ -293,6 +316,9 @@ THD_FUNCTION(thAltimeter, arg)
         if (altimeter_read() == PG_OK) {
           altimeter_altitude();
         } else {
+          /* TODO: we do not want to fail here. We should rather mark the data
+             as invalid so that the controller decides on what to do. We should
+             then attempt to compute the next sample.*/
           altimeter_state = ALTIMETER_FATAL_ERROR;
         }
         break;

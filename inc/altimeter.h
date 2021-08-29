@@ -23,14 +23,21 @@
 #include "pg.h"
 #include "bmp280.h"
 
-#define BMP280_ADDR BMP280_ADDR_LOW
-
-#define ALTIMETER_THREAD_STACK_SIZE 256
+#define BMP280_ADDR           BMP280_ADDR_LOW
+#define BMP280_ADC_T_MIN      ((int32_t)0x00000)
+#define BMP280_ADC_T_MAX      ((int32_t)0xFFFF0)
+#define BMP280_ADC_P_MIN      ((int32_t)0x00000)
+#define BMP280_ADC_P_MAX      ((int32_t)0xFFFF0)
+#define BMP280_MIN_TEMP_INT   ((int32_t)-4000)
+#define BMP280_MAX_TEMP_INT   ((int32_t)8500)
+#define BMP280_MIN_PRES_64INT ((uint32_t)(30000 * 256))
+#define BMP280_MAX_PRES_64INT ((uint32_t)(110000 * 256))
 
 #ifndef PG_CFG_ALT_ZERO_SAMPLES
 #define PG_CFG_ALT_ZERO_SAMPLES 100
 #endif
 
+#define ALTIMETER_THREAD_STACK_SIZE 256
 extern THD_WORKING_AREA(waAltimeter, ALTIMETER_THREAD_STACK_SIZE);
 THD_FUNCTION(thAltimeter, arg);
 
