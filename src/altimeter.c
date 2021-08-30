@@ -14,6 +14,7 @@
     limitations under the License.
 */
 
+#include <stdbool.h>
 #include <string.h>
 #include <math.h>
 
@@ -46,6 +47,7 @@ typedef struct {
   float pressure;
   float pressure_reference;
   float altitude;
+  bool data_valid;
 } altimeter_data_t;
 
 altimeter_data_t altimeter_data;
@@ -181,10 +183,10 @@ static pg_result_t bmp280_compensate_temperature(altimeter_data_t *ad)
 
   if (ad->temperature_raw < BMP280_MIN_TEMP_INT) {
     ad->temperature_raw = BMP280_MIN_TEMP_INT;
-    ret = PG_UNRELIABLE_OUTPUT;
+    ret = PG_ERROR;
   } else if (ad->temperature_raw > BMP280_MAX_TEMP_INT) {
     ad->temperature_raw = BMP280_MAX_TEMP_INT;
-    ret = PG_UNRELIABLE_OUTPUT;
+    ret = PG_ERROR;
   } else {
     ret = PG_OK;
   }
@@ -216,10 +218,10 @@ static pg_result_t bmp280_compensate_pressure(altimeter_data_t *ad)
 
   if (ad->pressure_raw < BMP280_MIN_PRES_64INT) {
     ad->pressure_raw = BMP280_MIN_PRES_64INT;
-    ret = PG_UNRELIABLE_OUTPUT;
+    ret = PG_ERROR;
   } else if (ad->pressure_raw > BMP280_MAX_PRES_64INT) {
     ad->pressure_raw = BMP280_MAX_PRES_64INT;
-    ret = PG_UNRELIABLE_OUTPUT;
+    ret = PG_ERROR;
   } else {
     ret = PG_OK;
   }
@@ -242,14 +244,17 @@ static pg_result_t altimeter_read(void)
   altimeter_data.p_adc = (int32_t)rxbuf[0] << 12 | (int32_t)rxbuf[1] << 4 | (int32_t)rxbuf[2] >> 4;
 
   if (bmp280_check_boundaries(&altimeter_data) == PG_OK) {
-    bmp280_compensate_temperature(&altimeter_data);
-    altimeter_data.temperature = (float)altimeter_data.temperature_raw / 100.0;
-    if (bmp280_compensate_pressure(&altimeter_data) == PG_OK) {
-      altimeter_data.pressure = (float)altimeter_data.pressure_raw / 256.0;
-      return PG_OK;
+    if (bmp280_compensate_temperature(&altimeter_data) == PG_OK) {
+      altimeter_data.temperature = (float)altimeter_data.temperature_raw / 100.0;
+      if (bmp280_compensate_pressure(&altimeter_data) == PG_OK) {
+        altimeter_data.pressure = (float)altimeter_data.pressure_raw / 256.0;
+        altimeter_data.data_valid = true;
+        return PG_OK;
+      }
     }
   }
 
+  altimeter_data.data_valid = false;
   return PG_ERROR;
 }
 
@@ -272,13 +277,20 @@ static pg_result_t altimeter_zero(void)
   }
 }
 
-static void altimeter_altitude(void)
+static pg_result_t altimeter_altitude(void)
 {
-  altimeter_data.altitude = (
-      (powf(altimeter_data.pressure / altimeter_data.pressure_reference, 0.1902665f) - 1)
-      *
-      (altimeter_data.temperature + 273.15f)
-    ) / (-0.0065f);
+  /* We calculate altitude regardless of the data validity, the valid flag
+     is common for all data.*/
+  if (altimeter_data.pressure_reference != 0.0f) {
+    altimeter_data.altitude = (
+        (powf(altimeter_data.pressure / altimeter_data.pressure_reference, 0.1902665f) - 1)
+        *
+        (altimeter_data.temperature + 273.15f)
+      ) / (-0.0065f);
+    return PG_OK;
+  } else {
+    return PG_ERROR;
+  }
 }
 
 pg_result_t altimeter_state_zero(void)
