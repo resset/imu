@@ -157,6 +157,17 @@ pg_result_t altimeter_init(void)
   return PG_OK;
 }
 
+static pg_result_t bmp280_check_boundaries(altimeter_data_t *ad)
+{
+  /* We check here the sanity of the ADC readings.*/
+  if (ad->p_adc < BMP280_ADC_P_MIN || ad->p_adc > BMP280_ADC_P_MAX ||
+      ad->t_adc < BMP280_ADC_T_MIN || ad->t_adc > BMP280_ADC_T_MAX) {
+    return PG_ERROR;
+  } else {
+    return PG_OK;
+  }
+}
+
 static pg_result_t bmp280_compensate_temperature(altimeter_data_t *ad)
 {
   pg_result_t ret;
@@ -230,7 +241,7 @@ static pg_result_t altimeter_read(void)
   altimeter_data.t_adc = (int32_t)rxbuf[3] << 12 | (int32_t)rxbuf[4] << 4 | (int32_t)rxbuf[5] >> 4;
   altimeter_data.p_adc = (int32_t)rxbuf[0] << 12 | (int32_t)rxbuf[1] << 4 | (int32_t)rxbuf[2] >> 4;
 
-  if (altimeter_data.t_adc != 0x80000 && altimeter_data.p_adc != 0x80000) {
+  if (bmp280_check_boundaries(&altimeter_data) == PG_OK) {
     bmp280_compensate_temperature(&altimeter_data);
     altimeter_data.temperature = (float)altimeter_data.temperature_raw / 100.0;
     if (bmp280_compensate_pressure(&altimeter_data) == PG_OK) {
