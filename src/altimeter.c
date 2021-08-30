@@ -367,6 +367,8 @@ void shellcmd_altimeter(BaseSequentialStream *chp, int argc, char *argv[])
              altimeter_data.temperature_raw,
              altimeter_data.pressure_raw / 256,
              (int32_t)(altimeter_data.altitude * 100.0f));
+
+    /* TODO: settle on some read schedule, add a mutex.*/
     chThdSleepMilliseconds(50);
   }
 }
