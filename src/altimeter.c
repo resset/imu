@@ -109,6 +109,7 @@ static pg_result_t altimeter_init(void)
   i2c_transmit(txbuf, 1, rxbuf, 1);
 
   if (rxbuf[0] != BMP280_VAL_ID) {
+    i2cReleaseBus(&I2CD1);
     return PG_ERROR;
   }
 
