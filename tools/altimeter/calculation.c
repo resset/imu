@@ -17,8 +17,8 @@ typedef struct {
   int16_t dig_P8;
   int16_t dig_P9;
   int32_t t_adc;
-  int32_t t_fine;
   int32_t p_adc;
+  int32_t t_fine;
   int32_t temperature;
   uint32_t pressure;
   int32_t altitude;

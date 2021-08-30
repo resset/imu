@@ -39,15 +39,15 @@ typedef struct {
   int16_t dig_P8;
   int16_t dig_P9;
   int32_t t_adc;
-  int32_t t_fine;
   int32_t p_adc;
+  int32_t t_fine;
   int32_t temperature_raw;
-  float temperature;
   uint32_t pressure_raw;
+  bool data_valid;
+  float temperature;
   float pressure;
   float pressure_reference;
   float altitude;
-  bool data_valid;
 } altimeter_data_t;
 
 altimeter_data_t altimeter_data;
@@ -87,6 +87,8 @@ static pg_result_t altimeter_init(void)
 {
   CC_ALIGN_DATA(32) uint8_t txbuf[CACHE_SIZE_ALIGN(uint8_t, 2)];
   CC_ALIGN_DATA(32) uint8_t rxbuf[CACHE_SIZE_ALIGN(uint8_t, 24)];
+
+  altimeter_data.data_valid = false;
 
   /*
    * I2C initialization.
@@ -177,7 +179,8 @@ static pg_result_t bmp280_compensate_temperature(altimeter_data_t *ad)
   int32_t var1, var2;
 
   var1 = ((((ad->t_adc >> 3) - ((int32_t)ad->dig_T1 << 1))) * ((int32_t)ad->dig_T2)) >> 11;
-  var2 = (((((ad->t_adc >> 4) - ((int32_t)ad->dig_T1)) * ((ad->t_adc >> 4) - ((int32_t)ad->dig_T1))) >> 12)
+  var2 = (((((ad->t_adc >> 4) - ((int32_t)ad->dig_T1))
+            * ((ad->t_adc >> 4) - ((int32_t)ad->dig_T1))) >> 12)
           * ((int32_t)ad->dig_T3)) >> 14;
   ad->t_fine = var1 + var2;
   ad->temperature_raw = (ad->t_fine * 5 + 128) >> 8;
@@ -246,9 +249,9 @@ static pg_result_t altimeter_read(void)
 
   if (bmp280_check_boundaries(&altimeter_data) == PG_OK) {
     if (bmp280_compensate_temperature(&altimeter_data) == PG_OK) {
-      altimeter_data.temperature = (float)altimeter_data.temperature_raw / 100.0;
+      altimeter_data.temperature = (float)altimeter_data.temperature_raw / 100.0f;
       if (bmp280_compensate_pressure(&altimeter_data) == PG_OK) {
-        altimeter_data.pressure = (float)altimeter_data.pressure_raw / 256.0;
+        altimeter_data.pressure = (float)altimeter_data.pressure_raw / 256.0f;
         altimeter_data.data_valid = true;
         return PG_OK;
       }
@@ -337,21 +340,19 @@ THD_FUNCTION(thAltimeter, arg)
         }
         break;
       case ALTIMETER_STATE_READY:
-        /* In this stage we do not expect the altimeter_read to return error.
-           Filter memory should be already fed.*/
         if (altimeter_read() == PG_OK) {
-          altimeter_altitude();
-        } else {
-          /* TODO: we do not want to fail here. We should rather mark the data
-             as invalid so that the controller decides on what to do. We should
+          /* We do not want to fail here. We should rather mark the data as
+             invalid so that the controller decides on what to do. We should
              then attempt to compute the next sample.*/
-          altimeter_state = ALTIMETER_FATAL_ERROR;
+          altimeter_altitude();
         }
         break;
       case ALTIMETER_FATAL_ERROR:
         return;
     }
 
+    /* TODO: the schedule of this thread hast to be puf into greater context
+       of all subprocesses cooperation, of course.*/
     chThdSleepMilliseconds(50);
   }
 }
