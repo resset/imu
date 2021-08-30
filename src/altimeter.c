@@ -83,7 +83,7 @@ static void i2c_send(uint8_t *txbuf, size_t txbuf_len)
   i2cMasterTransmitTimeout(&I2CD1, BMP280_ADDR, txbuf, txbuf_len, NULL, 0, TIME_INFINITE);
 }
 
-pg_result_t altimeter_init(void)
+static pg_result_t altimeter_init(void)
 {
   CC_ALIGN_DATA(32) uint8_t txbuf[CACHE_SIZE_ALIGN(uint8_t, 2)];
   CC_ALIGN_DATA(32) uint8_t rxbuf[CACHE_SIZE_ALIGN(uint8_t, 24)];
