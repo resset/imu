@@ -93,7 +93,7 @@ static pg_result_t altimeter_init(void)
   /*
    * I2C initialization.
    */
-  palSetPadMode(GPIOB, 6, PAL_MODE_ALTERNATE(4) | PAL_STM32_OTYPE_OPENDRAIN); /* SCL */
+  palSetPadMode(GPIOB, 8, PAL_MODE_ALTERNATE(4) | PAL_STM32_OTYPE_OPENDRAIN); /* SCL */
   palSetPadMode(GPIOB, 7, PAL_MODE_ALTERNATE(4) | PAL_STM32_OTYPE_OPENDRAIN); /* SDA */
 
   i2cStart(&I2CD1, &i2ccfg);
@@ -363,7 +363,7 @@ void shellcmd_altimeter(BaseSequentialStream *chp, int argc, char *argv[])
   (void)argv;
 
   while (chnGetTimeout((BaseChannel *)chp, TIME_IMMEDIATE) == Q_TIMEOUT) {
-    chprintf(chp, "%6d deg. C * 10, %6d, Pa %6d cm\r\n",
+    chprintf(chp, "%6d deg. C * 100, %6d, Pa %6d cm\r\n",
              altimeter_data.temperature_raw,
              altimeter_data.pressure_raw / 256,
              (int32_t)(altimeter_data.altitude * 100.0f));

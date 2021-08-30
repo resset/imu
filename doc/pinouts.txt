@@ -1,20 +1,43 @@
-Shell:
-SERIAL - USART3 PD8(TX) PD9(RX) AF7
+Shell via ST-Link:
+  SERIAL - USART3
+    PD8 AF7 TX
+    PD9 AF7 RX
 
 Ground Control (radio):
-SIO - USART2 PA3(RX) AF7
+  SIO - USART2
+    PA3 AF7 RX
 
 Servo:
-PWM - TIM3 PA6 PA7 PB0 PB1 AF2
+  PWM - TIM3
+    PA6 AF2
+    PA7 AF2
+    PB0 AF2
+    PB1 AF2
 
 Altimeter:
-I2C - I2C1 PB7(SDA) PB6(SCL) AF4 [FIXME: PB6 in conflict with QSPI_BK1_NCS]
+  I2C - I2C1
+    PB7 AF4 SDA
+    PB8 AF4 SCL
 
 Gnss:
-SIO - UART8 PE1(TX) PE0(RX) AF8
+  SIO - UART8
+    PE1 AF8 TX
+    PE0 AF8 RX
 
 Debug UART:
-SIO - UART7 PE8(TX) PE7(RX) AF7
+  SIO - UART7
+    PE8 AF7 TX
+    PE7 AF7 RX
+
+IMU:
+  SPI - SPI1
+    PA15 AF5 NSS
+    PB3  AF5 SCK
+    PB4  AF5 MISO
+    PB5  AF5 MOSI
 
 LEDs:
-PAL - GPIO PA1 PD10 PD14
+  PAL - GPIO
+    PA1  pullup
+    PD10 pulldown
+    PD14 pulldown
