@@ -229,10 +229,28 @@ static pg_result_t bmp280_compensate_pressure(bmp280_data_t *bd)
   return ret;
 }
 
+static pg_result_t altimeter_altitude(altimeter_data_t *ad)
+{
+  /* We calculate altitude regardless of the data validity, the valid flag
+     is common for all data.*/
+  if (ad->pressure_reference != 0.0f) {
+    ad->altitude = (
+        (powf(ad->pressure / ad->pressure_reference, 0.1902665f) - 1)
+        *
+        (ad->temperature + 273.15f)
+      ) / (-0.0065f);
+    return PG_OK;
+  } else {
+    return PG_ERROR;
+  }
+}
+
 static pg_result_t altimeter_read(bmp280_data_t *bd, altimeter_data_t *ad)
 {
   CC_ALIGN_DATA(32) uint8_t txbuf[CACHE_SIZE_ALIGN(uint8_t, 2)];
   CC_ALIGN_DATA(32) uint8_t rxbuf[CACHE_SIZE_ALIGN(uint8_t, 24)];
+
+  ad->data_valid = false;
 
   txbuf[0] = BMP280_PRESS_MSB;
 
@@ -248,13 +266,19 @@ static pg_result_t altimeter_read(bmp280_data_t *bd, altimeter_data_t *ad)
       if (bmp280_compensate_pressure(bd) == PG_OK) {
         ad->temperature = (float)bd->temperature_raw / 100.0f;
         ad->pressure = (float)bd->pressure_raw / 256.0f;
-        ad->data_valid = true;
+
+        /* Altitude calculation can fail only if there is no reference pressure
+           calculated. For the purpose of use in zeroing process we return OK
+           here even if the data is not valid (or in this case: complete).*/
+        if (altimeter_altitude(ad) == PG_OK) {
+          ad->data_valid = true;
+        }
+
         return PG_OK;
       }
     }
   }
 
-  ad->data_valid = false;
   return PG_ERROR;
 }
 
@@ -275,22 +299,6 @@ static pg_result_t altimeter_zero(bmp280_data_t *bd, altimeter_data_t *ad)
     return PG_OK;
   } else {
     ad->pressure_reference = 0.0f;
-    return PG_ERROR;
-  }
-}
-
-static pg_result_t altimeter_altitude(altimeter_data_t *ad)
-{
-  /* We calculate altitude regardless of the data validity, the valid flag
-     is common for all data.*/
-  if (ad->pressure_reference != 0.0f) {
-    ad->altitude = (
-        (powf(ad->pressure / ad->pressure_reference, 0.1902665f) - 1)
-        *
-        (ad->temperature + 273.15f)
-      ) / (-0.0065f);
-    return PG_OK;
-  } else {
     return PG_ERROR;
   }
 }
@@ -355,13 +363,12 @@ THD_FUNCTION(thAltimeter, arg)
         }
         break;
       case ALTIMETER_STATE_READY:
-        if (altimeter_read(&bmp280_data, &ad) == PG_OK) {
+        if (altimeter_read(&bmp280_data, &ad) != PG_OK) {
           /* We do not want to fail here. We should rather mark the data as
              invalid so that the controller decides on what to do. We should
              then attempt to compute the next sample.*/
-          altimeter_altitude(&ad);
-          altimeter_copy_data(&ad, &altimeter_data);
         }
+        altimeter_copy_data(&ad, &altimeter_data);
         break;
       case ALTIMETER_FATAL_ERROR:
         return;
