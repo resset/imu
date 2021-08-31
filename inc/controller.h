@@ -23,4 +23,6 @@
 extern THD_WORKING_AREA(waController, 128);
 THD_FUNCTION(thController, arg);
 
+void shellcmd_controller(BaseSequentialStream *chp, int argc, char *argv[]);
+
 #endif /* _CONTROLLER_H_ */

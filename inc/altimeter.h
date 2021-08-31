@@ -37,6 +37,8 @@
 #define PG_CFG_ALT_ZERO_SAMPLES ((uint16_t)100)
 #endif
 
+extern binary_semaphore_t altimeter_ready_bsem;
+
 pg_result_t altimeter_state_zero(void);
 
 #define ALTIMETER_THREAD_STACK_SIZE 256

@@ -29,9 +29,6 @@
 
 void tasks_init(void)
 {
-  //chThdCreateStatic(waImu, sizeof(waImu), HIGHPRIO, thImu, NULL);
-  chThdCreateStatic(waController, sizeof(waController), HIGHPRIO - 1, thController, NULL);
-
   chThdCreateStatic(waGnss, sizeof(waGnss), NORMALPRIO, thGnss, NULL);
   chThdCreateStatic(waAltimeter, sizeof(waAltimeter), NORMALPRIO, thAltimeter, NULL);
   chThdCreateStatic(waGroundControl, sizeof(waGroundControl), NORMALPRIO, thGroundControl, NULL);
@@ -41,4 +38,7 @@ void tasks_init(void)
   chThdCreateStatic(waBlackbox, sizeof(waBlackbox), LOWPRIO + 3, thBlackbox, NULL);
   chThdCreateStatic(waShell, sizeof(waShell), LOWPRIO + 2, thShell, NULL);
   chThdCreateStatic(waBlink, sizeof(waBlink), LOWPRIO + 1, thBlink, NULL);
+
+  //chThdCreateStatic(waImu, sizeof(waImu), HIGHPRIO, thImu, NULL);
+  chThdCreateStatic(waController, sizeof(waController), HIGHPRIO - 1, thController, NULL);
 }

@@ -62,6 +62,8 @@ typedef enum {
 
 static altimeter_state_t altimeter_state;
 
+binary_semaphore_t altimeter_ready_bsem;
+
 static const I2CConfig i2ccfg = {
   STM32_TIMINGR_PRESC(0x0U) |
   STM32_TIMINGR_SCLDEL(0x9U) | STM32_TIMINGR_SDADEL(0x0U) |
@@ -316,6 +318,8 @@ THD_FUNCTION(thAltimeter, arg)
 
   chRegSetThreadName("thAltimeter");
 
+  chBSemObjectInit(&altimeter_ready_bsem, true);
+
   while (true) {
     switch (altimeter_state) {
       case ALTIMETER_STATE_INIT:
@@ -334,6 +338,9 @@ THD_FUNCTION(thAltimeter, arg)
       case ALTIMETER_STATE_ZERO:
         if (altimeter_zero(&altimeter_data) == PG_OK) {
           altimeter_state = ALTIMETER_STATE_READY;
+          /* When signalling, we should make sure that all data are present.*/
+          altimeter_altitude(&altimeter_data);
+          chBSemSignal(&altimeter_ready_bsem);
         } else {
           /* TODO: we shoud probably try few more times.*/
           altimeter_state = ALTIMETER_FATAL_ERROR;

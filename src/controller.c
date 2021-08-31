@@ -21,6 +21,23 @@
 #include "chprintf.h"
 
 #include "controller.h"
+#include "altimeter.h"
+
+typedef enum {
+  CONTROLLER_STATE_INIT,
+  CONTROLLER_STATE_WAIT,
+  CONTROLLER_STATE_READY,
+  CONTROLLER_FATAL_ERROR
+} controller_state_t;
+
+static controller_state_t controller_state;
+
+static void controller_loop(void)
+{
+  /* Gather sensor data.*/
+  /* Process data.*/
+  /* Output control signals.*/
+}
 
 THD_WORKING_AREA(waController, 128);
 THD_FUNCTION(thController, arg)
@@ -29,7 +46,28 @@ THD_FUNCTION(thController, arg)
 
   chRegSetThreadName("thController");
 
+  controller_state = CONTROLLER_STATE_INIT;
+  controller_state = CONTROLLER_STATE_WAIT;
+
+  chBSemWait(&altimeter_ready_bsem);
+
+  controller_state = CONTROLLER_STATE_READY;
+
+  systime_t time = chVTGetSystemTime();
   while (true) {
-    chThdSleepMilliseconds(500);
+    /* Fire the thread every 1 ms (1 kHz).*/
+    time = chTimeAddX(time, TIME_MS2I(1));
+
+    controller_loop();
+
+    chThdSleepUntil(time);
   }
+}
+
+void shellcmd_controller(BaseSequentialStream *chp, int argc, char *argv[])
+{
+  (void)argc;
+  (void)argv;
+
+  chprintf(chp, "controller state: %d\r\n", (int32_t)controller_state);
 }

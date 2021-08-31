@@ -19,6 +19,7 @@
 #include "hal.h"
 #include "shell.h"
 
+#include "controller.h"
 #include "imu.h"
 #include "gnss.h"
 #include "altimeter.h"
@@ -40,6 +41,7 @@ SerialConfig serial_cfg = {
 static const ShellCommand commands[] = {
   {"about", shellcmd_about},
   {"reset", shellcmd_reset},
+  {"ctrl", shellcmd_controller},
   {"imu", shellcmd_imu},
   {"gnss", shellcmd_servo},
   {"alt", shellcmd_altimeter},
