@@ -295,13 +295,6 @@ static pg_result_t altimeter_altitude(altimeter_data_t *ad)
   }
 }
 
-void publish_data(altimeter_data_t *source)
-{
-  chMtxLock(&altimeter_data_mtx);
-  memcpy(&altimeter_data, source, sizeof(altimeter_data_t));
-  chMtxUnlock(&altimeter_data_mtx);
-}
-
 pg_result_t altimeter_state_zero(void)
 {
   chSysLock();
@@ -313,6 +306,13 @@ pg_result_t altimeter_state_zero(void)
     chSysUnlock();
     return PG_ERROR;
   }
+}
+
+void altimeter_copy_data(altimeter_data_t *source, altimeter_data_t *target)
+{
+  chMtxLock(&altimeter_data_mtx);
+  memcpy(target, source, sizeof(altimeter_data_t));
+  chMtxUnlock(&altimeter_data_mtx);
 }
 
 THD_WORKING_AREA(waAltimeter, ALTIMETER_THREAD_STACK_SIZE);
@@ -347,7 +347,7 @@ THD_FUNCTION(thAltimeter, arg)
           altimeter_state = ALTIMETER_STATE_READY;
           /* When signalling, we should make sure that all data are present.*/
           altimeter_altitude(&ad);
-          publish_data(&ad);
+          altimeter_copy_data(&ad, &altimeter_data);
           chBSemSignal(&altimeter_ready_bsem);
         } else {
           /* TODO: we shoud probably try few more times.*/
@@ -360,7 +360,7 @@ THD_FUNCTION(thAltimeter, arg)
              invalid so that the controller decides on what to do. We should
              then attempt to compute the next sample.*/
           altimeter_altitude(&ad);
-          publish_data(&ad);
+          altimeter_copy_data(&ad, &altimeter_data);
         }
         break;
       case ALTIMETER_FATAL_ERROR:

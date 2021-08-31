@@ -35,6 +35,8 @@ static controller_state_t controller_state;
 static void controller_loop(void)
 {
   /* Gather sensor data.*/
+  altimeter_data_t c_altimeter_data;
+  altimeter_copy_data(&altimeter_data, &c_altimeter_data);
   /* Process data.*/
   /* Output control signals.*/
 }

@@ -50,6 +50,7 @@ extern mutex_t altimeter_data_mtx;
 extern altimeter_data_t altimeter_data;
 
 pg_result_t altimeter_state_zero(void);
+void altimeter_copy_data(altimeter_data_t *source, altimeter_data_t *target);
 
 #define ALTIMETER_THREAD_STACK_SIZE 256
 extern THD_WORKING_AREA(waAltimeter, ALTIMETER_THREAD_STACK_SIZE);
