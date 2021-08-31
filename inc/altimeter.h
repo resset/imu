@@ -37,7 +37,17 @@
 #define PG_CFG_ALT_ZERO_SAMPLES ((uint16_t)100)
 #endif
 
+typedef struct {
+  bool data_valid;
+  float temperature;
+  float pressure;
+  float pressure_reference;
+  float altitude;
+} altimeter_data_t;
+
 extern binary_semaphore_t altimeter_ready_bsem;
+extern mutex_t altimeter_data_mtx;
+extern altimeter_data_t altimeter_data;
 
 pg_result_t altimeter_state_zero(void);
 

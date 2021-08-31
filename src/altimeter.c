@@ -43,14 +43,7 @@ typedef struct {
   int32_t t_fine;
   int32_t temperature_raw;
   uint32_t pressure_raw;
-  bool data_valid;
-  float temperature;
-  float pressure;
-  float pressure_reference;
-  float altitude;
-} altimeter_data_t;
-
-altimeter_data_t altimeter_data;
+} bmp280_data_t;
 
 typedef enum {
   ALTIMETER_STATE_INIT,
@@ -61,8 +54,11 @@ typedef enum {
 } altimeter_state_t;
 
 static altimeter_state_t altimeter_state;
+static bmp280_data_t bmp280_data;
 
 binary_semaphore_t altimeter_ready_bsem;
+mutex_t altimeter_data_mtx;
+altimeter_data_t altimeter_data;
 
 static const I2CConfig i2ccfg = {
   STM32_TIMINGR_PRESC(0x0U) |
@@ -85,12 +81,10 @@ static void i2c_send(uint8_t *txbuf, size_t txbuf_len)
   i2cMasterTransmitTimeout(&I2CD1, BMP280_ADDR, txbuf, txbuf_len, NULL, 0, TIME_INFINITE);
 }
 
-static pg_result_t altimeter_init(altimeter_data_t *ad)
+static pg_result_t altimeter_init(bmp280_data_t *bd)
 {
   CC_ALIGN_DATA(32) uint8_t txbuf[CACHE_SIZE_ALIGN(uint8_t, 2)];
   CC_ALIGN_DATA(32) uint8_t rxbuf[CACHE_SIZE_ALIGN(uint8_t, 24)];
-
-  ad->data_valid = false;
 
   /*
    * I2C initialization.
@@ -146,52 +140,52 @@ static pg_result_t altimeter_init(altimeter_data_t *ad)
   /* Calibration data readout.*/
   txbuf[0] = BMP280_DIG_T1_LSB;
   i2c_transmit(txbuf, 1, rxbuf, 24);
-  ad->dig_T1 = ((uint16_t)rxbuf[1]) << 8 | rxbuf[0];
-  ad->dig_T2 = ((uint16_t)rxbuf[3]) << 8 | rxbuf[2];
-  ad->dig_T3 = ((uint16_t)rxbuf[5]) << 8 | rxbuf[4];
-  ad->dig_P1 = ((uint16_t)rxbuf[7]) << 8 | rxbuf[6];
-  ad->dig_P2 = ((uint16_t)rxbuf[9]) << 8 | rxbuf[8];
-  ad->dig_P3 = ((uint16_t)rxbuf[11]) << 8 | rxbuf[10];
-  ad->dig_P4 = ((uint16_t)rxbuf[13]) << 8 | rxbuf[12];
-  ad->dig_P5 = ((uint16_t)rxbuf[15]) << 8 | rxbuf[14];
-  ad->dig_P6 = ((uint16_t)rxbuf[17]) << 8 | rxbuf[16];
-  ad->dig_P7 = ((uint16_t)rxbuf[19]) << 8 | rxbuf[18];
-  ad->dig_P8 = ((uint16_t)rxbuf[21]) << 8 | rxbuf[20];
-  ad->dig_P9 = ((uint16_t)rxbuf[23]) << 8 | rxbuf[22];
+  bd->dig_T1 = ((uint16_t)rxbuf[1]) << 8 | rxbuf[0];
+  bd->dig_T2 = ((uint16_t)rxbuf[3]) << 8 | rxbuf[2];
+  bd->dig_T3 = ((uint16_t)rxbuf[5]) << 8 | rxbuf[4];
+  bd->dig_P1 = ((uint16_t)rxbuf[7]) << 8 | rxbuf[6];
+  bd->dig_P2 = ((uint16_t)rxbuf[9]) << 8 | rxbuf[8];
+  bd->dig_P3 = ((uint16_t)rxbuf[11]) << 8 | rxbuf[10];
+  bd->dig_P4 = ((uint16_t)rxbuf[13]) << 8 | rxbuf[12];
+  bd->dig_P5 = ((uint16_t)rxbuf[15]) << 8 | rxbuf[14];
+  bd->dig_P6 = ((uint16_t)rxbuf[17]) << 8 | rxbuf[16];
+  bd->dig_P7 = ((uint16_t)rxbuf[19]) << 8 | rxbuf[18];
+  bd->dig_P8 = ((uint16_t)rxbuf[21]) << 8 | rxbuf[20];
+  bd->dig_P9 = ((uint16_t)rxbuf[23]) << 8 | rxbuf[22];
 
   i2cReleaseBus(&I2CD1);
 
   return PG_OK;
 }
 
-static pg_result_t bmp280_check_boundaries(altimeter_data_t *ad)
+static pg_result_t bmp280_check_boundaries(bmp280_data_t *bd)
 {
   /* We check here the sanity of the ADC readings.*/
-  if (ad->p_adc < BMP280_ADC_P_MIN || ad->p_adc > BMP280_ADC_P_MAX ||
-      ad->t_adc < BMP280_ADC_T_MIN || ad->t_adc > BMP280_ADC_T_MAX) {
+  if (bd->p_adc < BMP280_ADC_P_MIN || bd->p_adc > BMP280_ADC_P_MAX ||
+      bd->t_adc < BMP280_ADC_T_MIN || bd->t_adc > BMP280_ADC_T_MAX) {
     return PG_ERROR;
   } else {
     return PG_OK;
   }
 }
 
-static pg_result_t bmp280_compensate_temperature(altimeter_data_t *ad)
+static pg_result_t bmp280_compensate_temperature(bmp280_data_t *bd)
 {
   pg_result_t ret;
   int32_t var1, var2;
 
-  var1 = ((((ad->t_adc >> 3) - ((int32_t)ad->dig_T1 << 1))) * ((int32_t)ad->dig_T2)) >> 11;
-  var2 = (((((ad->t_adc >> 4) - ((int32_t)ad->dig_T1))
-            * ((ad->t_adc >> 4) - ((int32_t)ad->dig_T1))) >> 12)
-          * ((int32_t)ad->dig_T3)) >> 14;
-  ad->t_fine = var1 + var2;
-  ad->temperature_raw = (ad->t_fine * 5 + 128) >> 8;
+  var1 = ((((bd->t_adc >> 3) - ((int32_t)bd->dig_T1 << 1))) * ((int32_t)bd->dig_T2)) >> 11;
+  var2 = (((((bd->t_adc >> 4) - ((int32_t)bd->dig_T1))
+            * ((bd->t_adc >> 4) - ((int32_t)bd->dig_T1))) >> 12)
+          * ((int32_t)bd->dig_T3)) >> 14;
+  bd->t_fine = var1 + var2;
+  bd->temperature_raw = (bd->t_fine * 5 + 128) >> 8;
 
-  if (ad->temperature_raw < BMP280_MIN_TEMP_INT) {
-    ad->temperature_raw = BMP280_MIN_TEMP_INT;
+  if (bd->temperature_raw < BMP280_MIN_TEMP_INT) {
+    bd->temperature_raw = BMP280_MIN_TEMP_INT;
     ret = PG_ERROR;
-  } else if (ad->temperature_raw > BMP280_MAX_TEMP_INT) {
-    ad->temperature_raw = BMP280_MAX_TEMP_INT;
+  } else if (bd->temperature_raw > BMP280_MAX_TEMP_INT) {
+    bd->temperature_raw = BMP280_MAX_TEMP_INT;
     ret = PG_ERROR;
   } else {
     ret = PG_OK;
@@ -200,33 +194,33 @@ static pg_result_t bmp280_compensate_temperature(altimeter_data_t *ad)
   return ret;
 }
 
-static pg_result_t bmp280_compensate_pressure(altimeter_data_t *ad)
+static pg_result_t bmp280_compensate_pressure(bmp280_data_t *bd)
 {
   pg_result_t ret;
   int64_t var1, var2, p;
 
-  var1 = ((int64_t)ad->t_fine) - 128000;
-  var2 = var1 * var1 * (int64_t)ad->dig_P6;
-  var2 = var2 + ((var1 * (int64_t)ad->dig_P5) << 17);
-  var2 = var2 + (((int64_t)ad->dig_P4) << 35);
-  var1 = ((var1 * var1 * (int64_t)ad->dig_P3) >> 8) + ((var1 * (int64_t)ad->dig_P2) << 12);
-  var1 = (((((int64_t)1) << 47) + var1)) * ((int64_t)ad->dig_P1) >> 33;
+  var1 = ((int64_t)bd->t_fine) - 128000;
+  var2 = var1 * var1 * (int64_t)bd->dig_P6;
+  var2 = var2 + ((var1 * (int64_t)bd->dig_P5) << 17);
+  var2 = var2 + (((int64_t)bd->dig_P4) << 35);
+  var1 = ((var1 * var1 * (int64_t)bd->dig_P3) >> 8) + ((var1 * (int64_t)bd->dig_P2) << 12);
+  var1 = (((((int64_t)1) << 47) + var1)) * ((int64_t)bd->dig_P1) >> 33;
   if (var1 == 0) {
-    ad->pressure_raw = 0;
+    bd->pressure_raw = 0;
     return PG_ERROR;
   }
-  p = 1048576 - ad->p_adc;
+  p = 1048576 - bd->p_adc;
   p = (((p << 31) - var2) * 3125) / var1;
-  var1 = (((int64_t)ad->dig_P9) * (p >> 13) * (p >> 13)) >> 25;
-  var2 = (((int64_t)ad->dig_P8) * p) >> 19;
-  p = ((p + var1 + var2) >> 8) + (((int64_t)ad->dig_P7) << 4);
-  ad->pressure_raw = (uint32_t)p;
+  var1 = (((int64_t)bd->dig_P9) * (p >> 13) * (p >> 13)) >> 25;
+  var2 = (((int64_t)bd->dig_P8) * p) >> 19;
+  p = ((p + var1 + var2) >> 8) + (((int64_t)bd->dig_P7) << 4);
+  bd->pressure_raw = (uint32_t)p;
 
-  if (ad->pressure_raw < BMP280_MIN_PRES_64INT) {
-    ad->pressure_raw = BMP280_MIN_PRES_64INT;
+  if (bd->pressure_raw < BMP280_MIN_PRES_64INT) {
+    bd->pressure_raw = BMP280_MIN_PRES_64INT;
     ret = PG_ERROR;
-  } else if (ad->pressure_raw > BMP280_MAX_PRES_64INT) {
-    ad->pressure_raw = BMP280_MAX_PRES_64INT;
+  } else if (bd->pressure_raw > BMP280_MAX_PRES_64INT) {
+    bd->pressure_raw = BMP280_MAX_PRES_64INT;
     ret = PG_ERROR;
   } else {
     ret = PG_OK;
@@ -235,7 +229,7 @@ static pg_result_t bmp280_compensate_pressure(altimeter_data_t *ad)
   return ret;
 }
 
-static pg_result_t altimeter_read(altimeter_data_t *ad)
+static pg_result_t altimeter_read(bmp280_data_t *bd, altimeter_data_t *ad)
 {
   CC_ALIGN_DATA(32) uint8_t txbuf[CACHE_SIZE_ALIGN(uint8_t, 2)];
   CC_ALIGN_DATA(32) uint8_t rxbuf[CACHE_SIZE_ALIGN(uint8_t, 24)];
@@ -246,14 +240,14 @@ static pg_result_t altimeter_read(altimeter_data_t *ad)
   i2c_transmit(txbuf, 1, rxbuf, 6);
   i2cReleaseBus(&I2CD1);
 
-  ad->t_adc = (int32_t)rxbuf[3] << 12 | (int32_t)rxbuf[4] << 4 | (int32_t)rxbuf[5] >> 4;
-  ad->p_adc = (int32_t)rxbuf[0] << 12 | (int32_t)rxbuf[1] << 4 | (int32_t)rxbuf[2] >> 4;
+  bd->t_adc = (int32_t)rxbuf[3] << 12 | (int32_t)rxbuf[4] << 4 | (int32_t)rxbuf[5] >> 4;
+  bd->p_adc = (int32_t)rxbuf[0] << 12 | (int32_t)rxbuf[1] << 4 | (int32_t)rxbuf[2] >> 4;
 
-  if (bmp280_check_boundaries(ad) == PG_OK) {
-    if (bmp280_compensate_temperature(ad) == PG_OK) {
-      ad->temperature = (float)ad->temperature_raw / 100.0f;
-      if (bmp280_compensate_pressure(ad) == PG_OK) {
-        ad->pressure = (float)ad->pressure_raw / 256.0f;
+  if (bmp280_check_boundaries(bd) == PG_OK) {
+    if (bmp280_compensate_temperature(bd) == PG_OK) {
+      if (bmp280_compensate_pressure(bd) == PG_OK) {
+        ad->temperature = (float)bd->temperature_raw / 100.0f;
+        ad->pressure = (float)bd->pressure_raw / 256.0f;
         ad->data_valid = true;
         return PG_OK;
       }
@@ -264,12 +258,12 @@ static pg_result_t altimeter_read(altimeter_data_t *ad)
   return PG_ERROR;
 }
 
-static pg_result_t altimeter_zero(altimeter_data_t *ad)
+static pg_result_t altimeter_zero(bmp280_data_t *bd, altimeter_data_t *ad)
 {
   uint16_t i = 0, guard = 0;
 
   while (i < 10 && guard != PG_CFG_ALT_ZERO_SAMPLES) {
-    if (altimeter_read(ad) == PG_OK) {
+    if (altimeter_read(bd, ad) == PG_OK) {
       ad->pressure_reference += ad->pressure;
       i++;
     }
@@ -301,6 +295,13 @@ static pg_result_t altimeter_altitude(altimeter_data_t *ad)
   }
 }
 
+void publish_data(altimeter_data_t *source)
+{
+  chMtxLock(&altimeter_data_mtx);
+  memcpy(&altimeter_data, source, sizeof(altimeter_data_t));
+  chMtxUnlock(&altimeter_data_mtx);
+}
+
 pg_result_t altimeter_state_zero(void)
 {
   if (altimeter_state == ALTIMETER_STATE_READY) {
@@ -315,15 +316,17 @@ THD_WORKING_AREA(waAltimeter, ALTIMETER_THREAD_STACK_SIZE);
 THD_FUNCTION(thAltimeter, arg)
 {
   (void)arg;
+  altimeter_data_t ad;
 
   chRegSetThreadName("thAltimeter");
 
   chBSemObjectInit(&altimeter_ready_bsem, true);
+  chMtxObjectInit(&altimeter_data_mtx);
 
   while (true) {
     switch (altimeter_state) {
       case ALTIMETER_STATE_INIT:
-        if (altimeter_init(&altimeter_data) == PG_OK) {
+        if (altimeter_init(&bmp280_data) == PG_OK) {
 #ifdef PG_CFG_ALT_ZERO_ON_INIT
         altimeter_state = ALTIMETER_STATE_ZERO;
 #else
@@ -336,10 +339,11 @@ THD_FUNCTION(thAltimeter, arg)
       case ALTIMETER_STATE_NOP:
         break;
       case ALTIMETER_STATE_ZERO:
-        if (altimeter_zero(&altimeter_data) == PG_OK) {
+        if (altimeter_zero(&bmp280_data, &ad) == PG_OK) {
           altimeter_state = ALTIMETER_STATE_READY;
           /* When signalling, we should make sure that all data are present.*/
-          altimeter_altitude(&altimeter_data);
+          altimeter_altitude(&ad);
+          publish_data(&ad);
           chBSemSignal(&altimeter_ready_bsem);
         } else {
           /* TODO: we shoud probably try few more times.*/
@@ -347,11 +351,12 @@ THD_FUNCTION(thAltimeter, arg)
         }
         break;
       case ALTIMETER_STATE_READY:
-        if (altimeter_read(&altimeter_data) == PG_OK) {
+        if (altimeter_read(&bmp280_data, &ad) == PG_OK) {
           /* We do not want to fail here. We should rather mark the data as
              invalid so that the controller decides on what to do. We should
              then attempt to compute the next sample.*/
-          altimeter_altitude(&altimeter_data);
+          altimeter_altitude(&ad);
+          publish_data(&ad);
         }
         break;
       case ALTIMETER_FATAL_ERROR:
@@ -370,9 +375,9 @@ void shellcmd_altimeter(BaseSequentialStream *chp, int argc, char *argv[])
   (void)argv;
 
   while (chnGetTimeout((BaseChannel *)chp, TIME_IMMEDIATE) == Q_TIMEOUT) {
-    chprintf(chp, "%6d deg. C * 100, %6d, Pa %6d cm\r\n",
-             altimeter_data.temperature_raw,
-             altimeter_data.pressure_raw / 256,
+    chprintf(chp, "%6d deg. C / 100, %6d, Pa %6d cm\r\n",
+             bmp280_data.temperature_raw,
+             bmp280_data.pressure_raw / 256,
              (int32_t)(altimeter_data.altitude * 100.0f));
 
     /* TODO: settle on some read schedule, add a mutex.*/
