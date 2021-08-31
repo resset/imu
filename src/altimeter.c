@@ -262,7 +262,7 @@ static pg_result_t altimeter_zero(bmp280_data_t *bd, altimeter_data_t *ad)
 {
   uint16_t i = 0, guard = 0;
 
-  while (i < 10 && guard != PG_CFG_ALT_ZERO_SAMPLES) {
+  while (i < PG_CFG_ALT_ZERO_SAMPLES && guard != PG_CFG_ALT_ZERO_MAX_TRIES) {
     if (altimeter_read(bd, ad) == PG_OK) {
       ad->pressure_reference += ad->pressure;
       i++;
@@ -270,8 +270,8 @@ static pg_result_t altimeter_zero(bmp280_data_t *bd, altimeter_data_t *ad)
     guard++;
   }
 
-  if (guard != PG_CFG_ALT_ZERO_SAMPLES) {
-    ad->pressure_reference /= 10.0f;
+  if (guard != PG_CFG_ALT_ZERO_MAX_TRIES) {
+    ad->pressure_reference /= (float)PG_CFG_ALT_ZERO_SAMPLES;
     return PG_OK;
   } else {
     ad->pressure_reference = 0.0f;

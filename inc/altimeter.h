@@ -34,7 +34,11 @@
 #define BMP280_MAX_PRES_64INT ((uint32_t)(110000 * 256))
 
 #ifndef PG_CFG_ALT_ZERO_SAMPLES
-#define PG_CFG_ALT_ZERO_SAMPLES ((uint16_t)100)
+#define PG_CFG_ALT_ZERO_SAMPLES ((uint16_t)10)
+#endif
+
+#ifndef PG_CFG_ALT_ZERO_MAX_TRIES
+#define PG_CFG_ALT_ZERO_MAX_TRIES ((uint16_t)100)
 #endif
 
 typedef struct {
