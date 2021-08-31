@@ -304,10 +304,13 @@ void publish_data(altimeter_data_t *source)
 
 pg_result_t altimeter_state_zero(void)
 {
+  chSysLock();
   if (altimeter_state == ALTIMETER_STATE_READY) {
     altimeter_state = ALTIMETER_STATE_ZERO;
+    chSysUnlock();
     return PG_OK;
   } else {
+    chSysUnlock();
     return PG_ERROR;
   }
 }
@@ -324,6 +327,7 @@ THD_FUNCTION(thAltimeter, arg)
   chMtxObjectInit(&altimeter_data_mtx);
 
   while (true) {
+    /* FIXME: move all state code into critocal sections.*/
     switch (altimeter_state) {
       case ALTIMETER_STATE_INIT:
         if (altimeter_init(&bmp280_data) == PG_OK) {
@@ -363,7 +367,7 @@ THD_FUNCTION(thAltimeter, arg)
         return;
     }
 
-    /* TODO: the schedule of this thread hast to be puf into greater context
+    /* TODO: the schedule of this thread has to be put into greater context
        of all subprocesses cooperation, of course.*/
     chThdSleepMilliseconds(50);
   }
@@ -374,13 +378,20 @@ void shellcmd_altimeter(BaseSequentialStream *chp, int argc, char *argv[])
   (void)argc;
   (void)argv;
 
-  while (chnGetTimeout((BaseChannel *)chp, TIME_IMMEDIATE) == Q_TIMEOUT) {
-    chprintf(chp, "%6d deg. C / 100, %6d, Pa %6d cm\r\n",
-             bmp280_data.temperature_raw,
-             bmp280_data.pressure_raw / 256,
-             (int32_t)(altimeter_data.altitude * 100.0f));
+  chSysLock();
+  altimeter_state_t st = altimeter_state;
+  chSysUnlock();
 
-    /* TODO: settle on some read schedule, add a mutex.*/
-    chThdSleepMilliseconds(50);
+  if (st == ALTIMETER_STATE_READY) {
+    while (chnGetTimeout((BaseChannel *)chp, TIME_IMMEDIATE) == Q_TIMEOUT) {
+      /* FIXME: add mutex(es).*/
+      chprintf(chp, "%6d deg. C / 100, %6d, Pa %6d cm\r\n",
+              bmp280_data.temperature_raw,
+              bmp280_data.pressure_raw / 256,
+              (int32_t)(altimeter_data.altitude * 100.0f));
+
+      /* TODO: settle on some read schedule.*/
+      chThdSleepMilliseconds(50);
+    }
   }
 }
