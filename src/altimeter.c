@@ -250,7 +250,6 @@ static pg_result_t altimeter_read(bmp280_data_t *bd, altimeter_data_t *ad)
       if (bmp280_compensate_pressure(bd) == PG_OK) {
         ad->temperature = (float)bd->temperature_raw / 100.0f;
         ad->pressure = (float)bd->pressure_raw / 256.0f;
-        ad->data_valid = true;
         return PG_OK;
       }
     }
@@ -284,13 +283,16 @@ static pg_result_t altimeter_zero(bmp280_data_t *bd, altimeter_data_t *ad)
 static pg_result_t altimeter_altitude(altimeter_data_t *ad)
 {
   /* We calculate altitude regardless of the data validity, the valid flag
-     is common for all data.*/
+     is common for all data so it is only true after successful altitude
+     calculation.*/
   if (ad->pressure_reference != 0.0f) {
     ad->altitude = (
         (powf(ad->pressure / ad->pressure_reference, 0.1902665f) - 1)
         *
         (ad->temperature + 273.15f)
       ) / (-0.0065f);
+
+    ad->data_valid = true;
     return PG_OK;
   } else {
     return PG_ERROR;
@@ -348,10 +350,11 @@ THD_FUNCTION(thAltimeter, arg)
         break;
       case ALTIMETER_STATE_ZERO:
         if (altimeter_zero(&bmp280_data, &ad) == PG_OK) {
-          altimeter_state = ALTIMETER_STATE_READY;
           /* When signalling, we should make sure that all data are present.*/
           altimeter_altitude(&ad);
           altimeter_copy_data(&ad, &altimeter_data);
+
+          altimeter_state = ALTIMETER_STATE_READY;
           chBSemSignal(&altimeter_ready_bsem);
         } else {
           /* TODO: we shoud probably try few more times.*/
