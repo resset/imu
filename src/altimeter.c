@@ -285,17 +285,18 @@ static pg_result_t altimeter_read(bmp280_data_t *bd, altimeter_data_t *ad)
 static pg_result_t altimeter_zero(bmp280_data_t *bd, altimeter_data_t *ad)
 {
   uint16_t i = 0, guard = 0;
+  float p_reference = 0.0f;
 
   while (i < PG_CFG_ALT_ZERO_SAMPLES && guard != PG_CFG_ALT_ZERO_MAX_TRIES) {
     if (altimeter_read(bd, ad) == PG_OK) {
-      ad->pressure_reference += ad->pressure;
+      p_reference += ad->pressure;
       i++;
     }
     guard++;
   }
 
   if (guard != PG_CFG_ALT_ZERO_MAX_TRIES) {
-    ad->pressure_reference /= (float)PG_CFG_ALT_ZERO_SAMPLES;
+    ad->pressure_reference = p_reference / (float)PG_CFG_ALT_ZERO_SAMPLES;
     return PG_OK;
   } else {
     ad->pressure_reference = 0.0f;
@@ -328,6 +329,8 @@ THD_FUNCTION(thAltimeter, arg)
 {
   (void)arg;
   altimeter_data_t ad;
+  ad.data_valid = false;
+  ad.pressure_reference = 0.0f;
 
   chRegSetThreadName("thAltimeter");
 
