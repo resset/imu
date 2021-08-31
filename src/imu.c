@@ -25,15 +25,14 @@
 
 static binary_semaphore_t imu_ready_bsem;
 
-static const I2CConfig i2ccfg = {
-  STM32_TIMINGR_PRESC(0x0U) |
-  STM32_TIMINGR_SCLDEL(0x9U) | STM32_TIMINGR_SDADEL(0x0U) |
-  STM32_TIMINGR_SCLH(0x19U) | STM32_TIMINGR_SCLL(0x4BU),
-  0,
+const SPIConfig spicfg = {
+  false,
+  NULL,
+  GPIOD,
+  14,
+  SPI_CFG1_MBR_DIV8 | SPI_CFG1_DSIZE_VALUE(7),
   0
 };
-
-#define MPU6050_ADDR MPU6050_ADDR_LOW
 
 typedef struct {
   int16_t accel_xout;
@@ -51,13 +50,13 @@ inline static void imu_transmit(uint8_t *txbuf, size_t txbuf_len, uint8_t *rxbuf
 {
   cacheBufferFlush(txbuf, CACHE_SIZE_ALIGN(uint8_t, txbuf_len));
   cacheBufferInvalidate(rxbuf, CACHE_SIZE_ALIGN(uint8_t, rxbuf_len));
-  i2cMasterTransmitTimeout(&I2CD1, MPU6050_ADDR, txbuf, txbuf_len, rxbuf, rxbuf_len, TIME_INFINITE);
+  spiExchange(&SPID1, txbuf_len, txbuf, rxbuf);
 }
 
 inline static void imu_send(uint8_t *txbuf, size_t txbuf_len)
 {
   cacheBufferFlush(txbuf, CACHE_SIZE_ALIGN(uint8_t, txbuf_len));
-  i2cMasterTransmitTimeout(&I2CD1, MPU6050_ADDR, txbuf, txbuf_len, NULL, 0, TIME_INFINITE);
+  spiExchange(&SPID1, txbuf_len, txbuf, NULL);
 }
 
 static int gyro_init(void)
@@ -65,12 +64,19 @@ static int gyro_init(void)
   CC_ALIGN_DATA(32) uint8_t txbuf[CACHE_SIZE_ALIGN(uint8_t, 2)];
   CC_ALIGN_DATA(32) uint8_t rxbuf[CACHE_SIZE_ALIGN(uint8_t, 2)];
 
-  palSetPadMode(GPIOB, 6, PAL_MODE_ALTERNATE(4) | PAL_STM32_OTYPE_OPENDRAIN); /* SCL */
-  palSetPadMode(GPIOB, 7, PAL_MODE_ALTERNATE(4) | PAL_STM32_OTYPE_OPENDRAIN); /* SDA */
+  palSetPadMode(GPIOA, 15,
+    PAL_MODE_ALTERNATE(5) | PAL_STM32_OSPEED_HIGHEST | PAL_STM32_PUPDR_FLOATING); /* NSS */
+  palSetPadMode(GPIOB,  3,
+    PAL_MODE_ALTERNATE(5) | PAL_STM32_OSPEED_HIGHEST | PAL_STM32_PUPDR_FLOATING); /* SCK */
+  palSetPadMode(GPIOB,  4,
+    PAL_MODE_ALTERNATE(5) | PAL_STM32_OSPEED_HIGHEST | PAL_STM32_PUPDR_FLOATING); /* MISO */
+  palSetPadMode(GPIOB,  5,
+    PAL_MODE_ALTERNATE(5) | PAL_STM32_OSPEED_HIGHEST | PAL_STM32_PUPDR_FLOATING); /* MOSI */
 
-  i2cStart(&I2CD1, &i2ccfg);
+  spiAcquireBus(&SPID1);
+  spiStart(&SPID1, &spicfg);
 
-  i2cAcquireBus(&I2CD1);
+  spiSelect(&SPID1);
 
   /* Reset MPU6050. Note: apparently this is needed for SPI connection
    * in MPU6000 only, but it shouldn't hurt on I2C either.
@@ -143,7 +149,8 @@ static int gyro_init(void)
   txbuf[0] = MPU6050_WHO_AM_I;
   imu_transmit(txbuf, 1, rxbuf, 1);
 
-  i2cReleaseBus(&I2CD1);
+  spiUnselect(&SPID1);
+  spiReleaseBus(&SPID1);
 
   /* This should be a check of registers written.*/
   if (rxbuf[0] == MPU6050_WHO_AM_I_IDENTITY) {
@@ -159,7 +166,8 @@ static void gyro_read(void)
   CC_ALIGN_DATA(32) uint8_t txbuf[CACHE_SIZE_ALIGN(uint8_t, 2)];
   CC_ALIGN_DATA(32) uint8_t rxbuf[CACHE_SIZE_ALIGN(uint8_t, 24)];
 
-  i2cAcquireBus(&I2CD1);
+  spiAcquireBus(&SPID1);
+  spiSelect(&SPID1);
 
   txbuf[0] = 0x3B;
   imu_transmit(txbuf, 1, rxbuf, 14);
@@ -175,7 +183,8 @@ static void gyro_read(void)
   gyro_data.gyro_yout = (int16_t)(rxbuf[10] << 8 | rxbuf[11]);
   gyro_data.gyro_zout = (int16_t)(rxbuf[12] << 8 | rxbuf[13]);
 
-  i2cReleaseBus(&I2CD1);
+  spiUnselect(&SPID1);
+  spiReleaseBus(&SPID1);
 }
 
 void imu_sync_init(void)
@@ -199,7 +208,7 @@ THD_FUNCTION(thImu, arg)
     /* Fire the thread every 400 us (2.5 kHz). This is a maximum we can achieve
        for accelerometer, gyroscope and temperature data on MPU6050.*/
     time = chTimeAddX(time, TIME_US2I(400));
-    gyro_read();
+    //gyro_read();
 
     chThdSleepUntil(time);
   }
