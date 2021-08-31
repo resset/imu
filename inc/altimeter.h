@@ -37,11 +37,11 @@
 #define PG_CFG_ALT_ZERO_SAMPLES ((uint16_t)100)
 #endif
 
+pg_result_t altimeter_state_zero(void);
+
 #define ALTIMETER_THREAD_STACK_SIZE 256
 extern THD_WORKING_AREA(waAltimeter, ALTIMETER_THREAD_STACK_SIZE);
 THD_FUNCTION(thAltimeter, arg);
-
-pg_result_t altimeter_state_zero(void);
 
 void shellcmd_altimeter(BaseSequentialStream *chp, int argc, char *argv[]);
 

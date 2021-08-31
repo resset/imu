@@ -83,12 +83,12 @@ static void i2c_send(uint8_t *txbuf, size_t txbuf_len)
   i2cMasterTransmitTimeout(&I2CD1, BMP280_ADDR, txbuf, txbuf_len, NULL, 0, TIME_INFINITE);
 }
 
-static pg_result_t altimeter_init(void)
+static pg_result_t altimeter_init(altimeter_data_t *ad)
 {
   CC_ALIGN_DATA(32) uint8_t txbuf[CACHE_SIZE_ALIGN(uint8_t, 2)];
   CC_ALIGN_DATA(32) uint8_t rxbuf[CACHE_SIZE_ALIGN(uint8_t, 24)];
 
-  altimeter_data.data_valid = false;
+  ad->data_valid = false;
 
   /*
    * I2C initialization.
@@ -144,18 +144,18 @@ static pg_result_t altimeter_init(void)
   /* Calibration data readout.*/
   txbuf[0] = BMP280_DIG_T1_LSB;
   i2c_transmit(txbuf, 1, rxbuf, 24);
-  altimeter_data.dig_T1 = ((uint16_t)rxbuf[1]) << 8 | rxbuf[0];
-  altimeter_data.dig_T2 = ((uint16_t)rxbuf[3]) << 8 | rxbuf[2];
-  altimeter_data.dig_T3 = ((uint16_t)rxbuf[5]) << 8 | rxbuf[4];
-  altimeter_data.dig_P1 = ((uint16_t)rxbuf[7]) << 8 | rxbuf[6];
-  altimeter_data.dig_P2 = ((uint16_t)rxbuf[9]) << 8 | rxbuf[8];
-  altimeter_data.dig_P3 = ((uint16_t)rxbuf[11]) << 8 | rxbuf[10];
-  altimeter_data.dig_P4 = ((uint16_t)rxbuf[13]) << 8 | rxbuf[12];
-  altimeter_data.dig_P5 = ((uint16_t)rxbuf[15]) << 8 | rxbuf[14];
-  altimeter_data.dig_P6 = ((uint16_t)rxbuf[17]) << 8 | rxbuf[16];
-  altimeter_data.dig_P7 = ((uint16_t)rxbuf[19]) << 8 | rxbuf[18];
-  altimeter_data.dig_P8 = ((uint16_t)rxbuf[21]) << 8 | rxbuf[20];
-  altimeter_data.dig_P9 = ((uint16_t)rxbuf[23]) << 8 | rxbuf[22];
+  ad->dig_T1 = ((uint16_t)rxbuf[1]) << 8 | rxbuf[0];
+  ad->dig_T2 = ((uint16_t)rxbuf[3]) << 8 | rxbuf[2];
+  ad->dig_T3 = ((uint16_t)rxbuf[5]) << 8 | rxbuf[4];
+  ad->dig_P1 = ((uint16_t)rxbuf[7]) << 8 | rxbuf[6];
+  ad->dig_P2 = ((uint16_t)rxbuf[9]) << 8 | rxbuf[8];
+  ad->dig_P3 = ((uint16_t)rxbuf[11]) << 8 | rxbuf[10];
+  ad->dig_P4 = ((uint16_t)rxbuf[13]) << 8 | rxbuf[12];
+  ad->dig_P5 = ((uint16_t)rxbuf[15]) << 8 | rxbuf[14];
+  ad->dig_P6 = ((uint16_t)rxbuf[17]) << 8 | rxbuf[16];
+  ad->dig_P7 = ((uint16_t)rxbuf[19]) << 8 | rxbuf[18];
+  ad->dig_P8 = ((uint16_t)rxbuf[21]) << 8 | rxbuf[20];
+  ad->dig_P9 = ((uint16_t)rxbuf[23]) << 8 | rxbuf[22];
 
   i2cReleaseBus(&I2CD1);
 
@@ -233,7 +233,7 @@ static pg_result_t bmp280_compensate_pressure(altimeter_data_t *ad)
   return ret;
 }
 
-static pg_result_t altimeter_read(void)
+static pg_result_t altimeter_read(altimeter_data_t *ad)
 {
   CC_ALIGN_DATA(32) uint8_t txbuf[CACHE_SIZE_ALIGN(uint8_t, 2)];
   CC_ALIGN_DATA(32) uint8_t rxbuf[CACHE_SIZE_ALIGN(uint8_t, 24)];
@@ -244,54 +244,54 @@ static pg_result_t altimeter_read(void)
   i2c_transmit(txbuf, 1, rxbuf, 6);
   i2cReleaseBus(&I2CD1);
 
-  altimeter_data.t_adc = (int32_t)rxbuf[3] << 12 | (int32_t)rxbuf[4] << 4 | (int32_t)rxbuf[5] >> 4;
-  altimeter_data.p_adc = (int32_t)rxbuf[0] << 12 | (int32_t)rxbuf[1] << 4 | (int32_t)rxbuf[2] >> 4;
+  ad->t_adc = (int32_t)rxbuf[3] << 12 | (int32_t)rxbuf[4] << 4 | (int32_t)rxbuf[5] >> 4;
+  ad->p_adc = (int32_t)rxbuf[0] << 12 | (int32_t)rxbuf[1] << 4 | (int32_t)rxbuf[2] >> 4;
 
-  if (bmp280_check_boundaries(&altimeter_data) == PG_OK) {
-    if (bmp280_compensate_temperature(&altimeter_data) == PG_OK) {
-      altimeter_data.temperature = (float)altimeter_data.temperature_raw / 100.0f;
-      if (bmp280_compensate_pressure(&altimeter_data) == PG_OK) {
-        altimeter_data.pressure = (float)altimeter_data.pressure_raw / 256.0f;
-        altimeter_data.data_valid = true;
+  if (bmp280_check_boundaries(ad) == PG_OK) {
+    if (bmp280_compensate_temperature(ad) == PG_OK) {
+      ad->temperature = (float)ad->temperature_raw / 100.0f;
+      if (bmp280_compensate_pressure(ad) == PG_OK) {
+        ad->pressure = (float)ad->pressure_raw / 256.0f;
+        ad->data_valid = true;
         return PG_OK;
       }
     }
   }
 
-  altimeter_data.data_valid = false;
+  ad->data_valid = false;
   return PG_ERROR;
 }
 
-static pg_result_t altimeter_zero(void)
+static pg_result_t altimeter_zero(altimeter_data_t *ad)
 {
   uint16_t i = 0, guard = 0;
 
   while (i < 10 && guard != PG_CFG_ALT_ZERO_SAMPLES) {
-    if (altimeter_read() == PG_OK) {
-      altimeter_data.pressure_reference += altimeter_data.pressure;
+    if (altimeter_read(ad) == PG_OK) {
+      ad->pressure_reference += ad->pressure;
       i++;
     }
     guard++;
   }
 
   if (guard != PG_CFG_ALT_ZERO_SAMPLES) {
-    altimeter_data.pressure_reference /= 10.0f;
+    ad->pressure_reference /= 10.0f;
     return PG_OK;
   } else {
-    altimeter_data.pressure_reference = 0.0f;
+    ad->pressure_reference = 0.0f;
     return PG_ERROR;
   }
 }
 
-static pg_result_t altimeter_altitude(void)
+static pg_result_t altimeter_altitude(altimeter_data_t *ad)
 {
   /* We calculate altitude regardless of the data validity, the valid flag
      is common for all data.*/
-  if (altimeter_data.pressure_reference != 0.0f) {
-    altimeter_data.altitude = (
-        (powf(altimeter_data.pressure / altimeter_data.pressure_reference, 0.1902665f) - 1)
+  if (ad->pressure_reference != 0.0f) {
+    ad->altitude = (
+        (powf(ad->pressure / ad->pressure_reference, 0.1902665f) - 1)
         *
-        (altimeter_data.temperature + 273.15f)
+        (ad->temperature + 273.15f)
       ) / (-0.0065f);
     return PG_OK;
   } else {
@@ -319,7 +319,7 @@ THD_FUNCTION(thAltimeter, arg)
   while (true) {
     switch (altimeter_state) {
       case ALTIMETER_STATE_INIT:
-        if (altimeter_init() == PG_OK) {
+        if (altimeter_init(&altimeter_data) == PG_OK) {
 #ifdef PG_CFG_ALT_ZERO_ON_INIT
         altimeter_state = ALTIMETER_STATE_ZERO;
 #else
@@ -332,7 +332,7 @@ THD_FUNCTION(thAltimeter, arg)
       case ALTIMETER_STATE_NOP:
         break;
       case ALTIMETER_STATE_ZERO:
-        if (altimeter_zero() == PG_OK) {
+        if (altimeter_zero(&altimeter_data) == PG_OK) {
           altimeter_state = ALTIMETER_STATE_READY;
         } else {
           /* TODO: we shoud probably try few more times.*/
@@ -340,11 +340,11 @@ THD_FUNCTION(thAltimeter, arg)
         }
         break;
       case ALTIMETER_STATE_READY:
-        if (altimeter_read() == PG_OK) {
+        if (altimeter_read(&altimeter_data) == PG_OK) {
           /* We do not want to fail here. We should rather mark the data as
              invalid so that the controller decides on what to do. We should
              then attempt to compute the next sample.*/
-          altimeter_altitude();
+          altimeter_altitude(&altimeter_data);
         }
         break;
       case ALTIMETER_FATAL_ERROR:
