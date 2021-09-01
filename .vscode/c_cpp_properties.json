@@ -4,7 +4,7 @@
             "name": "Linux",
             "includePath": [
                 "${workspaceFolder}/**",
-                "${workspaceFolder}/../ChibiOS_20.3.3/**"
+                "${workspaceFolder}/../ChibiOS_21.6.0/**"
             ],
             "defines": [],
             "compilerPath": "${env:HOME}/.local/bin/arm-none-eabi-gcc",
