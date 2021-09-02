@@ -37,22 +37,39 @@ typedef enum {
 
 static controller_state_t controller_state = CONTROLLER_STATE_INIT;
 
+/*void simple_mixer(ground_control_data_t *gcd, servo_data_t *sd)
+{
+  // uint16_t position;
+
+  // * Example channel values change from 224 to 1759 for servos and up to 1793 for RSSI.
+  //     Neutral position is around 993.*
+  // position = (uint16_t)(0.638 * sbus_state.channels[0] + 857.0);
+  // servoPosition(&servos[0], position);
+  // position = (uint16_t)(0.638 * sbus_state.channels[1] + 857.0);
+  // servoPosition(&servos[1], position);
+  // position = (uint16_t)(0.638 * sbus_state.channels[2] + 857.0);
+  // servoPosition(&servos[2], position);
+  // position = (uint16_t)(0.638 * sbus_state.channels[3] + 857.0);
+  // servoPosition(&servos[3], position);
+}*/
+
 static void controller_loop(void)
 {
-  /*ground_control_data_t c_ground_control_data_t;*/
+  ground_control_data_t c_ground_control_data;
   altimeter_data_t c_altimeter_data;
-  /*gnss_data_t c_gnss_data_t;*/
-  /*imu_data_t c_imu_data_t;*/
-  /*servo_data_t c_servo_data_t;*/
-  /*blackbox_data_t c_blackbox_data_t;*/
+  /*gnss_data_t c_gnss_data;*/
+  /*imu_data_t c_imu_data;*/
+  /*servo_data_t c_servo_data;*/
+  /*blackbox_data_t c_blackbox_data;*/
 
   /* Gather sensor data.*/
-  /*ground_control_copy_data(&ground_control_data, &c_ground_control_data);*/
+  ground_control_copy_data(&ground_control_data, &c_ground_control_data);
   altimeter_copy_data(&altimeter_data, &c_altimeter_data);
   /*gnss_copy_data(&gnss_data, &c_gnss_data);*/
   /*imu_copy_data(&imu_data, &c_imu_data);*/
 
   /* Process data.*/
+  /*simple_mixer(&c_ground_control_data, &c_servo_data_t);*/
 
   /* Output control signals.*/
   /*servo_copy_data(&c_servo_data_t, &servo_data_t);*/

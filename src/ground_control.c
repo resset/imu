@@ -36,21 +36,15 @@
 #define EVT_RESET EVENT_MASK(0)
 #define EVT_DATA  EVENT_MASK(1)
 
+binary_semaphore_t ground_control_ready_bsem;
+mutex_t ground_control_data_mtx;
+ground_control_data_t ground_control_data, gcd;
+
 static thread_t *ground_control_thread = NULL;
 binary_semaphore_t ground_control_ready_bsem;
 
 static uint8_t rxbuffer[SIO_FIFO_LENGTH];
 static uint8_t buffer[SBUS_PACKET_LENGTH];
-
-typedef struct {
-  uint16_t channels[16];
-  uint8_t channel17;
-  uint8_t channel18;
-  uint8_t lost_frame;
-  uint8_t failsafe;
-} sbus_state_t;
-
-sbus_state_t sbus_state;
 
 /*
  * This algorithm is meant to deliver frames as quick as possible.
@@ -127,50 +121,39 @@ static SIOOperation sio2_operation = {
 void sbus_parse_packet(uint8_t *packet)
 {
   if (packet[0] == SBUS_HEADER && packet[24] == SBUS_FOOTER) {
-    sbus_state.channels[0]  = packet[1]       | ((uint16_t)packet[2]  << 8  & 0x07FF);
-    sbus_state.channels[1]  = packet[2]  >> 3 | ((uint16_t)packet[3]  << 5  & 0x07FF);
-    sbus_state.channels[2]  = packet[3]  >> 6 |  (uint16_t)packet[4]  << 2
+    gcd.channels[0]  = packet[1]       | ((uint16_t)packet[2]  << 8  & 0x07FF);
+    gcd.channels[1]  = packet[2]  >> 3 | ((uint16_t)packet[3]  << 5  & 0x07FF);
+    gcd.channels[2]  = packet[3]  >> 6 |  (uint16_t)packet[4]  << 2
                                               | ((uint16_t)packet[5]  << 10 & 0x07FF);
-    sbus_state.channels[3]  = packet[5]  >> 1 | ((uint16_t)packet[6]  << 7  & 0x07FF);
-    sbus_state.channels[4]  = packet[6]  >> 4 | ((uint16_t)packet[7]  << 4  & 0x07FF);
-    sbus_state.channels[5]  = packet[7]  >> 7 |  (uint16_t)packet[8]  << 1
+    gcd.channels[3]  = packet[5]  >> 1 | ((uint16_t)packet[6]  << 7  & 0x07FF);
+    gcd.channels[4]  = packet[6]  >> 4 | ((uint16_t)packet[7]  << 4  & 0x07FF);
+    gcd.channels[5]  = packet[7]  >> 7 |  (uint16_t)packet[8]  << 1
                                               | ((uint16_t)packet[9]  << 9  & 0x07FF);
-    sbus_state.channels[6]  = packet[9]  >> 2 | ((uint16_t)packet[10] << 6  & 0x07FF);
-    sbus_state.channels[7]  = packet[10] >> 5 | ((uint16_t)packet[11] << 3  & 0x07FF);
-    sbus_state.channels[8]  = packet[12]      | ((uint16_t)packet[13] << 8  & 0x07FF);
-    sbus_state.channels[9]  = packet[13] >> 3 | ((uint16_t)packet[14] << 5  & 0x07FF);
-    sbus_state.channels[10] = packet[14] >> 6 |  (uint16_t)packet[15] << 2
+    gcd.channels[6]  = packet[9]  >> 2 | ((uint16_t)packet[10] << 6  & 0x07FF);
+    gcd.channels[7]  = packet[10] >> 5 | ((uint16_t)packet[11] << 3  & 0x07FF);
+    gcd.channels[8]  = packet[12]      | ((uint16_t)packet[13] << 8  & 0x07FF);
+    gcd.channels[9]  = packet[13] >> 3 | ((uint16_t)packet[14] << 5  & 0x07FF);
+    gcd.channels[10] = packet[14] >> 6 |  (uint16_t)packet[15] << 2
                                               | ((uint16_t)packet[16] << 10 & 0x07FF);
-    sbus_state.channels[11] = packet[16] >> 1 | ((uint16_t)packet[17] << 7  & 0x07FF);
-    sbus_state.channels[12] = packet[17] >> 4 | ((uint16_t)packet[18] << 4  & 0x07FF);
-    sbus_state.channels[13] = packet[18] >> 7 |  (uint16_t)packet[19] << 1
+    gcd.channels[11] = packet[16] >> 1 | ((uint16_t)packet[17] << 7  & 0x07FF);
+    gcd.channels[12] = packet[17] >> 4 | ((uint16_t)packet[18] << 4  & 0x07FF);
+    gcd.channels[13] = packet[18] >> 7 |  (uint16_t)packet[19] << 1
                                               | ((uint16_t)packet[20] << 9  & 0x07FF);
-    sbus_state.channels[14] = packet[20] >> 2 | ((uint16_t)packet[21] << 6  & 0x07FF);
-    sbus_state.channels[15] = packet[21] >> 5 | ((uint16_t)packet[22] << 3  & 0x07FF);
+    gcd.channels[14] = packet[20] >> 2 | ((uint16_t)packet[21] << 6  & 0x07FF);
+    gcd.channels[15] = packet[21] >> 5 | ((uint16_t)packet[22] << 3  & 0x07FF);
 
-    sbus_state.channel17 = packet[23] & SBUS_CH17_MASK ? 1 : 0;
-    sbus_state.channel18 = packet[23] & SBUS_CH18_MASK ? 1 : 0;
-    sbus_state.lost_frame = packet[23] & SBUS_LOST_FRAME_MASK ? 1 : 0;
-    sbus_state.failsafe = packet[23] & SBUS_FAILSAFE_MASK ? 1 : 0;
+    gcd.channel17 = packet[23] & SBUS_CH17_MASK ? 1 : 0;
+    gcd.channel18 = packet[23] & SBUS_CH18_MASK ? 1 : 0;
+    gcd.lost_frame = packet[23] & SBUS_LOST_FRAME_MASK ? 1 : 0;
+    gcd.failsafe = packet[23] & SBUS_FAILSAFE_MASK ? 1 : 0;
   }
 }
 
-void servo_notify(void)
+void ground_control_copy_data(ground_control_data_t *source, ground_control_data_t *target)
 {
-  /* FIXME: we shoud notify servo thread of new values instead of writing to it directly.*/
-
-  uint16_t position;
-
-  /* Example channel values change from 224 to 1759 for servos and up to 1793 for RSSI.
-      Neutral position is around 993.*/
-  position = (uint16_t)(0.638 * sbus_state.channels[0] + 857.0);
-  servoPosition(&servos[0], position);
-  position = (uint16_t)(0.638 * sbus_state.channels[1] + 857.0);
-  servoPosition(&servos[1], position);
-  position = (uint16_t)(0.638 * sbus_state.channels[2] + 857.0);
-  servoPosition(&servos[2], position);
-  position = (uint16_t)(0.638 * sbus_state.channels[3] + 857.0);
-  servoPosition(&servos[3], position);
+  chMtxLock(&ground_control_data_mtx);
+  memcpy(target, source, sizeof(ground_control_data_t));
+  chMtxUnlock(&ground_control_data_mtx);
 }
 
 THD_WORKING_AREA(waGroundControl, 128);
@@ -212,8 +195,7 @@ THD_FUNCTION(thGroundControl, arg)
       /* We should have the packet now.*/
       if (pos == SBUS_PACKET_LENGTH) {
         sbus_parse_packet(buffer);
-
-        servo_notify();
+        ground_control_copy_data(&gcd, &ground_control_data);
       }
 
       /* We received RX IDLE, this means we have to start over.*/
@@ -238,17 +220,17 @@ void shellcmd_ground_control(BaseSequentialStream *chp, int argc, char *argv[])
 
   while (chnGetTimeout((BaseChannel *)chp, TIME_IMMEDIATE) == Q_TIMEOUT) {
     chprintf(chp, "%4d %4d %4d %4d %4d %4d %4d %4d %4d %4d %4d %4d %4d %4d %4d %4d ",
-             sbus_state.channels[0], sbus_state.channels[1],
-             sbus_state.channels[2], sbus_state.channels[3],
-             sbus_state.channels[4], sbus_state.channels[5],
-             sbus_state.channels[6], sbus_state.channels[7],
-             sbus_state.channels[8], sbus_state.channels[9],
-             sbus_state.channels[10], sbus_state.channels[11],
-             sbus_state.channels[12], sbus_state.channels[13],
-             sbus_state.channels[14], sbus_state.channels[15]);
+             gcd.channels[0], gcd.channels[1],
+             gcd.channels[2], gcd.channels[3],
+             gcd.channels[4], gcd.channels[5],
+             gcd.channels[6], gcd.channels[7],
+             gcd.channels[8], gcd.channels[9],
+             gcd.channels[10], gcd.channels[11],
+             gcd.channels[12], gcd.channels[13],
+             gcd.channels[14], gcd.channels[15]);
     chprintf(chp, "ch17: %d ch18: %d lost_frame: %d failsafe: %d\r\n",
-             sbus_state.channel17, sbus_state.channel18,
-             sbus_state.lost_frame, sbus_state.failsafe);
+             gcd.channel17, gcd.channel18,
+             gcd.lost_frame, gcd.failsafe);
     chThdSleepMilliseconds(50);
   }
 
