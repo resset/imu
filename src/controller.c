@@ -37,21 +37,15 @@ typedef enum {
 
 static controller_state_t controller_state = CONTROLLER_STATE_INIT;
 
-/*void simple_mixer(ground_control_data_t *gcd, servo_data_t *sd)
+void simple_mixer(ground_control_data_t *gcd, servo_data_t *sd)
 {
-  // uint16_t position;
-
-  // * Example channel values change from 224 to 1759 for servos and up to 1793 for RSSI.
-  //     Neutral position is around 993.*
-  // position = (uint16_t)(0.638 * sbus_state.channels[0] + 857.0);
-  // servoPosition(&servos[0], position);
-  // position = (uint16_t)(0.638 * sbus_state.channels[1] + 857.0);
-  // servoPosition(&servos[1], position);
-  // position = (uint16_t)(0.638 * sbus_state.channels[2] + 857.0);
-  // servoPosition(&servos[2], position);
-  // position = (uint16_t)(0.638 * sbus_state.channels[3] + 857.0);
-  // servoPosition(&servos[3], position);
-}*/
+  /* Example channel values change from 224 to 1759 for servos and up to 1793 for RSSI.
+     Neutral position is around 993.*/
+  sd->servos[0].position = (uint16_t)(0.638 * gcd->channels[0] + 857.0);
+  sd->servos[1].position = (uint16_t)(0.638 * gcd->channels[1] + 857.0);
+  sd->servos[2].position = (uint16_t)(0.638 * gcd->channels[2] + 857.0);
+  sd->servos[3].position = (uint16_t)(0.638 * gcd->channels[3] + 857.0);
+}
 
 static void controller_loop(void)
 {
@@ -59,7 +53,7 @@ static void controller_loop(void)
   altimeter_data_t c_altimeter_data;
   /*gnss_data_t c_gnss_data;*/
   /*imu_data_t c_imu_data;*/
-  /*servo_data_t c_servo_data;*/
+  servo_data_t c_servo_data;
   /*blackbox_data_t c_blackbox_data;*/
 
   /* Gather sensor data.*/
@@ -69,10 +63,10 @@ static void controller_loop(void)
   /*imu_copy_data(&imu_data, &c_imu_data);*/
 
   /* Process data.*/
-  /*simple_mixer(&c_ground_control_data, &c_servo_data_t);*/
+  simple_mixer(&c_ground_control_data, &c_servo_data);
 
   /* Output control signals.*/
-  /*servo_copy_data(&c_servo_data_t, &servo_data_t);*/
+  servo_copy_data(&c_servo_data, &servo_data);
 
   /* Output logs.*/
   /*blackbox_copy_data(&c_blackbox_data_t, &blackbox_data_t);*/

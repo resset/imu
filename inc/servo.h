@@ -20,9 +20,9 @@
 #include "ch.h"
 #include "hal.h"
 
-extern binary_semaphore_t servo_ready_bsem;
+#define SERVO_QUANTITY 4
 
-typedef struct ServoPWM_t {
+typedef struct ServoPWM_s {
   PWMDriver *pwm_driver;
   pwmchannel_t pwm_channel;
   ioportid_t port;
@@ -34,6 +34,18 @@ typedef struct ServoPWM_t {
 } ServoPWM;
 
 extern ServoPWM servos[];
+
+typedef struct {
+  struct {
+    uint16_t position;
+ } servos[SERVO_QUANTITY];
+} servo_data_t;
+
+extern binary_semaphore_t servo_ready_bsem;
+extern mutex_t servo_data_mtx;
+extern servo_data_t servo_data;
+
+void servo_copy_data(servo_data_t *source, servo_data_t *target);
 
 void servoInit(ServoPWM *servo);
 void servoSetMinPosition(ServoPWM *servo, uint16_t position);

@@ -23,6 +23,8 @@
 #include "servo.h"
 
 binary_semaphore_t servo_ready_bsem;
+mutex_t servo_data_mtx;
+servo_data_t servo_data;
 
 ServoPWM servos[] = {
   {
@@ -136,10 +138,19 @@ void servoPosition(ServoPWM *servo, uint16_t position)
   pwmEnableChannel(servo->pwm_driver, servo->pwm_channel, (pwmcnt_t)servo->position);
 }
 
+void servo_copy_data(servo_data_t *source, servo_data_t *target)
+{
+  chMtxLock(&servo_data_mtx);
+  memcpy(target, source, sizeof(servo_data_t));
+  chMtxUnlock(&servo_data_mtx);
+}
+
 THD_WORKING_AREA(waServo, 128);
 THD_FUNCTION(thServo, arg)
 {
   (void)arg;
+
+  servo_data_t sd;
 
   chRegSetThreadName("thServo");
   chBSemObjectInit(&servo_ready_bsem, true);
@@ -152,7 +163,12 @@ THD_FUNCTION(thServo, arg)
   chBSemSignal(&servo_ready_bsem);
 
   while (true) {
-    chThdSleepMilliseconds(1000);
+    chThdSleepMilliseconds(10);
+    servo_copy_data(&servo_data, &sd);
+    servoPosition(&servos[0], sd.servos[0].position);
+    servoPosition(&servos[1], sd.servos[1].position);
+    servoPosition(&servos[2], sd.servos[2].position);
+    servoPosition(&servos[3], sd.servos[3].position);
   }
 }
 
