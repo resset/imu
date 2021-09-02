@@ -39,11 +39,26 @@ static controller_state_t controller_state = CONTROLLER_STATE_INIT;
 
 static void controller_loop(void)
 {
-  /* Gather sensor data.*/
+  /*ground_control_data_t c_ground_control_data_t;*/
   altimeter_data_t c_altimeter_data;
+  /*gnss_data_t c_gnss_data_t;*/
+  /*imu_data_t c_imu_data_t;*/
+  /*servo_data_t c_servo_data_t;*/
+  /*blackbox_data_t c_blackbox_data_t;*/
+
+  /* Gather sensor data.*/
+  /*ground_control_copy_data(&ground_control_data, &c_ground_control_data);*/
   altimeter_copy_data(&altimeter_data, &c_altimeter_data);
+  /*gnss_copy_data(&gnss_data, &c_gnss_data);*/
+  /*imu_copy_data(&imu_data, &c_imu_data);*/
+
   /* Process data.*/
+
   /* Output control signals.*/
+  /*servo_copy_data(&c_servo_data_t, &servo_data_t);*/
+
+  /* Output logs.*/
+  /*blackbox_copy_data(&c_blackbox_data_t, &blackbox_data_t);*/
 }
 
 THD_WORKING_AREA(waController, 128);
@@ -55,12 +70,12 @@ THD_FUNCTION(thController, arg)
 
   controller_state = CONTROLLER_STATE_WAIT;
 
-  chBSemWait(&blackbox_ready_bsem);
-  chBSemWait(&servo_ready_bsem);
   chBSemWait(&ground_control_ready_bsem);
   chBSemWait(&altimeter_ready_bsem);
   chBSemWait(&gnss_ready_bsem);
   chBSemWait(&imu_ready_bsem);
+  chBSemWait(&servo_ready_bsem);
+  chBSemWait(&blackbox_ready_bsem);
 
   controller_state = CONTROLLER_STATE_READY;
 
