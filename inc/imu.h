@@ -20,6 +20,8 @@
 #include "ch.h"
 #include "hal.h"
 
+extern binary_semaphore_t imu_ready_bsem;
+
 extern THD_WORKING_AREA(waImu, 128);
 THD_FUNCTION(thImu, arg);
 

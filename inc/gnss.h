@@ -20,6 +20,8 @@
 #include "ch.h"
 #include "hal.h"
 
+extern binary_semaphore_t gnss_ready_bsem;
+
 extern THD_WORKING_AREA(waGnss, 128);
 THD_FUNCTION(thGnss, arg);
 

@@ -37,6 +37,7 @@
 #define EVT_DATA  EVENT_MASK(1)
 
 static thread_t *ground_control_thread = NULL;
+binary_semaphore_t ground_control_ready_bsem;
 
 static uint8_t rxbuffer[SIO_FIFO_LENGTH];
 static uint8_t buffer[SBUS_PACKET_LENGTH];
@@ -183,10 +184,13 @@ THD_FUNCTION(thGroundControl, arg)
 
   chRegSetThreadName("thGroundControl");
   ground_control_thread = chThdGetSelfX();
+  chBSemObjectInit(&ground_control_ready_bsem, true);
 
   sioStart(&SIOD2, &sio2_config);
   sioStartOperation(&SIOD2, &sio2_operation);
   palSetPadMode(GPIOA, 3, PAL_MODE_ALTERNATE(7)); /* RX */
+
+  chBSemSignal(&ground_control_ready_bsem);
 
   /* This loop is suited to SBUS transmission timing characteristics.
      Its event processing expect SBUS_PACKET_LENGTH bytes in a sequence,

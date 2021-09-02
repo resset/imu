@@ -21,7 +21,12 @@
 #include "chprintf.h"
 
 #include "controller.h"
+#include "blackbox.h"
+#include "servo.h"
+#include "ground_control.h"
 #include "altimeter.h"
+#include "gnss.h"
+#include "imu.h"
 
 typedef enum {
   CONTROLLER_STATE_INIT,
@@ -30,7 +35,7 @@ typedef enum {
   CONTROLLER_FATAL_ERROR
 } controller_state_t;
 
-static controller_state_t controller_state;
+static controller_state_t controller_state = CONTROLLER_STATE_INIT;
 
 static void controller_loop(void)
 {
@@ -48,10 +53,14 @@ THD_FUNCTION(thController, arg)
 
   chRegSetThreadName("thController");
 
-  controller_state = CONTROLLER_STATE_INIT;
   controller_state = CONTROLLER_STATE_WAIT;
 
+  chBSemWait(&blackbox_ready_bsem);
+  chBSemWait(&servo_ready_bsem);
+  chBSemWait(&ground_control_ready_bsem);
   chBSemWait(&altimeter_ready_bsem);
+  chBSemWait(&gnss_ready_bsem);
+  chBSemWait(&imu_ready_bsem);
 
   controller_state = CONTROLLER_STATE_READY;
 

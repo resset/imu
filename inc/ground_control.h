@@ -20,6 +20,8 @@
 #include "ch.h"
 #include "hal.h"
 
+extern binary_semaphore_t ground_control_ready_bsem;
+
 extern THD_WORKING_AREA(waGroundControl, 128);
 THD_FUNCTION(thGroundControl, arg);
 

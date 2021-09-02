@@ -22,6 +22,8 @@
 
 #include "servo.h"
 
+binary_semaphore_t servo_ready_bsem;
+
 ServoPWM servos[] = {
   {
     &PWMD3,                /* Timer 3.*/
@@ -140,11 +142,14 @@ THD_FUNCTION(thServo, arg)
   (void)arg;
 
   chRegSetThreadName("thServo");
+  chBSemObjectInit(&servo_ready_bsem, true);
 
   servoInit(&servos[0]);
   servoInit(&servos[1]);
   servoInit(&servos[2]);
   servoInit(&servos[3]);
+
+  chBSemSignal(&servo_ready_bsem);
 
   while (true) {
     chThdSleepMilliseconds(1000);

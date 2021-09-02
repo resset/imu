@@ -20,6 +20,8 @@
 #include "ch.h"
 #include "hal.h"
 
+extern binary_semaphore_t servo_ready_bsem;
+
 typedef struct ServoPWM_t {
   PWMDriver *pwm_driver;
   pwmchannel_t pwm_channel;

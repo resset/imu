@@ -23,6 +23,7 @@
 #include "gnss.h"
 
 static thread_t *gnss_thread = NULL;
+binary_semaphore_t gnss_ready_bsem;
 
 /* GNSS specific SIO configuration. GNSS serial parameters are:
  * - baud rate of 9600
@@ -71,11 +72,14 @@ THD_FUNCTION(thGnss, arg)
 
   chRegSetThreadName("thGnss");
   gnss_thread = chThdGetSelfX();
+  chBSemObjectInit(&gnss_ready_bsem, true);
 
   sioStart(&SIOD8, &sio8_config);
   sioStartOperation(&SIOD8, &sio8_operation);
   palSetPadMode(GPIOE, 1, PAL_MODE_ALTERNATE(8)); /* TX */
   palSetPadMode(GPIOE, 0, PAL_MODE_ALTERNATE(8)); /* RX */
+
+  chBSemSignal(&gnss_ready_bsem);
 
   /* This loop is suited to GNSS transmission timing characteristics.
      Its event processing expect GNSS_PACKET_LENGTH bytes in a sequence,

@@ -127,8 +127,8 @@ CSRC = $(ALLCSRC) \
        ./src/ground_control.c \
        ./src/altimeter.c \
        ./src/gnss.c \
-       ./src/controller.c \
        ./src/imu.c \
+       ./src/controller.c \
        ./src/tasks.c \
        ./src/main.c
 

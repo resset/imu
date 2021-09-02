@@ -23,6 +23,8 @@
 #include "mpu6050.h"
 #include "imu.h"
 
+binary_semaphore_t imu_ready_bsem;
+
 static const I2CConfig i2ccfg = {
   STM32_TIMINGR_PRESC(0x0U) |
   STM32_TIMINGR_SCLDEL(0x9U) | STM32_TIMINGR_SDADEL(0x0U) |
@@ -182,8 +184,10 @@ THD_FUNCTION(thImu, arg)
   (void)arg;
 
   chRegSetThreadName("thImu");
+  chBSemObjectInit(&imu_ready_bsem, true);
 
   gyro_init();
+  chBSemSignal(&imu_ready_bsem);
 
   systime_t time = chVTGetSystemTime();
   while (true) {

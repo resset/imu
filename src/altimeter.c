@@ -53,6 +53,8 @@ typedef enum {
   ALTIMETER_FATAL_ERROR
 } altimeter_state_t;
 
+#define ALTIMETER_STATE_NAMES "INIT", "NOP", "ZERO", "READY", "ERROR"
+
 static altimeter_state_t altimeter_state;
 static bmp280_data_t bmp280_data;
 
@@ -333,7 +335,7 @@ THD_FUNCTION(thAltimeter, arg)
   chMtxObjectInit(&altimeter_data_mtx);
 
   while (true) {
-    /* FIXME: move all state code into critocal sections.*/
+    /* FIXME: move all state code into critical sections.*/
     switch (altimeter_state) {
       case ALTIMETER_STATE_INIT:
         if (altimeter_init(&bmp280_data) == PG_OK) {

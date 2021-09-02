@@ -20,6 +20,8 @@
 #include "ch.h"
 #include "hal.h"
 
+extern binary_semaphore_t blackbox_ready_bsem;
+
 extern THD_WORKING_AREA(waBlackbox, 128);
 THD_FUNCTION(thBlackbox, arg);
 

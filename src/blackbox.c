@@ -22,12 +22,16 @@
 
 #include "blackbox.h"
 
+binary_semaphore_t blackbox_ready_bsem;
+
 THD_WORKING_AREA(waBlackbox, 128);
 THD_FUNCTION(thBlackbox, arg)
 {
   (void)arg;
 
   chRegSetThreadName("thBlackbox");
+
+  chBSemObjectInit(&blackbox_ready_bsem, false);
 
   while (true) {
     chThdSleepMilliseconds(500);
