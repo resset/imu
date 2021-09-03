@@ -58,7 +58,7 @@ typedef enum {
 static altimeter_state_t altimeter_state;
 static bmp280_data_t bmp280_data;
 
-binary_semaphore_t altimeter_ready_bsem;
+static binary_semaphore_t altimeter_ready_bsem;
 mutex_t altimeter_data_mtx;
 altimeter_data_t altimeter_data;
 
@@ -312,6 +312,11 @@ pg_result_t altimeter_state_zero(void)
     chSysUnlock();
     return PG_ERROR;
   }
+}
+
+void altimeter_sync_init(void)
+{
+  chBSemWait(&altimeter_ready_bsem);
 }
 
 void altimeter_copy_data(altimeter_data_t *source, altimeter_data_t *target)

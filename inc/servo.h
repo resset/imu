@@ -41,10 +41,10 @@ typedef struct {
  } servos[SERVO_QUANTITY];
 } servo_data_t;
 
-extern binary_semaphore_t servo_ready_bsem;
 extern mutex_t servo_data_mtx;
 extern servo_data_t servo_data;
 
+void servo_sync_init(void);
 void servo_copy_data(servo_data_t *source, servo_data_t *target);
 
 void servoInit(ServoPWM *servo);

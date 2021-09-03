@@ -22,7 +22,7 @@
 
 #include "servo.h"
 
-binary_semaphore_t servo_ready_bsem;
+static binary_semaphore_t servo_ready_bsem;
 mutex_t servo_data_mtx;
 servo_data_t servo_data;
 
@@ -136,6 +136,11 @@ void servoPosition(ServoPWM *servo, uint16_t position)
   }
 
   pwmEnableChannel(servo->pwm_driver, servo->pwm_channel, (pwmcnt_t)servo->position);
+}
+
+void servo_sync_init(void)
+{
+  chBSemWait(&servo_ready_bsem);
 }
 
 void servo_copy_data(servo_data_t *source, servo_data_t *target)

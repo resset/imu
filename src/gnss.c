@@ -23,7 +23,7 @@
 #include "gnss.h"
 
 static thread_t *gnss_thread = NULL;
-binary_semaphore_t gnss_ready_bsem;
+static binary_semaphore_t gnss_ready_bsem;
 
 /* GNSS specific SIO configuration. GNSS serial parameters are:
  * - baud rate of 9600
@@ -62,6 +62,11 @@ static SIOOperation sio8_operation = {
   .tx_end_cb  = NULL,
   .rx_evt_cb  = NULL
 };
+
+void gnss_sync_init(void)
+{
+  chBSemWait(&gnss_ready_bsem);
+}
 
 THD_WORKING_AREA(waGnss, 128);
 THD_FUNCTION(thGnss, arg)

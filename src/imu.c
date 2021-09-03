@@ -23,7 +23,7 @@
 #include "mpu6050.h"
 #include "imu.h"
 
-binary_semaphore_t imu_ready_bsem;
+static binary_semaphore_t imu_ready_bsem;
 
 static const I2CConfig i2ccfg = {
   STM32_TIMINGR_PRESC(0x0U) |
@@ -176,6 +176,11 @@ static void gyro_read(void)
   gyro_data.gyro_zout = (int16_t)(rxbuf[12] << 8 | rxbuf[13]);
 
   i2cReleaseBus(&I2CD1);
+}
+
+void imu_sync_init(void)
+{
+  chBSemWait(&imu_ready_bsem);
 }
 
 THD_WORKING_AREA(waImu, 128);

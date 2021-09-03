@@ -20,7 +20,7 @@
 #include "ch.h"
 #include "hal.h"
 
-extern binary_semaphore_t gnss_ready_bsem;
+void gnss_sync_init(void);
 
 extern THD_WORKING_AREA(waGnss, 128);
 THD_FUNCTION(thGnss, arg);

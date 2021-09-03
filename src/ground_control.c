@@ -36,12 +36,11 @@
 #define EVT_RESET EVENT_MASK(0)
 #define EVT_DATA  EVENT_MASK(1)
 
-binary_semaphore_t ground_control_ready_bsem;
 mutex_t ground_control_data_mtx;
 ground_control_data_t ground_control_data, gcd;
 
 static thread_t *ground_control_thread = NULL;
-binary_semaphore_t ground_control_ready_bsem;
+static binary_semaphore_t ground_control_ready_bsem;
 
 static uint8_t rxbuffer[SIO_FIFO_LENGTH];
 static uint8_t buffer[SBUS_PACKET_LENGTH];
@@ -147,6 +146,11 @@ void sbus_parse_packet(uint8_t *packet)
     gcd.lost_frame = packet[23] & SBUS_LOST_FRAME_MASK ? 1 : 0;
     gcd.failsafe = packet[23] & SBUS_FAILSAFE_MASK ? 1 : 0;
   }
+}
+
+void ground_control_sync_init(void)
+{
+  chBSemWait(&ground_control_ready_bsem);
 }
 
 void ground_control_copy_data(ground_control_data_t *source, ground_control_data_t *target)

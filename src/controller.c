@@ -81,12 +81,12 @@ THD_FUNCTION(thController, arg)
 
   controller_state = CONTROLLER_STATE_WAIT;
 
-  chBSemWait(&ground_control_ready_bsem);
-  chBSemWait(&altimeter_ready_bsem);
-  chBSemWait(&gnss_ready_bsem);
-  /*chBSemWait(&imu_ready_bsem);*/
-  chBSemWait(&servo_ready_bsem);
-  chBSemWait(&blackbox_ready_bsem);
+  ground_control_sync_init();
+  altimeter_sync_init();
+  gnss_sync_init();
+  /*imu_sync_init();*/
+  servo_sync_init();
+  blackbox_sync_init();
 
   controller_state = CONTROLLER_STATE_READY;
 
