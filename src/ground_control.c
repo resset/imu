@@ -168,6 +168,7 @@ THD_FUNCTION(thGroundControl, arg)
   chRegSetThreadName("thGroundControl");
   ground_control_thread = chThdGetSelfX();
   chBSemObjectInit(&ground_control_ready_bsem, true);
+  chMtxObjectInit(&ground_control_data_mtx);
 
   sioStart(&SIOD2, &sio2_config);
   sioStartOperation(&SIOD2, &sio2_operation);

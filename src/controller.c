@@ -84,7 +84,7 @@ THD_FUNCTION(thController, arg)
   chBSemWait(&ground_control_ready_bsem);
   chBSemWait(&altimeter_ready_bsem);
   chBSemWait(&gnss_ready_bsem);
-  chBSemWait(&imu_ready_bsem);
+  /*chBSemWait(&imu_ready_bsem);*/
   chBSemWait(&servo_ready_bsem);
   chBSemWait(&blackbox_ready_bsem);
 
