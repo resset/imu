@@ -17,11 +17,6 @@
 #ifndef _BMP280_H_
 #define _BMP280_H_
 
-/* If pin SDO is tied to GND then LSB is 0.*/
-#define BMP280_ADDR_LOW  0x76
-/* If pin SDO is tied to VCC then LSB is 1.*/
-#define BMP280_ADDR_HIGH 0x77
-
 /*
  * Registers.
  */
@@ -62,7 +57,29 @@
 #define BMP280_TEMP_LSB   0xFB
 #define BMP280_TEMP_XLSB  0xFC
 
+/*
+ * Register values.
+ */
+
 #define BMP280_VAL_ID     0x58
 #define BMP280_VAL_RESET  0xB6
+
+/*
+ * Other constants.
+ */
+
+/* If pin SDO is tied to GND then LSB is 0.*/
+#define BMP280_ADDR_LOW  0x76
+/* If pin SDO is tied to VCC then LSB is 1.*/
+#define BMP280_ADDR_HIGH 0x77
+
+#define BMP280_ADC_T_MIN      ((int32_t)0x00000)
+#define BMP280_ADC_T_MAX      ((int32_t)0xFFFF0)
+#define BMP280_ADC_P_MIN      ((int32_t)0x00000)
+#define BMP280_ADC_P_MAX      ((int32_t)0xFFFF0)
+#define BMP280_MIN_TEMP_INT   ((int32_t)-4000)
+#define BMP280_MAX_TEMP_INT   ((int32_t)8500)
+#define BMP280_MIN_PRES_64INT ((uint32_t)(30000 * 256))
+#define BMP280_MAX_PRES_64INT ((uint32_t)(110000 * 256))
 
 #endif /* _BMP280_H_ */
