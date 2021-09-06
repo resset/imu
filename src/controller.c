@@ -37,7 +37,7 @@ typedef enum {
 
 static controller_state_t controller_state = CONTROLLER_STATE_INIT;
 
-void simple_mixer(ground_control_data_t *gcd, servo_data_t *sd)
+static void simple_mixer(ground_control_data_t *gcd, servo_data_t *sd)
 {
   /* Example channel values change from 224 to 1759 for servos and up to 1793 for RSSI.
      Neutral position is around 993.*/
