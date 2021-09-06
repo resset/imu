@@ -22,9 +22,9 @@
 
 void gnss_sync_init(void);
 
-extern THD_WORKING_AREA(waGnss, 128);
+#define GNSS_THREAD_STACK_SIZE 128
+extern THD_WORKING_AREA(waGnss, GNSS_THREAD_STACK_SIZE);
 THD_FUNCTION(thGnss, arg);
-
 void shellcmd_gnss(BaseSequentialStream *chp, int argc, char *argv[]);
 
 #endif /* _GNSS_H_ */

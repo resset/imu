@@ -72,7 +72,7 @@ static void controller_loop(void)
   /*blackbox_copy_data(&c_blackbox_data_t, &blackbox_data_t);*/
 }
 
-THD_WORKING_AREA(waController, 128);
+THD_WORKING_AREA(waController, CONTROLLER_THREAD_STACK_SIZE);
 THD_FUNCTION(thController, arg)
 {
   (void)arg;

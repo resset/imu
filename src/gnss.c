@@ -68,7 +68,7 @@ void gnss_sync_init(void)
   chBSemWait(&gnss_ready_bsem);
 }
 
-THD_WORKING_AREA(waGnss, 128);
+THD_WORKING_AREA(waGnss, GNSS_THREAD_STACK_SIZE);
 THD_FUNCTION(thGnss, arg)
 {
   (void)arg;

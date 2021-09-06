@@ -20,9 +20,9 @@
 #include "ch.h"
 #include "hal.h"
 
-extern THD_WORKING_AREA(waController, 128);
+#define CONTROLLER_THREAD_STACK_SIZE 128
+extern THD_WORKING_AREA(waController, CONTROLLER_THREAD_STACK_SIZE);
 THD_FUNCTION(thController, arg);
-
 void shellcmd_controller(BaseSequentialStream *chp, int argc, char *argv[]);
 
 #endif /* _CONTROLLER_H_ */

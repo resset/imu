@@ -19,7 +19,8 @@
 
 #include "ch.h"
 
-extern THD_WORKING_AREA(waBlink, 128);
+#define BLINK_THREAD_STACK_SIZE 128
+extern THD_WORKING_AREA(waBlink, BLINK_THREAD_STACK_SIZE);
 THD_FUNCTION(thBlink, arg);
 
 #endif /* _BLINK_H_ */

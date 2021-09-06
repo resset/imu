@@ -25,6 +25,16 @@
 #include "pg.h"
 #include "altimeter.h"
 
+typedef enum {
+  ALTIMETER_STATE_INIT,
+  ALTIMETER_STATE_NOP,
+  ALTIMETER_STATE_ZERO,
+  ALTIMETER_STATE_READY,
+  ALTIMETER_FATAL_ERROR
+} altimeter_state_t;
+
+#define ALTIMETER_STATE_NAMES "INIT", "NOP", "ZERO", "READY", "ERROR"
+
 typedef struct {
   uint16_t dig_T1;
   int16_t dig_T2;
@@ -45,21 +55,11 @@ typedef struct {
   uint32_t pressure_raw;
 } bmp280_data_t;
 
-typedef enum {
-  ALTIMETER_STATE_INIT,
-  ALTIMETER_STATE_NOP,
-  ALTIMETER_STATE_ZERO,
-  ALTIMETER_STATE_READY,
-  ALTIMETER_FATAL_ERROR
-} altimeter_state_t;
-
-#define ALTIMETER_STATE_NAMES "INIT", "NOP", "ZERO", "READY", "ERROR"
-
 static altimeter_state_t altimeter_state;
 static bmp280_data_t bmp280_data;
 
 static binary_semaphore_t altimeter_ready_bsem;
-mutex_t altimeter_data_mtx;
+static mutex_t altimeter_data_mtx;
 altimeter_data_t altimeter_data;
 
 static const I2CConfig i2ccfg = {

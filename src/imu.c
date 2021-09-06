@@ -189,7 +189,7 @@ void imu_copy_data(imu_data_t *source, imu_data_t *target)
   chMtxUnlock(&imu_data_mtx);
 }
 
-THD_WORKING_AREA(waImu, 128);
+THD_WORKING_AREA(waImu, IMU_THREAD_STACK_SIZE);
 THD_FUNCTION(thImu, arg)
 {
   (void)arg;

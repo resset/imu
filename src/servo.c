@@ -23,7 +23,7 @@
 #include "servo.h"
 
 static binary_semaphore_t servo_ready_bsem;
-mutex_t servo_data_mtx;
+static mutex_t servo_data_mtx;
 servo_data_t servo_data;
 
 ServoPWM servos[] = {
@@ -150,7 +150,7 @@ void servo_copy_data(servo_data_t *source, servo_data_t *target)
   chMtxUnlock(&servo_data_mtx);
 }
 
-THD_WORKING_AREA(waServo, 128);
+THD_WORKING_AREA(waServo, SERVO_THREAD_STACK_SIZE);
 THD_FUNCTION(thServo, arg)
 {
   (void)arg;

@@ -64,7 +64,7 @@ static ShellConfig shell_cfg = {
 #endif
 };
 
-THD_WORKING_AREA(waShell, 128);
+THD_WORKING_AREA(waShell, SHELL_THREAD_STACK_SIZE);
 THD_FUNCTION(thShell, arg)
 {
   (void)arg;

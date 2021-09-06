@@ -36,7 +36,7 @@
 #define EVT_RESET EVENT_MASK(0)
 #define EVT_DATA  EVENT_MASK(1)
 
-mutex_t ground_control_data_mtx;
+static mutex_t ground_control_data_mtx;
 ground_control_data_t ground_control_data, gcd;
 
 static thread_t *ground_control_thread = NULL;
@@ -160,7 +160,7 @@ void ground_control_copy_data(ground_control_data_t *source, ground_control_data
   chMtxUnlock(&ground_control_data_mtx);
 }
 
-THD_WORKING_AREA(waGroundControl, 128);
+THD_WORKING_AREA(waGroundControl, GROUND_CONTROL_THREAD_STACK_SIZE);
 THD_FUNCTION(thGroundControl, arg)
 {
   (void)arg;

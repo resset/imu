@@ -41,7 +41,6 @@ typedef struct {
  } servos[SERVO_QUANTITY];
 } servo_data_t;
 
-extern mutex_t servo_data_mtx;
 extern servo_data_t servo_data;
 
 void servo_sync_init(void);
@@ -55,9 +54,9 @@ void servoMin(ServoPWM *servo);
 void servoMiddle(ServoPWM *servo);
 void servoPosition(ServoPWM *servo, uint16_t position);
 
-extern THD_WORKING_AREA(waServo, 128);
+#define SERVO_THREAD_STACK_SIZE 128
+extern THD_WORKING_AREA(waServo, SERVO_THREAD_STACK_SIZE);
 THD_FUNCTION(thServo, arg);
-
 void shellcmd_servo(BaseSequentialStream *chp, int argc, char *argv[]);
 
 #endif /* _SERVO_H_ */

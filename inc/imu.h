@@ -34,9 +34,9 @@ extern imu_data_t imu_data;
 
 void imu_sync_init(void);
 
-extern THD_WORKING_AREA(waImu, 128);
+#define IMU_THREAD_STACK_SIZE 128
+extern THD_WORKING_AREA(waImu, IMU_THREAD_STACK_SIZE);
 THD_FUNCTION(thImu, arg);
-
 void shellcmd_imu(BaseSequentialStream *chp, int argc, char *argv[]);
 
 #endif /* _IMU_H_ */

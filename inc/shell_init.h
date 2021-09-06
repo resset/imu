@@ -19,7 +19,8 @@
 
 #include "ch.h"
 
-extern THD_WORKING_AREA(waShell, 128);
+#define SHELL_THREAD_STACK_SIZE 128
+extern THD_WORKING_AREA(waShell, SHELL_THREAD_STACK_SIZE);
 THD_FUNCTION(thShell, arg);
 
 #endif /* _SHELL_INIT_H_ */

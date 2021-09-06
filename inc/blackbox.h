@@ -22,7 +22,8 @@
 
 void blackbox_sync_init(void);
 
-extern THD_WORKING_AREA(waBlackbox, 128);
+#define BLACKBOX_THREAD_STACK_SIZE 128
+extern THD_WORKING_AREA(waBlackbox, BLACKBOX_THREAD_STACK_SIZE);
 THD_FUNCTION(thBlackbox, arg);
 
 #endif /* _BLACKBOX_H_ */

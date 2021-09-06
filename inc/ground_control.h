@@ -28,15 +28,14 @@ typedef struct {
   uint8_t failsafe;
 } ground_control_data_t;
 
-extern mutex_t ground_control_data_mtx;
 extern ground_control_data_t ground_control_data;
 
 void ground_control_sync_init(void);
 void ground_control_copy_data(ground_control_data_t *source, ground_control_data_t *target);
 
-extern THD_WORKING_AREA(waGroundControl, 128);
+#define GROUND_CONTROL_THREAD_STACK_SIZE 128
+extern THD_WORKING_AREA(waGroundControl, GROUND_CONTROL_THREAD_STACK_SIZE);
 THD_FUNCTION(thGroundControl, arg);
-
 void shellcmd_ground_control(BaseSequentialStream *chp, int argc, char *argv[]);
 
 #endif /* _GROUND_CONTROL_H_ */

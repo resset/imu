@@ -29,7 +29,7 @@ void blackbox_sync_init(void)
   chBSemWait(&blackbox_ready_bsem);
 }
 
-THD_WORKING_AREA(waBlackbox, 128);
+THD_WORKING_AREA(waBlackbox, BLACKBOX_THREAD_STACK_SIZE);
 THD_FUNCTION(thBlackbox, arg)
 {
   (void)arg;
