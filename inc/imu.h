@@ -20,6 +20,18 @@
 #include "ch.h"
 #include "hal.h"
 
+typedef struct {
+  int16_t accel_x;
+  int16_t accel_y;
+  int16_t accel_z;
+  int16_t gyro_x;
+  int16_t gyro_y;
+  int16_t gyro_z;
+  int16_t temperature;
+} imu_data_t;
+
+extern imu_data_t imu_data;
+
 void imu_sync_init(void);
 
 extern THD_WORKING_AREA(waImu, 128);

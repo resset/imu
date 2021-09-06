@@ -24,6 +24,8 @@
 #include "imu.h"
 
 static binary_semaphore_t imu_ready_bsem;
+static mutex_t imu_data_mtx;
+imu_data_t imu_data;
 
 const SPIConfig spicfg = {
   false,
@@ -33,18 +35,6 @@ const SPIConfig spicfg = {
   SPI_CFG1_MBR_DIV8 | SPI_CFG1_DSIZE_VALUE(7),
   0
 };
-
-typedef struct {
-  int16_t accel_xout;
-  int16_t accel_yout;
-  int16_t accel_zout;
-  int16_t gyro_xout;
-  int16_t gyro_yout;
-  int16_t gyro_zout;
-  int16_t temp_out;
-} gyro_data_t;
-
-gyro_data_t gyro_data;
 
 inline static void imu_transmit(uint8_t *txbuf, size_t txbuf_len, uint8_t *rxbuf, size_t rxbuf_len)
 {
@@ -59,7 +49,7 @@ inline static void imu_send(uint8_t *txbuf, size_t txbuf_len)
   spiExchange(&SPID1, txbuf_len, txbuf, NULL);
 }
 
-static int gyro_init(void)
+static int imu_init(void)
 {
   CC_ALIGN_DATA(32) uint8_t txbuf[CACHE_SIZE_ALIGN(uint8_t, 2)];
   CC_ALIGN_DATA(32) uint8_t rxbuf[CACHE_SIZE_ALIGN(uint8_t, 2)];
@@ -161,7 +151,7 @@ static int gyro_init(void)
   }
 }
 
-static void gyro_read(void)
+static void imu_read(void)
 {
   CC_ALIGN_DATA(32) uint8_t txbuf[CACHE_SIZE_ALIGN(uint8_t, 2)];
   CC_ALIGN_DATA(32) uint8_t rxbuf[CACHE_SIZE_ALIGN(uint8_t, 24)];
@@ -172,16 +162,16 @@ static void gyro_read(void)
   txbuf[0] = 0x3B;
   imu_transmit(txbuf, 1, rxbuf, 14);
 
-  gyro_data.accel_xout = (int16_t)(rxbuf[0] << 8 | rxbuf[1]);
-  gyro_data.accel_yout = (int16_t)(rxbuf[2] << 8 | rxbuf[3]);
-  gyro_data.accel_zout = (int16_t)(rxbuf[4] << 8 | rxbuf[5]);
+  imu_data.accel_x = (int16_t)(rxbuf[0] << 8 | rxbuf[1]);
+  imu_data.accel_y = (int16_t)(rxbuf[2] << 8 | rxbuf[3]);
+  imu_data.accel_z = (int16_t)(rxbuf[4] << 8 | rxbuf[5]);
 
   /* Temperature in deg. C * 10 must be calculated.*/
-  gyro_data.temp_out = (int16_t)((int16_t)rxbuf[6] << 8 | rxbuf[7]) / 34 + 365;
+  imu_data.temperature = (int16_t)((int16_t)rxbuf[6] << 8 | rxbuf[7]) / 34 + 365;
 
-  gyro_data.gyro_xout = (int16_t)(rxbuf[8] << 8 | rxbuf[9]);
-  gyro_data.gyro_yout = (int16_t)(rxbuf[10] << 8 | rxbuf[11]);
-  gyro_data.gyro_zout = (int16_t)(rxbuf[12] << 8 | rxbuf[13]);
+  imu_data.gyro_x = (int16_t)(rxbuf[8] << 8 | rxbuf[9]);
+  imu_data.gyro_y = (int16_t)(rxbuf[10] << 8 | rxbuf[11]);
+  imu_data.gyro_z = (int16_t)(rxbuf[12] << 8 | rxbuf[13]);
 
   spiUnselect(&SPID1);
   spiReleaseBus(&SPID1);
@@ -192,6 +182,13 @@ void imu_sync_init(void)
   chBSemWait(&imu_ready_bsem);
 }
 
+void imu_copy_data(imu_data_t *source, imu_data_t *target)
+{
+  chMtxLock(&imu_data_mtx);
+  memcpy(target, source, sizeof(imu_data_t));
+  chMtxUnlock(&imu_data_mtx);
+}
+
 THD_WORKING_AREA(waImu, 128);
 THD_FUNCTION(thImu, arg)
 {
@@ -200,7 +197,7 @@ THD_FUNCTION(thImu, arg)
   chRegSetThreadName("thImu");
   chBSemObjectInit(&imu_ready_bsem, true);
 
-  gyro_init();
+  imu_init();
   chBSemSignal(&imu_ready_bsem);
 
   systime_t time = chVTGetSystemTime();
@@ -208,7 +205,7 @@ THD_FUNCTION(thImu, arg)
     /* Fire the thread every 400 us (2.5 kHz). This is a maximum we can achieve
        for accelerometer, gyroscope and temperature data on MPU6050.*/
     time = chTimeAddX(time, TIME_US2I(400));
-    //gyro_read();
+    //imu_read();
 
     chThdSleepUntil(time);
   }
@@ -221,9 +218,9 @@ void shellcmd_imu(BaseSequentialStream *chp, int argc, char *argv[])
 
   while (chnGetTimeout((BaseChannel *)chp, TIME_IMMEDIATE) == Q_TIMEOUT) {
     chprintf(chp, "%6d %6d %6d   %6d %6d %6d   %d\r\n",
-             gyro_data.accel_xout, gyro_data.accel_yout, gyro_data.accel_zout,
-             gyro_data.gyro_xout, gyro_data.gyro_yout, gyro_data.gyro_zout,
-             gyro_data.temp_out);
+             imu_data.accel_x, imu_data.accel_y, imu_data.accel_z,
+             imu_data.gyro_x, imu_data.gyro_y, imu_data.gyro_z,
+             imu_data.temperature);
     chThdSleepMilliseconds(50);
   }
 }
