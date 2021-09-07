@@ -20,7 +20,7 @@
 #include "hal.h"
 #include "chprintf.h"
 
-#include "mpu6050.h"
+#include "icm20689.h"
 #include "imu.h"
 
 static binary_semaphore_t imu_ready_bsem;
@@ -30,23 +30,24 @@ imu_data_t imu_data;
 const SPIConfig spicfg = {
   false,
   NULL,
-  GPIOD,
-  14,
-  SPI_CFG1_MBR_DIV8 | SPI_CFG1_DSIZE_VALUE(7),
-  0
+  GPIOA,
+  15,
+  SPI_CFG1_MBR_DIV128 | SPI_CFG1_DSIZE_VALUE(7),
+  SPI_CFG2_SSOE
 };
 
-inline static void imu_transmit(uint8_t *txbuf, size_t txbuf_len, uint8_t *rxbuf, size_t rxbuf_len)
+inline static void imu_read(uint8_t *txbuf, size_t txbuf_len, uint8_t *rxbuf, size_t rxbuf_len)
 {
+  txbuf[0] |= ICM20689_READ_MASK;
   cacheBufferFlush(txbuf, CACHE_SIZE_ALIGN(uint8_t, txbuf_len));
   cacheBufferInvalidate(rxbuf, CACHE_SIZE_ALIGN(uint8_t, rxbuf_len));
-  spiExchange(&SPID1, txbuf_len, txbuf, rxbuf);
+  spiExchange(&SPID1, rxbuf_len, txbuf, rxbuf);
 }
 
-inline static void imu_send(uint8_t *txbuf, size_t txbuf_len)
+inline static void imu_write(uint8_t *txbuf, size_t txbuf_len)
 {
   cacheBufferFlush(txbuf, CACHE_SIZE_ALIGN(uint8_t, txbuf_len));
-  spiExchange(&SPID1, txbuf_len, txbuf, NULL);
+  spiSend(&SPID1, txbuf_len, txbuf);
 }
 
 static int imu_init(void)
@@ -68,82 +69,80 @@ static int imu_init(void)
 
   spiSelect(&SPID1);
 
-  /* Reset MPU6050. Note: apparently this is needed for SPI connection
-   * in MPU6000 only, but it shouldn't hurt on I2C either.
-   */
-  txbuf[0] = MPU6050_PWR_MGMT_1;
+  /* Reset ICM20689.*/
+  txbuf[0] = ICM20689_PWR_MGMT_1;
   txbuf[1] = 0x80;
-  imu_send(txbuf, 2);
+  imu_write(txbuf, 2);
   chThdSleepMilliseconds(100);
   /* Here we check if the reset is done.*/
   do {
     rxbuf[0] = 0xff;
-    txbuf[0] = MPU6050_PWR_MGMT_1;
-    imu_transmit(txbuf, 1, rxbuf, 1);
+    txbuf[0] = ICM20689_PWR_MGMT_1;
+    imu_read(txbuf, 1, rxbuf, 2);
   } while (rxbuf[0] & 0x80);
   /* Last step is to reset analog to digital paths of all sensors.*/
-  txbuf[0] = MPU6050_SIGNAL_PATH_RESET;
+  txbuf[0] = ICM20689_SIGNAL_PATH_RESET;
   txbuf[1] = 0x07;
-  imu_send(txbuf, 2);
+  imu_write(txbuf, 2);
   chThdSleepMilliseconds(100);
 
+  /* Disable I2C interface and FIFO.*/
+  txbuf[0] = ICM20689_USER_CTRL;
+  txbuf[1] = 0x10;
+  imu_write(txbuf, 2);
+  txbuf[0] = ICM20689_FIFO_EN;
+  txbuf[1] = 0x00;
+  imu_write(txbuf, 2);
+
   /* Set clock source to gyro X.*/
-  txbuf[0] = MPU6050_PWR_MGMT_1;
+  txbuf[0] = ICM20689_PWR_MGMT_1;
   txbuf[1] = 0x01;
-  imu_send(txbuf, 2);
+  imu_write(txbuf, 2);
 
   /* Disable standby modes.*/
-  txbuf[0] = MPU6050_PWR_MGMT_2;
+  txbuf[0] = ICM20689_PWR_MGMT_2;
   txbuf[1] = 0x00;
-  imu_send(txbuf, 2);
+  imu_write(txbuf, 2);
 
   /* Disable interrupts.*/
-  txbuf[0] = MPU6050_INT_ENABLE;
+  txbuf[0] = ICM20689_INT_ENABLE;
   txbuf[1] = 0x00;
-  imu_send(txbuf, 2);
-
-  /* Disable FIFO.*/
-  txbuf[0] = MPU6050_FIFO_EN;
-  txbuf[1] = 0x00;
-  imu_send(txbuf, 2);
-  txbuf[0] = MPU6050_USER_CTRL;
-  txbuf[1] = 0x00;
-  imu_send(txbuf, 2);
+  imu_write(txbuf, 2);
 
   /* Set gyroscope sensitivity to +/- 1000 deg/s.*/
-  txbuf[0] = MPU6050_GYRO_CONFIG;
+  txbuf[0] = ICM20689_GYRO_CONFIG;
   txbuf[1] = 0x10;
-  imu_send(txbuf, 2);
+  imu_write(txbuf, 2);
 
   /* Set accelerometer sensitivity to +/- 8 g.*/
-  txbuf[0] = MPU6050_ACCEL_CONFIG;
+  txbuf[0] = ICM20689_ACCEL_CONFIG;
   txbuf[1] = 0x10;
-  imu_send(txbuf, 2);
+  imu_write(txbuf, 2);
 
-  /* Set low pass filter cutoff frequency (DLPF_CFG). We set 42 Hz for gyro.
+  /* Set low pass filter cutoff frequency (DLPF_CFG). We set 41 Hz for gyro.
    * NOTE: it is preferable not to use MPU's filter. External software
    * filter (eg. biquad) in embedded environment will have better performance.
    */
-  txbuf[0] = MPU6050_CONFIG;
+  txbuf[0] = ICM20689_CONFIG;
   txbuf[1] = 0x03;
-  imu_send(txbuf, 2);
+  imu_write(txbuf, 2);
 
   /* Set data rate (if DLPF_CFG == 0 then 8 kHz is divided, otherwise 1 kHz).
    * Since we use LPF, our data rate is 1 kHz.
    */
-  txbuf[0] = MPU6050_SMPRT_DIV;
+  txbuf[0] = ICM20689_SMPLRT_DIV;
   txbuf[1] = 0x00;
-  imu_send(txbuf, 2);
+  imu_write(txbuf, 2);
 
-  /* Test for MPU6050.*/
-  txbuf[0] = MPU6050_WHO_AM_I;
-  imu_transmit(txbuf, 1, rxbuf, 1);
+  /* Test for ICM20689.*/
+  txbuf[0] = ICM20689_WHO_AM_I;
+  imu_read(txbuf, 1, rxbuf, 2);
 
   spiUnselect(&SPID1);
   spiReleaseBus(&SPID1);
 
   /* This should be a check of registers written.*/
-  if (rxbuf[0] == MPU6050_WHO_AM_I_IDENTITY) {
+  if (rxbuf[0] == ICM20689_VAL_WHO_AM_I) {
     return 0;
   } else {
     /* TODO: register fatal error, quit task.*/
@@ -151,27 +150,31 @@ static int imu_init(void)
   }
 }
 
-static void imu_read(void)
+static void imu_get_data(void)
 {
   CC_ALIGN_DATA(32) uint8_t txbuf[CACHE_SIZE_ALIGN(uint8_t, 2)];
   CC_ALIGN_DATA(32) uint8_t rxbuf[CACHE_SIZE_ALIGN(uint8_t, 24)];
+  /* TODO: this is not needed.*/
+  memset(txbuf, 0xff, CACHE_SIZE_ALIGN(uint8_t, 2));
 
   spiAcquireBus(&SPID1);
   spiSelect(&SPID1);
 
-  txbuf[0] = 0x3B;
-  imu_transmit(txbuf, 1, rxbuf, 14);
+  txbuf[0] = ICM20689_ACCEL_XOUT_H;
+  /* FIXME: why do we have this offset of one byte?*/
+  imu_read(txbuf, 1, rxbuf, 16);
 
-  imu_data.accel_x = (int16_t)(rxbuf[0] << 8 | rxbuf[1]);
-  imu_data.accel_y = (int16_t)(rxbuf[2] << 8 | rxbuf[3]);
-  imu_data.accel_z = (int16_t)(rxbuf[4] << 8 | rxbuf[5]);
+  /* FIXME: get rid of this offest, somehow.*/
+  imu_data.accel_x = (int16_t)(rxbuf[1] << 8 | rxbuf[2]);
+  imu_data.accel_y = (int16_t)(rxbuf[3] << 8 | rxbuf[4]);
+  imu_data.accel_z = (int16_t)(rxbuf[5] << 8 | rxbuf[6]);
 
-  /* Temperature in deg. C * 10 must be calculated.*/
-  imu_data.temperature = (int16_t)((int16_t)rxbuf[6] << 8 | rxbuf[7]) / 34 + 365;
+  /* Temperature must be calculated.*/
+  imu_data.temperature = (float)((int16_t)rxbuf[7] << 8 | rxbuf[8]) / 326.8f + 25.0f;
 
-  imu_data.gyro_x = (int16_t)(rxbuf[8] << 8 | rxbuf[9]);
-  imu_data.gyro_y = (int16_t)(rxbuf[10] << 8 | rxbuf[11]);
-  imu_data.gyro_z = (int16_t)(rxbuf[12] << 8 | rxbuf[13]);
+  imu_data.gyro_x = (int16_t)(rxbuf[9] << 8 | rxbuf[10]);
+  imu_data.gyro_y = (int16_t)(rxbuf[11] << 8 | rxbuf[12]);
+  imu_data.gyro_z = (int16_t)(rxbuf[13] << 8 | rxbuf[14]);
 
   spiUnselect(&SPID1);
   spiReleaseBus(&SPID1);
@@ -203,9 +206,9 @@ THD_FUNCTION(thImu, arg)
   systime_t time = chVTGetSystemTime();
   while (true) {
     /* Fire the thread every 400 us (2.5 kHz). This is a maximum we can achieve
-       for accelerometer, gyroscope and temperature data on MPU6050.*/
+       for accelerometer, gyroscope and temperature data on ICM20689.*/
     time = chTimeAddX(time, TIME_US2I(400));
-    //imu_read();
+    imu_get_data();
 
     chThdSleepUntil(time);
   }
@@ -217,10 +220,10 @@ void shellcmd_imu(BaseSequentialStream *chp, int argc, char *argv[])
   (void)argv;
 
   while (chnGetTimeout((BaseChannel *)chp, TIME_IMMEDIATE) == Q_TIMEOUT) {
-    chprintf(chp, "%6d %6d %6d   %6d %6d %6d   %d\r\n",
+    chprintf(chp, "%6d %6d %6d      %6d %6d %6d      %d\r\n",
              imu_data.accel_x, imu_data.accel_y, imu_data.accel_z,
              imu_data.gyro_x, imu_data.gyro_y, imu_data.gyro_z,
-             imu_data.temperature);
+             (int32_t)(imu_data.temperature * 100));
     chThdSleepMilliseconds(50);
   }
 }

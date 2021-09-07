@@ -27,7 +27,7 @@ typedef struct {
   int16_t gyro_x;
   int16_t gyro_y;
   int16_t gyro_z;
-  int16_t temperature;
+  float temperature;
 } imu_data_t;
 
 extern imu_data_t imu_data;
