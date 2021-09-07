@@ -26,7 +26,7 @@ void shellcmd_about(BaseSequentialStream *chp, int argc, char *argv[])
   (void)argc;
 
   /* TODO: add information. */
-  chprintf(chp, "TODO\r\n");
+  chprintf(chp, "\r\n");
 }
 
 void shellcmd_reset(BaseSequentialStream *chp, int argc, char *argv[])
