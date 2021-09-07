@@ -157,7 +157,7 @@ THD_FUNCTION(thServo, arg)
 
   servo_data_t sd;
 
-  chRegSetThreadName("thServo");
+  chRegSetThreadName("servo");
   chBSemObjectInit(&servo_ready_bsem, true);
   chMtxObjectInit(&servo_data_mtx);
 

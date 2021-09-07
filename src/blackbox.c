@@ -34,7 +34,7 @@ THD_FUNCTION(thBlackbox, arg)
 {
   (void)arg;
 
-  chRegSetThreadName("thBlackbox");
+  chRegSetThreadName("blackbox");
 
   chBSemObjectInit(&blackbox_ready_bsem, true);
   chBSemSignal(&blackbox_ready_bsem);

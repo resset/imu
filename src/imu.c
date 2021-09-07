@@ -197,7 +197,7 @@ THD_FUNCTION(thImu, arg)
 {
   (void)arg;
 
-  chRegSetThreadName("thImu");
+  chRegSetThreadName("imu");
   chBSemObjectInit(&imu_ready_bsem, true);
 
   imu_init();

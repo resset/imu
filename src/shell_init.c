@@ -75,7 +75,7 @@ THD_FUNCTION(thShell, arg)
 
   thread_t *shelltp = NULL;
 
-  chRegSetThreadName("thShell");
+  chRegSetThreadName("shell_init");
 
   /*
    * Initializes a serial driver.

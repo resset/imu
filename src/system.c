@@ -133,7 +133,7 @@ void cpu_load(BaseSequentialStream *chp, int argc, char *argv[])
   tp = chRegFirstThread();
   do {
     tmp1 = (uint16_t)(tp->stats.cumulative * 10000 / sum);
-    chprintf(chp, "%16s %3u.%u%%\r\n", tp->name, tmp1 / 100, tmp1 % 100);
+    chprintf(chp, "%15s %3u.%u%%\r\n", tp->name, tmp1 / 100, tmp1 % 100);
     tp = chRegNextThread(tp);
   } while (tp != NULL);
 

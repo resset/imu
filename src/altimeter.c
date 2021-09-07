@@ -334,7 +334,7 @@ THD_FUNCTION(thAltimeter, arg)
   ad.data_valid = false;
   ad.pressure_reference = 0.0f;
 
-  chRegSetThreadName("thAltimeter");
+  chRegSetThreadName("altimeter");
 
   chBSemObjectInit(&altimeter_ready_bsem, true);
   chMtxObjectInit(&altimeter_data_mtx);

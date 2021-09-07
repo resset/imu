@@ -24,7 +24,7 @@ THD_FUNCTION(thBlink, arg)
 {
   (void)arg;
 
-  chRegSetThreadName("thBlink");
+  chRegSetThreadName("blink");
 
   /* GPIOA_LED has a pullup, D10 and D14 have pulldowns.*/
   palSetPadMode(GPIOD, 10, PAL_MODE_OUTPUT_PUSHPULL);

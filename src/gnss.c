@@ -75,7 +75,7 @@ THD_FUNCTION(thGnss, arg)
 
   eventmask_t evt;
 
-  chRegSetThreadName("thGnss");
+  chRegSetThreadName("gnss");
   gnss_thread = chThdGetSelfX();
   chBSemObjectInit(&gnss_ready_bsem, true);
 

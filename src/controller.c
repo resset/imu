@@ -77,7 +77,7 @@ THD_FUNCTION(thController, arg)
 {
   (void)arg;
 
-  chRegSetThreadName("thController");
+  chRegSetThreadName("controller");
 
   controller_state = CONTROLLER_STATE_WAIT;
 

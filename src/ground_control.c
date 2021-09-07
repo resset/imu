@@ -169,7 +169,7 @@ THD_FUNCTION(thGroundControl, arg)
   size_t pos = 0;
   size_t n;
 
-  chRegSetThreadName("thGroundControl");
+  chRegSetThreadName("ground_control");
   ground_control_thread = chThdGetSelfX();
   chBSemObjectInit(&ground_control_ready_bsem, true);
   chMtxObjectInit(&ground_control_data_mtx);
