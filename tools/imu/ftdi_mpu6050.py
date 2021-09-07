@@ -10,7 +10,7 @@ FTDI_URL = 'ftdi://ftdi:2232:FTVE5I3T/2'
 # MPU6050 7-bit address: 0x68
 MPU6050_ADDR = 0x68
 
-MPU6050_SMPRT_DIV = 0x19
+MPU6050_SMPLRT_DIV = 0x19
 MPU6050_CONFIG = 0x1A
 MPU6050_GYRO_CONFIG = 0x1B
 MPU6050_ACCEL_CONFIG = 0x1C
@@ -86,7 +86,7 @@ def mpu_init():
 
     # Set data rate (if DLPF_CFG == 0 then 8 kHz is divided, otherwise 1 kHz).
     # Since we use LPF, our data rate is 1 kHz.
-    bus.write_to(MPU6050_SMPRT_DIV, b'\x00')
+    bus.write_to(MPU6050_SMPLRT_DIV, b'\x00')
 
     # Test for MPU6050.
     rxbuf = bus.read_from(MPU6050_WHO_AM_I, 1)
@@ -137,7 +137,7 @@ def mpu_calibrate_zero(bus):
     print('Gathering calibration data... ', end='')
     sys.stdout.flush()
 
-    for i in range(0, 100):
+    for _ in range(0, 100):
         data = mpu_read_data(bus)
         accel_x_sum += data['accel_xout']
         accel_y_sum += data['accel_yout']
@@ -172,7 +172,7 @@ def main():
             previous_time = current_time
             print('[t: %f dt: %f]' % (current_time, d_t), end='')
 
-            # Read accelerometer and gyroscope data. 50 Hz should be achievable
+            # Read accelerometer and gyroscope data. 50 Hz should be achievable.
             data = mpu_read_data(bus_handler)
             print(
                 '%6d %6d %6d %6d %6d %6d t: %f'
@@ -192,4 +192,4 @@ if __name__ == '__main__':
     try:
         main()
     except KeyboardInterrupt:
-      print('')
+        print('')
