@@ -14,7 +14,10 @@
     limitations under the License.
 */
 
+#include "ch.h"
 #include "hal.h"
+#include "chprintf.h"
+
 #include "system.h"
 
 void system_init(void)
@@ -100,3 +103,47 @@ void HardFault_Handler(void)
   );
   while (true);
 }
+
+#ifdef CH_DBG_STATISTICS
+/**
+ * Credit: https://forum.chibios.org/viewtopic.php?p=29448#p29448
+ */
+void cpu_load(BaseSequentialStream *chp, int argc, char *argv[])
+{
+  (void)argc;
+  (void)argv;
+
+#if PORT_CORES_NUMBER > 1
+  chprintf(chp, "This command is not suited for multi-core environments.\r\n");
+#else
+  thread_t *tp;
+
+  uint64_t sum = 0;
+  uint16_t tmp1, tmp2;
+
+  tp = chRegFirstThread();
+  do {
+    sum += tp->stats.cumulative;
+    tp = chRegNextThread(tp);
+  } while (tp != NULL);
+
+  sum += currcore->kernel_stats.m_crit_thd.cumulative;
+  sum += currcore->kernel_stats.m_crit_isr.cumulative;
+
+  tp = chRegFirstThread();
+  do {
+    tmp1 = (uint16_t)(tp->stats.cumulative * 10000 / sum);
+    chprintf(chp, "%16s %3u.%2u%%\r\n", tp->name, tmp1 / 100, tmp1 % 100);
+    tp = chRegNextThread(tp);
+  } while (tp != NULL);
+
+  tmp1 = (uint16_t)(currcore->kernel_stats.m_crit_thd.cumulative * 10000 / sum);
+  tmp2 = (uint16_t)(currcore->kernel_stats.m_crit_isr.cumulative * 10000 / sum);
+
+  chprintf(chp, "thd:%3u.%2u%%      isr:%3u.%2u%%\r\n",
+           tmp1 / 100, tmp1 % 100,
+           tmp2 / 100, tmp2 % 100);
+  chprintf(chp, "\r\n");
+#endif
+}
+#endif

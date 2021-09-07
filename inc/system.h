@@ -18,5 +18,8 @@
 #define _SYSTEM_H_
 
 void system_init(void);
+#ifdef CH_DBG_STATISTICS
+void cpu_load(BaseSequentialStream *chp, int argc, char *argv[]);
+#endif
 
 #endif /* _SYSTEM_H_ */
