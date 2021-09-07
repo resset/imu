@@ -133,17 +133,16 @@ void cpu_load(BaseSequentialStream *chp, int argc, char *argv[])
   tp = chRegFirstThread();
   do {
     tmp1 = (uint16_t)(tp->stats.cumulative * 10000 / sum);
-    chprintf(chp, "%16s %3u.%2u%%\r\n", tp->name, tmp1 / 100, tmp1 % 100);
+    chprintf(chp, "%16s %3u.%u%%\r\n", tp->name, tmp1 / 100, tmp1 % 100);
     tp = chRegNextThread(tp);
   } while (tp != NULL);
 
   tmp1 = (uint16_t)(currcore->kernel_stats.m_crit_thd.cumulative * 10000 / sum);
   tmp2 = (uint16_t)(currcore->kernel_stats.m_crit_isr.cumulative * 10000 / sum);
 
-  chprintf(chp, "thd:%3u.%2u%%      isr:%3u.%2u%%\r\n",
+  chprintf(chp, "\r\nthd: %3u.%2u%%\r\nisr: %3u.%2u%%\r\n",
            tmp1 / 100, tmp1 % 100,
            tmp2 / 100, tmp2 % 100);
-  chprintf(chp, "\r\n");
 #endif
 }
 #endif
