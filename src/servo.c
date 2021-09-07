@@ -169,6 +169,9 @@ THD_FUNCTION(thServo, arg)
   chBSemSignal(&servo_ready_bsem);
 
   while (true) {
+    /* FIXME: synchronize with controller in a slightly better way.
+       This thread could easily wait for an event or be locked on a binary
+       semaphore or something similar.*/
     chThdSleepMilliseconds(10);
     servo_copy_data(&servo_data, &sd);
     servoPosition(&servos[0], sd.servos[0].position);
@@ -187,6 +190,6 @@ void shellcmd_servo(BaseSequentialStream *chp, int argc, char *argv[])
     chprintf(chp, "%4d %4d %4d %4d\r\n",
              servos[0].position, servos[1].position,
              servos[2].position, servos[3].position);
-    chThdSleepMilliseconds(2);
+    chThdSleepMilliseconds(20);
   }
 }
