@@ -87,7 +87,7 @@ def mpu_init():
     # Set accelerometer sensitivity to +/- 8 g.
     bus.write([ICM20689_ACCEL_CONFIG, 0x10])
 
-    # Set low pass filter cutoff frequency (DLPF_CFG). We set 42 Hz for gyro.
+    # Set low pass filter cutoff frequency (DLPF_CFG). We set 41 Hz for gyro.
     # NOTE: it is preferable not to use MPU's filter. External software
     # filter (eg. biquad) in embedded environment will have better performance.
     bus.write([ICM20689_CONFIG, 0x03])
