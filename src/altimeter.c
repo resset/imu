@@ -35,6 +35,9 @@ typedef enum {
 
 #define ALTIMETER_STATE_NAMES "INIT", "NOP", "ZERO", "READY", "ERROR"
 
+static altimeter_state_t altimeter_state;
+static mutex_t altimeter_state_mtx;
+
 typedef struct {
   uint16_t dig_T1;
   int16_t dig_T2;
@@ -55,7 +58,6 @@ typedef struct {
   uint32_t pressure_raw;
 } bmp280_data_t;
 
-static altimeter_state_t altimeter_state;
 static bmp280_data_t bmp280_data;
 
 static binary_semaphore_t altimeter_ready_bsem;
@@ -303,15 +305,33 @@ static pg_result_t altimeter_altitude(altimeter_data_t *ad)
 
 pg_result_t altimeter_state_zero(void)
 {
-  chSysLock();
+  chMtxLock(&altimeter_state_mtx);
   if (altimeter_state == ALTIMETER_STATE_READY) {
     altimeter_state = ALTIMETER_STATE_ZERO;
-    chSysUnlock();
+    chMtxUnlock(&altimeter_state_mtx);
     return PG_OK;
   } else {
-    chSysUnlock();
+    chMtxUnlock(&altimeter_state_mtx);
     return PG_ERROR;
   }
+}
+
+altimeter_state_t altimeter_state_get(void)
+{
+  altimeter_state_t state;
+
+  chMtxLock(&altimeter_state_mtx);
+  state = altimeter_state;
+  chMtxUnlock(&altimeter_state_mtx);
+
+  return state;
+}
+
+void altimeter_state_set(altimeter_state_t state)
+{
+  chMtxLock(&altimeter_state_mtx);
+  altimeter_state = state;
+  chMtxUnlock(&altimeter_state_mtx);
 }
 
 void altimeter_sync_init(void)
@@ -338,19 +358,19 @@ THD_FUNCTION(thAltimeter, arg)
 
   chBSemObjectInit(&altimeter_ready_bsem, true);
   chMtxObjectInit(&altimeter_data_mtx);
+  chMtxObjectInit(&altimeter_state_mtx);
 
   while (true) {
-    /* FIXME: move all state code into critical sections.*/
-    switch (altimeter_state) {
+    switch (altimeter_state_get()) {
       case ALTIMETER_STATE_INIT:
         if (altimeter_init(&bmp280_data) == PG_OK) {
 #ifdef PG_CFG_ALT_ZERO_ON_INIT
-        altimeter_state = ALTIMETER_STATE_ZERO;
+        altimeter_state_set(ALTIMETER_STATE_ZERO);
 #else
-        altimeter_state = ALTIMETER_STATE_NOP;
+        altimeter_state_set(ALTIMETER_STATE_NOP);
 #endif
         } else {
-          altimeter_state = ALTIMETER_FATAL_ERROR;
+          altimeter_state_set(ALTIMETER_FATAL_ERROR);
         }
         break;
       case ALTIMETER_STATE_NOP:
@@ -361,11 +381,11 @@ THD_FUNCTION(thAltimeter, arg)
           altimeter_altitude(&ad);
           altimeter_copy_data(&ad, &altimeter_data);
 
-          altimeter_state = ALTIMETER_STATE_READY;
+          altimeter_state_set(ALTIMETER_STATE_READY);
           chBSemSignal(&altimeter_ready_bsem);
         } else {
           /* TODO: we shoud probably try few more times.*/
-          altimeter_state = ALTIMETER_FATAL_ERROR;
+          altimeter_state_set(ALTIMETER_FATAL_ERROR);
         }
         break;
       case ALTIMETER_STATE_READY:
@@ -391,21 +411,17 @@ void shellcmd_altimeter(BaseSequentialStream *chp, int argc, char *argv[])
 {
   (void)argc;
   (void)argv;
+  altimeter_data_t ad;
 
-  chSysLock();
-  altimeter_state_t st = altimeter_state;
-  chSysUnlock();
-
-  if (st == ALTIMETER_STATE_READY) {
+  /* Currently we are allowed to check once, because READY state is a dead-end.*/
+  if (altimeter_state_get() == ALTIMETER_STATE_READY) {
     while (chnGetTimeout((BaseChannel *)chp, TIME_IMMEDIATE) == Q_TIMEOUT) {
-      /* FIXME: add mutex(es).*/
+      altimeter_copy_data(&altimeter_data, &ad);
       chprintf(chp, "%6d deg. C / 100, %6d, Pa %6d cm\r\n",
-              bmp280_data.temperature_raw,
-              bmp280_data.pressure_raw / 256,
-              (int32_t)(altimeter_data.altitude * 100.0f));
-
-      /* TODO: settle on some read schedule.*/
-      chThdSleepMilliseconds(50);
+              (int32_t)(ad.temperature * 100.0f),
+              (int32_t)ad.pressure,
+              (int32_t)(ad.altitude * 100.0f));
+      chThdSleepMilliseconds(100);
     }
   }
 }

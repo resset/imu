@@ -35,9 +35,13 @@
 
 typedef struct {
   bool data_valid;
+  /* In degrees Celsius.*/
   float temperature;
+  /* In Pascals.*/
   float pressure;
+  /* In Pascals.*/
   float pressure_reference;
+  /* In meters.*/
   float altitude;
 } altimeter_data_t;
 
