@@ -29,17 +29,16 @@ int main(void)
   /* Common functions start.*/
   system_init();
 
-  /* Change main() thread priority to the lowest value.
-     This thread has no specific function.*/
+  /* Change main() thread priority to the lowest value. This thread
+     has no specific function.*/
   chThdSetPriority(LOWPRIO);
 
   /* Create and start threads. From now on, all code execution
      is governed there.*/
   tasks_init();
 
-  while (true) {
-    chThdSleepSeconds(10);
-  }
+  /* Exit startup thread, we do not need it anymore.*/
+  chThdExit((msg_t)0);
 
   return 0;
 }

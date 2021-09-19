@@ -23,7 +23,7 @@
 #include "pg.h"
 #include "bmp280.h"
 
-#define BMP280_ADDR           BMP280_ADDR_LOW
+#define BMP280_ADDR BMP280_ADDR_LOW
 
 #ifndef PG_CFG_ALT_ZERO_SAMPLES
 #define PG_CFG_ALT_ZERO_SAMPLES ((uint16_t)10)
