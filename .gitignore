@@ -3,4 +3,5 @@
 /build
 .venv
 *.out
+*.pyc
 _nogit_*
