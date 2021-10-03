@@ -118,6 +118,7 @@ LDSCRIPT= $(STARTUPLD)/STM32H743xI.ld
 # C sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
 CSRC = $(ALLCSRC) \
+       $(CHIBIOS)/os/various/syscalls.c \
        ./src/system.c \
        ./src/blink.c \
        ./src/shell_utils.c \

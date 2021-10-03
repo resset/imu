@@ -21,5 +21,6 @@
 
 void shellcmd_about(BaseSequentialStream *chp, int argc, char *argv[]);
 void shellcmd_reset(BaseSequentialStream *chp, int argc, char *argv[]);
+void shellcmd_date(BaseSequentialStream *chp, int argc, char *argv[]);
 
 #endif /* _SHELL_UTILS_H_ */

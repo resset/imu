@@ -42,6 +42,7 @@ SerialConfig serial_cfg = {
 static const ShellCommand commands[] = {
   {"about", shellcmd_about},
   {"reset", shellcmd_reset},
+  {"date", shellcmd_date},
 #ifdef CH_DBG_STATISTICS
   {"cpu", cpu_load},
 #endif
