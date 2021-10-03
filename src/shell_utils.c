@@ -37,6 +37,7 @@ void shellcmd_reset(BaseSequentialStream *chp, int argc, char *argv[])
   (void)argc;
 
   chprintf(chp, "Resetting...\r\n");
+  chSysLock();
   chThdSleepMilliseconds(10);
 
   SCB->AIRCR = 0x05FA << SCB_AIRCR_VECTKEY_Pos | 1 << SCB_AIRCR_SYSRESETREQ_Pos;
