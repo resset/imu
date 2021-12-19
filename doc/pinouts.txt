@@ -38,7 +38,7 @@ GNSS:
 IMU:
   SPI - SPI1
     PA15 AF5 NSS
-    PA5  AF5 SCK
+    PB3  AF5 SCK
     PB4  AF5 MISO
     PB5  AF5 MOSI
 
@@ -52,7 +52,7 @@ Magnetometer:
 LEDs:
   PAL - GPIO
     PA1  pullup
-    PD10  pullup
+    PD10 pullup
 
 Buttons:
   PAL - GPIO
@@ -61,4 +61,4 @@ Buttons:
 
 Buzzer:
   PWM - TIM4
-    PD15 AF2 CH4
+    PD14 AF2 CH3

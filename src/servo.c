@@ -28,6 +28,46 @@ servo_data_t servo_data;
 
 ServoPWM servos[] = {
   {
+    &PWMD5,                /* Timer 5.*/
+    0,                     /* Channel 0.*/
+    GPIOA,                 /* Port A.*/
+    0,                     /* Pin PA0.*/
+    PAL_MODE_ALTERNATE(2), /* AF 2.*/
+    1000,                  /* Min value.*/
+    2000,                  /* Max value.*/
+    1500                   /* Current value.*/
+  },
+  {
+    &PWMD4,
+    3,
+    GPIOB,
+    9,
+    PAL_MODE_ALTERNATE(2),
+    1000,
+    2000,
+    1500
+  },
+  {
+    &PWMD5,
+    2,
+    GPIOA,
+    2,
+    PAL_MODE_ALTERNATE(2),
+    1000,
+    2000,
+    1500
+  },
+  {
+    &PWMD5,
+    3,
+    GPIOA,
+    3,
+    PAL_MODE_ALTERNATE(2),
+    1000,
+    2000,
+    1500
+  },
+  {
     &PWMD3,                /* Timer 3.*/
     0,                     /* Channel 0.*/
     GPIOA,                 /* Port A.*/
@@ -165,6 +205,11 @@ THD_FUNCTION(thServo, arg)
   servoInit(&servos[1]);
   servoInit(&servos[2]);
   servoInit(&servos[3]);
+  servoInit(&servos[4]);
+  servoInit(&servos[5]);
+  servoInit(&servos[6]);
+  servoInit(&servos[7]);
+
 
   chBSemSignal(&servo_ready_bsem);
 
@@ -178,6 +223,10 @@ THD_FUNCTION(thServo, arg)
     servoPosition(&servos[1], sd.servos[1].position);
     servoPosition(&servos[2], sd.servos[2].position);
     servoPosition(&servos[3], sd.servos[3].position);
+    servoPosition(&servos[4], sd.servos[4].position);
+    servoPosition(&servos[5], sd.servos[5].position);
+    servoPosition(&servos[6], sd.servos[6].position);
+    servoPosition(&servos[7], sd.servos[7].position);
   }
 }
 
@@ -187,9 +236,11 @@ void shellcmd_servo(BaseSequentialStream *chp, int argc, char *argv[])
   (void)argv;
 
   while (chnGetTimeout((BaseChannel *)chp, TIME_IMMEDIATE) == Q_TIMEOUT) {
-    chprintf(chp, "%4d %4d %4d %4d\r\n",
+    chprintf(chp, "%4d %4d %4d %4d %4d %4d %4d %4d\r\n",
              servos[0].position, servos[1].position,
-             servos[2].position, servos[3].position);
+             servos[2].position, servos[3].position,
+             servos[4].position, servos[5].position,
+             servos[6].position, servos[7].position);
     chThdSleepMilliseconds(20);
   }
 }

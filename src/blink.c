@@ -26,18 +26,14 @@ THD_FUNCTION(thBlink, arg)
 
   chRegSetThreadName("blink");
 
-  /* GPIOA_LED has a pullup, D10 and D14 have pulldowns.*/
   palSetPadMode(GPIOD, 10, PAL_MODE_OUTPUT_PUSHPULL);
-  palSetPadMode(GPIOD, 14, PAL_MODE_OUTPUT_PUSHPULL);
 
   while (true) {
     palClearPad(GPIOA, GPIOA_LED);
     palSetPad(GPIOD, 10);
-    palClearPad(GPIOD, 14);
     chThdSleepMilliseconds(500);
     palSetPad(GPIOA, GPIOA_LED);
     palClearPad(GPIOD, 10);
-    palSetPad(GPIOD, 14);
     chThdSleepMilliseconds(500);
   }
 }

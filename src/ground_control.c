@@ -83,7 +83,7 @@ uint8_t sbus_decode_packet(uint8_t current_byte)
  * - even parity
  * - 2 stop bits
  */
-static SIOConfig sio2_config = {
+static SIOConfig sio7_config = {
   100000,
   USART_PRESC1,
   USART_CR1_FIFOEN | USART_CR1_M0 | USART_CR1_PCE, /* M[1:0] = '01' means 9 bits to store parity
@@ -109,7 +109,7 @@ static void rxidle(SIODriver *siop)
   chSysUnlockFromISR();
 }
 
-static SIOOperation sio2_operation = {
+static SIOOperation sio7_operation = {
   .rx_cb      = rxfifo,
   .rx_idle_cb = rxidle,
   .tx_cb      = NULL,
@@ -174,9 +174,10 @@ THD_FUNCTION(thGroundControl, arg)
   chBSemObjectInit(&ground_control_ready_bsem, true);
   chMtxObjectInit(&ground_control_data_mtx);
 
-  sioStart(&SIOD2, &sio2_config);
-  sioStartOperation(&SIOD2, &sio2_operation);
-  palSetPadMode(GPIOA, 3, PAL_MODE_ALTERNATE(7)); /* RX */
+  sioStart(&SIOD7, &sio7_config);
+  sioStartOperation(&SIOD7, &sio7_operation);
+  palSetPadMode(GPIOE, 8, PAL_MODE_ALTERNATE(7)); /* TX */
+  palSetPadMode(GPIOE, 7, PAL_MODE_ALTERNATE(7)); /* RX */
 
   chBSemSignal(&ground_control_ready_bsem);
 
@@ -190,7 +191,7 @@ THD_FUNCTION(thGroundControl, arg)
     /* IDLE event, get rest of the data from FIFO and process packet.*/
     if (evt & EVT_RESET) {
       if (pos < SBUS_PACKET_LENGTH) {
-        n = sioAsyncRead(&SIOD2, rxbuffer, SIO_FIFO_LENGTH);
+        n = sioAsyncRead(&SIOD7, rxbuffer, SIO_FIFO_LENGTH);
         if (pos + n == SBUS_PACKET_LENGTH) {
           memcpy(buffer + pos, rxbuffer, n);
           pos += n;
@@ -209,7 +210,7 @@ THD_FUNCTION(thGroundControl, arg)
 
     /* Copy FIFO data when FIFO threshold reached.*/
     if (evt & EVT_DATA) {
-      n = sioAsyncRead(&SIOD2, rxbuffer, SIO_FIFO_LENGTH);
+      n = sioAsyncRead(&SIOD7, rxbuffer, SIO_FIFO_LENGTH);
       if (n && (pos + n) <= SBUS_PACKET_LENGTH) {
         memcpy(buffer + pos, rxbuffer, n);
         pos += n;
