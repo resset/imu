@@ -224,6 +224,6 @@ void shellcmd_imu(BaseSequentialStream *chp, int argc, char *argv[])
              imu_data.accel_x, imu_data.accel_y, imu_data.accel_z,
              imu_data.gyro_x, imu_data.gyro_y, imu_data.gyro_z,
              (int32_t)(imu_data.temperature * 100));
-    chThdSleepMilliseconds(50);
+    chThdSleepMilliseconds(100);
   }
 }
