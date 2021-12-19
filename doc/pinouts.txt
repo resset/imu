@@ -3,41 +3,62 @@ Shell via ST-Link:
     PD8 AF7 TX
     PD9 AF7 RX
 
+Debug UART:
+  SIO - USART1
+    PB14 AF4 TX
+    PB15 AF4 RX
+
 Ground Control (radio):
-  SIO - USART2
-    PA3 AF7 RX
+  SIO - UART7
+    PE8 AF7 TX
+    PE7 AF7 RX
 
 Servo:
+  PWM - TIM2
+    PA0 AF1 CH1
+    PB3 AF1 CH2
+    PA2 AF1 CH3
+    PA3 AF1 CH4
   PWM - TIM3
-    PA6 AF2
-    PA7 AF2
-    PB0 AF2
-    PB1 AF2
+    PA6 AF2 CH1
+    PA7 AF2 CH2
+    PB0 AF2 CH3
+    PB1 AF2 CH4
 
 Altimeter:
   I2C - I2C1
     PB7 AF4 SDA
     PB8 AF4 SCL
 
-Gnss:
+GNSS:
   SIO - UART8
     PE1 AF8 TX
     PE0 AF8 RX
 
-Debug UART:
-  SIO - UART7
-    PE8 AF7 TX
-    PE7 AF7 RX
-
 IMU:
   SPI - SPI1
     PA15 AF5 NSS
-    PB3  AF5 SCK
+    PA5  AF5 SCK
     PB4  AF5 MISO
     PB5  AF5 MOSI
+
+Magnetometer:
+  SPI - SPI4
+    PE11 AF5 NSS
+    PE12 AF5 SCK
+    PE13 AF5 MISO
+    PE14 AF5 MOSI
 
 LEDs:
   PAL - GPIO
     PA1  pullup
-    PD10 pulldown
-    PD14 pulldown
+    PD10  pullup
+
+Buttons:
+  PAL - GPIO
+    PE3 K1
+    PC5 K2
+
+Buzzer:
+  PWM - TIM4
+    PD15 AF2 CH4
