@@ -111,8 +111,9 @@ include $(CHIBIOS)/tools/mk/autobuild.mk
 # Other files (optional).
 include $(CHIBIOS)/os/hal/lib/streams/streams.mk
 include $(CHIBIOS)/os/various/shell/shell.mk
+include $(CHIBIOS)/os/various/fatfs_bindings/fatfs.mk
 
-# Define linker script file here
+# Define linker script file here.
 LDSCRIPT= $(STARTUPLD)/STM32H743xI.ld
 
 # C sources that can be compiled in ARM or THUMB mode depending on the global
