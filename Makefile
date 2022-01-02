@@ -89,7 +89,7 @@ PROJECT = imu
 MCU  = cortex-m7
 
 # Imported source files and paths.
-CHIBIOS  := ../ChibiOS_21.6.0
+CHIBIOS  := ../ChibiOS_21.11.1
 CONFDIR  := ./cfg
 BUILDDIR := ./build
 DEPDIR   := ./.dep
@@ -121,6 +121,7 @@ LDSCRIPT= $(STARTUPLD)/STM32H743xI.ld
 CSRC = $(ALLCSRC) \
        $(CHIBIOS)/os/various/syscalls.c \
        ./src/system.c \
+       ./src/display.c \
        ./src/blink.c \
        ./src/shell_utils.c \
        ./src/shell_init.c \

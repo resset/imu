@@ -14,26 +14,27 @@
     limitations under the License.
 */
 
+#ifndef _DISPLAY_H_
+#define _DISPLAY_H_
+
 #include "ch.h"
 #include "hal.h"
 
-#include "blink.h"
+#include "pg.h"
 
-THD_WORKING_AREA(waBlink, BLINK_THREAD_STACK_SIZE);
-THD_FUNCTION(thBlink, arg)
-{
-  (void)arg;
+#define SH1106_ID 0x00
+#define SH1106_VAL_ID 0x00
 
-  chRegSetThreadName("blink");
+#define SH1106_ADDR_ADDR_LOW 0x3C
+#define SH1106_ADDR_ADDR_HIGH 0x3D
 
-  palSetPadMode(GPIOD, 10, PAL_MODE_OUTPUT_PUSHPULL);
+#define SH1106_ADDR SH1106_ADDR_ADDR_LOW
 
-  while (true) {
-    palClearPad(GPIOA, GPIOA_LED);
-    palSetPad(GPIOD, 10);
-    chThdSleepMilliseconds(500);
-    palSetPad(GPIOA, GPIOA_LED);
-    palClearPad(GPIOD, 10);
-    chThdSleepMilliseconds(500);
-  }
-}
+void display_sync_init(void);
+
+#define DISPLAY_THREAD_STACK_SIZE 128
+extern THD_WORKING_AREA(waDisplay, DISPLAY_THREAD_STACK_SIZE);
+THD_FUNCTION(thDisplay, arg);
+void shellcmd_display(BaseSequentialStream *chp, int argc, char *argv[]);
+
+#endif /* _DISPLAY_H_ */

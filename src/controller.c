@@ -22,6 +22,7 @@
 
 #include "controller.h"
 #include "blackbox.h"
+#include "display.h"
 #include "servo.h"
 #include "ground_control.h"
 #include "altimeter.h"
@@ -86,6 +87,7 @@ THD_FUNCTION(thController, arg)
   gnss_sync_init();
   /*imu_sync_init();*/
   servo_sync_init();
+  display_sync_init();
   blackbox_sync_init();
 
   controller_state = CONTROLLER_STATE_READY;
