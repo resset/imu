@@ -62,3 +62,8 @@ Buttons:
 Buzzer:
   PWM - TIM4
     PD14 AF2 CH3
+
+Display:
+  I2C - I2C2
+    PB11 AF4 SDA
+    PB10 AF4 SCL

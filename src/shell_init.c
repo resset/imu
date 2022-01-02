@@ -26,6 +26,7 @@
 #include "altimeter.h"
 #include "ground_control.h"
 #include "servo.h"
+#include "display.h"
 #include "shellconf.h"
 #include "shell_utils.h"
 #include "shell_init.h"
@@ -52,6 +53,7 @@ static const ShellCommand commands[] = {
   {"alt", shellcmd_altimeter},
   {"gndc", shellcmd_ground_control},
   {"servo", shellcmd_servo},
+  {"display", shellcmd_display},
   {NULL, NULL}
 };
 
