@@ -26,6 +26,7 @@
 #include "blackbox.h"
 #include "shell_init.h"
 #include "blink.h"
+#include "buzzer.h"
 #include "display.h"
 
 void tasks_init(void)
@@ -36,9 +37,10 @@ void tasks_init(void)
 
   chThdCreateStatic(waServo, sizeof(waServo), NORMALPRIO, thServo, NULL);
 
-  chThdCreateStatic(waBlackbox, sizeof(waBlackbox), LOWPRIO + 4, thBlackbox, NULL);
-  chThdCreateStatic(waShell, sizeof(waShell), LOWPRIO + 3, thShell, NULL);
-  chThdCreateStatic(waBlink, sizeof(waBlink), LOWPRIO + 2, thBlink, NULL);
+  chThdCreateStatic(waBlackbox, sizeof(waBlackbox), LOWPRIO + 5, thBlackbox, NULL);
+  chThdCreateStatic(waShell, sizeof(waShell), LOWPRIO + 4, thShell, NULL);
+  chThdCreateStatic(waBlink, sizeof(waBlink), LOWPRIO + 3, thBlink, NULL);
+  chThdCreateStatic(waBuzzer, sizeof(waBuzzer), LOWPRIO + 2, thBuzzer, NULL);
   chThdCreateStatic(waDisplay, sizeof(waDisplay), LOWPRIO + 1, thDisplay, NULL);
 
   chThdCreateStatic(waImu, sizeof(waImu), HIGHPRIO, thImu, NULL);

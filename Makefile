@@ -121,6 +121,7 @@ CSRC = $(ALLCSRC) \
        $(CHIBIOS)/os/various/syscalls.c \
        ./src/system.c \
        ./src/display.c \
+       ./src/buzzer.c \
        ./src/blink.c \
        ./src/shell_utils.c \
        ./src/shell_init.c \
