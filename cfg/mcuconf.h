@@ -92,7 +92,7 @@
 #define STM32_PLL1_DIVN_VALUE               384
 #define STM32_PLL1_FRACN_VALUE              0
 #define STM32_PLL1_DIVP_VALUE               2
-#define STM32_PLL1_DIVQ_VALUE               15
+#define STM32_PLL1_DIVQ_VALUE               20
 #define STM32_PLL1_DIVR_VALUE               8
 #define STM32_PLL2_ENABLED                  TRUE
 #define STM32_PLL2_P_ENABLED                TRUE
