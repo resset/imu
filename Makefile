@@ -89,7 +89,7 @@ PROJECT = imu
 MCU  = cortex-m7
 
 # Imported source files and paths.
-CHIBIOS  := ../ChibiOS_21.6.0
+CHIBIOS  := ../ChibiOS_21.11.1
 CONFDIR  := ./cfg
 BUILDDIR := ./build
 DEPDIR   := ./.dep

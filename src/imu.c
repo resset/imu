@@ -28,12 +28,13 @@ static mutex_t imu_data_mtx;
 imu_data_t imu_data;
 
 const SPIConfig spicfg = {
-  false,
-  NULL,
-  GPIOA,
-  15,
-  SPI_CFG1_MBR_DIV128 | SPI_CFG1_DSIZE_VALUE(7),
-  SPI_CFG2_SSOE
+  .circular = false,
+  .data_cb  = NULL,
+  .error_cb = NULL,
+  .ssport   = GPIOA,
+  .sspad    = 15U,
+  .cfg1     = SPI_CFG1_MBR_DIV128 | SPI_CFG1_DSIZE_VALUE(7),
+  .cfg2     = SPI_CFG2_SSOE
 };
 
 inline static void imu_read(uint8_t *txbuf, size_t txbuf_len, uint8_t *rxbuf, size_t rxbuf_len)
