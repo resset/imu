@@ -26,27 +26,6 @@
 
 static binary_semaphore_t blackbox_ready_bsem;
 
-void blackbox_sync_init(void)
-{
-  chBSemWait(&blackbox_ready_bsem);
-}
-
-void blackbox_init(void)
-{
-  sdcStart(&SDCD1, NULL);
-
-  if (sdcConnect(&SDCD1)) {
-    return;
-  }
-
-  err = f_mount(&SDC_FS, "/", 1);
-  if (err != FR_OK) {
-    sdcDisconnect(&SDCD1);
-    return;
-  }
-  fs_ready = TRUE;
-}
-
 /*===========================================================================*/
 /* FatFs related.                                                            */
 /*===========================================================================*/
@@ -126,7 +105,7 @@ void shellcmd_tree(BaseSequentialStream *chp, int argc, char *argv[]) {
   scan_files(chp, (char *)fbuff);
 }
 
-static void shellcmd_create(BaseSequentialStream *chp, int argc, char *argv[]) {
+void shellcmd_create(BaseSequentialStream *chp, int argc, char *argv[]) {
   FRESULT err;
   FIL f;
   static const char data[] = "the quick brown fox jumps over the lazy dog";
@@ -161,6 +140,29 @@ static void shellcmd_create(BaseSequentialStream *chp, int argc, char *argv[]) {
   }
 }
 
+void blackbox_sync_init(void)
+{
+  chBSemWait(&blackbox_ready_bsem);
+}
+
+void blackbox_init(void)
+{
+  FRESULT err;
+
+  sdcStart(&SDCD1, NULL);
+
+  if (sdcConnect(&SDCD1)) {
+    return;
+  }
+
+  err = f_mount(&SDC_FS, "/", 1);
+  if (err != FR_OK) {
+    sdcDisconnect(&SDCD1);
+    return;
+  }
+  fs_ready = TRUE;
+}
+
 THD_WORKING_AREA(waBlackbox, BLACKBOX_THREAD_STACK_SIZE);
 THD_FUNCTION(thBlackbox, arg)
 {
@@ -168,7 +170,7 @@ THD_FUNCTION(thBlackbox, arg)
 
   chRegSetThreadName("blackbox");
 
-  balckbox_init();
+  blackbox_init();
 
   chBSemObjectInit(&blackbox_ready_bsem, true);
   chBSemSignal(&blackbox_ready_bsem);

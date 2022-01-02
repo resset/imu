@@ -26,7 +26,7 @@ void blackbox_sync_init(void);
 extern THD_WORKING_AREA(waBlackbox, BLACKBOX_THREAD_STACK_SIZE);
 THD_FUNCTION(thBlackbox, arg);
 
-static void shellcmd_tree(BaseSequentialStream *chp, int argc, char *argv[]);
+void shellcmd_tree(BaseSequentialStream *chp, int argc, char *argv[]);
 void shellcmd_create(BaseSequentialStream *chp, int argc, char *argv[]);
 
 #endif /* _BLACKBOX_H_ */
