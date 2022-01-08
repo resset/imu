@@ -88,6 +88,7 @@ THD_FUNCTION(thDisplay, arg)
   display_init();
 
   chBSemObjectInit(&display_ready_bsem, true);
+  chBSemSignal(&display_ready_bsem);
 
   while (true) {
     chThdSleepMilliseconds(50);
