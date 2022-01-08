@@ -22,6 +22,7 @@
 
 #include "controller.h"
 #include "blackbox.h"
+#include "buzzer.h"
 #include "display.h"
 #include "servo.h"
 #include "ground_control.h"
@@ -93,6 +94,9 @@ THD_FUNCTION(thController, arg)
   servo_sync_init();
   display_sync_init();
   blackbox_sync_init();
+  buzzer_sync_init();
+
+  buzzer_quindar_tones();
 
   controller_state = CONTROLLER_STATE_READY;
 

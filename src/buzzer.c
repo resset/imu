@@ -20,38 +20,72 @@
 #include "buzzer.h"
 #include "servo.h"
 
+#define EVT_QUINDAR EVENT_MASK(0)
+
+static thread_t *buzzer_thread = NULL;
+static binary_semaphore_t buzzer_ready_bsem;
+
 static ServoPWM buzzer = {
   &PWMD4,
   2,
   GPIOD,
   14,
   PAL_MODE_ALTERNATE(2),
-  1,
-  20000,
-  10000
+  0,
+  0,
+  198
 };
 
 static PWMConfig pwmcfg = {
-  1000000, /* Base frequency is 1 MHz.*/
-  20000,     /* 416 microseconds PWM period.*/
-  NULL,    /* No callback.*/
+  1000000,
+  396,
+  NULL,
   {
     {PWM_OUTPUT_DISABLED, NULL},
     {PWM_OUTPUT_DISABLED, NULL},
     {PWM_OUTPUT_DISABLED, NULL},
-    {PWM_OUTPUT_DISABLED, NULL} /* Up to PWM_CHANNELS.*/
-  },       /* Channels configurations.*/
-  0,       /* CR2.*/
-  0,       /* BDTR.*/
-  0        /* DIER.*/
+    {PWM_OUTPUT_DISABLED, NULL}
+  },
+  0,
+  0,
+  0
 };
+
+void buzzer_quindar_tones(void)
+{
+  chEvtSignal(buzzer_thread, EVT_QUINDAR);
+}
+
+static void _buzzer_quindar_tones(void)
+{
+  pwmcfg.period = 396; // 2525 Hz
+  pwmStart(buzzer.pwm_driver, &pwmcfg);
+  pwmEnableChannel(buzzer.pwm_driver, buzzer.pwm_channel, (pwmcnt_t)198);
+  chThdSleepMilliseconds(115);
+  pwmDisableChannel(buzzer.pwm_driver, buzzer.pwm_channel);
+  chThdSleepMilliseconds(20);
+  pwmcfg.period = 404; // 2475 Hz
+  pwmStart(buzzer.pwm_driver, &pwmcfg);
+  pwmEnableChannel(buzzer.pwm_driver, buzzer.pwm_channel, (pwmcnt_t)202);
+  chThdSleepMilliseconds(115);
+  pwmDisableChannel(buzzer.pwm_driver, buzzer.pwm_channel);
+}
+
+void buzzer_sync_init(void)
+{
+  chBSemWait(&buzzer_ready_bsem);
+}
 
 THD_WORKING_AREA(waBuzzer, BUZZER_THREAD_STACK_SIZE);
 THD_FUNCTION(thBuzzer, arg)
 {
   (void)arg;
 
+  eventmask_t evt;
+
   chRegSetThreadName("buzzer");
+  buzzer_thread = chThdGetSelfX();
+  chBSemObjectInit(&buzzer_ready_bsem, true);
 
   palSetPadMode(buzzer.port, buzzer.pin, buzzer.mode);
   PWMChannelConfig chcfg = {
@@ -60,13 +94,15 @@ THD_FUNCTION(thBuzzer, arg)
   };
   /* Enable channel.*/
   pwmcfg.channels[buzzer.pwm_channel] = chcfg;
-  pwmStart(buzzer.pwm_driver, &pwmcfg);
-  if (buzzer.position > 0) {
-    pwmEnableChannel(buzzer.pwm_driver, buzzer.pwm_channel, (pwmcnt_t)buzzer.position);
-  }
+
+  chBSemSignal(&buzzer_ready_bsem);
 
   while (true) {
-    chThdSleepMilliseconds(100);
-    pwmDisableChannel(buzzer.pwm_driver, buzzer.pwm_channel);
+    evt = chEvtWaitAny(ALL_EVENTS);
+
+    if (evt & EVT_QUINDAR) {
+      /* Play Quindar tones.*/
+      _buzzer_quindar_tones();
+    }
   }
 }
