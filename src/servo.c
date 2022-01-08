@@ -38,10 +38,10 @@ ServoPWM servos[] = {
     1500                   /* Current value.*/
   },
   {
-    &PWMD4,
-    3,
-    GPIOB,
-    9,
+    &PWMD5,
+    1,
+    GPIOA,
+    1, /* Yes, we are reusing GPIOA_LED as a PWM OUTPUT. No good GPIO is left.*/
     PAL_MODE_ALTERNATE(2),
     900,
     2100,
