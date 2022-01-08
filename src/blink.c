@@ -29,10 +29,8 @@ THD_FUNCTION(thBlink, arg)
   palSetPadMode(GPIOD, 10, PAL_MODE_OUTPUT_PUSHPULL);
 
   while (true) {
-    palClearPad(GPIOA, GPIOA_LED);
     palSetPad(GPIOD, 10);
     chThdSleepMilliseconds(500);
-    palSetPad(GPIOA, GPIOA_LED);
     palClearPad(GPIOD, 10);
     chThdSleepMilliseconds(500);
   }
