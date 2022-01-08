@@ -33,8 +33,8 @@ ServoPWM servos[] = {
     GPIOA,                 /* Port A.*/
     0,                     /* Pin PA0.*/
     PAL_MODE_ALTERNATE(2), /* AF 2.*/
-    1000,                  /* Min value.*/
-    2000,                  /* Max value.*/
+    900,                   /* Min value.*/
+    2100,                  /* Max value.*/
     1500                   /* Current value.*/
   },
   {
@@ -43,8 +43,8 @@ ServoPWM servos[] = {
     GPIOB,
     9,
     PAL_MODE_ALTERNATE(2),
-    1000,
-    2000,
+    900,
+    2100,
     1500
   },
   {
@@ -53,8 +53,8 @@ ServoPWM servos[] = {
     GPIOA,
     2,
     PAL_MODE_ALTERNATE(2),
-    1000,
-    2000,
+    900,
+    2100,
     1500
   },
   {
@@ -63,19 +63,19 @@ ServoPWM servos[] = {
     GPIOA,
     3,
     PAL_MODE_ALTERNATE(2),
-    1000,
-    2000,
+    900,
+    2100,
     1500
   },
   {
-    &PWMD3,                /* Timer 3.*/
-    0,                     /* Channel 0.*/
-    GPIOA,                 /* Port A.*/
-    6,                     /* Pin PA6.*/
-    PAL_MODE_ALTERNATE(2), /* AF 2.*/
-    1000,                  /* Min value.*/
-    2000,                  /* Max value.*/
-    1500                   /* Current value.*/
+    &PWMD3,
+    0,
+    GPIOA,
+    6,
+    PAL_MODE_ALTERNATE(2),
+    900,
+    2100,
+    1500
   },
   {
     &PWMD3,
@@ -83,8 +83,8 @@ ServoPWM servos[] = {
     GPIOA,
     7,
     PAL_MODE_ALTERNATE(2),
-    1000,
-    2000,
+    900,
+    2100,
     1500
   },
   {
@@ -93,8 +93,8 @@ ServoPWM servos[] = {
     GPIOB,
     0,
     PAL_MODE_ALTERNATE(2),
-    1000,
-    2000,
+    900,
+    2100,
     1500
   },
   {
@@ -103,8 +103,8 @@ ServoPWM servos[] = {
     GPIOB,
     1,
     PAL_MODE_ALTERNATE(2),
-    1000,
-    2000,
+    900,
+    2100,
     1500
   }
 };
@@ -241,6 +241,6 @@ void shellcmd_servo(BaseSequentialStream *chp, int argc, char *argv[])
              servos[2].position, servos[3].position,
              servos[4].position, servos[5].position,
              servos[6].position, servos[7].position);
-    chThdSleepMilliseconds(20);
+    chThdSleepMilliseconds(50);
   }
 }

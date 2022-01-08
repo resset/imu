@@ -41,11 +41,15 @@ static controller_state_t controller_state = CONTROLLER_STATE_INIT;
 static void simple_mixer(ground_control_data_t *gcd, servo_data_t *sd)
 {
   /* Example channel values change from 224 to 1759 for servos and up to 1793 for RSSI.
-     Neutral position is around 993.*/
-  sd->servos[0].position = (uint16_t)(0.638 * gcd->channels[0] + 857.0);
-  sd->servos[1].position = (uint16_t)(0.638 * gcd->channels[1] + 857.0);
-  sd->servos[2].position = (uint16_t)(0.638 * gcd->channels[2] + 857.0);
-  sd->servos[3].position = (uint16_t)(0.638 * gcd->channels[3] + 857.0);
+     Neutral position is around 992.
+     p1 = (224, 900)
+     p2 = (1759, 2100)
+     Actual 'a' after IEEE-754 conversion is 0.7817590236663818359375, 'b' is 724.885986328.
+     */
+  sd->servos[0].position = (uint16_t)(0.781759 * gcd->channels[0] + 724.885993);
+  sd->servos[1].position = (uint16_t)(0.781759 * gcd->channels[1] + 724.885993);
+  sd->servos[2].position = (uint16_t)(0.781759 * gcd->channels[2] + 724.885993);
+  sd->servos[3].position = (uint16_t)(0.781759 * gcd->channels[3] + 724.885993);
 }
 
 static void controller_loop(void)
