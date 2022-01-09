@@ -9,7 +9,7 @@
    id="svg5"
    sodipodi:docname="pinout.svg"
    inkscape:version="1.1.1 (3bf5ae0d25, 2021-09-20)"
-   inkscape:export-filename="/home/pillot/projects/electronics/imu/firmware/imu/doc/pinout.png"
+   inkscape:export-filename="/home/pillot/projects/electronics/imu/firmware/imu/doc/_nogit_pinout.png"
    inkscape:export-xdpi="240.00999"
    inkscape:export-ydpi="240.00999"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
@@ -27,9 +27,9 @@
      inkscape:pagecheckerboard="0"
      inkscape:document-units="mm"
      showgrid="false"
-     inkscape:zoom="1.4113326"
-     inkscape:cx="840.34054"
-     inkscape:cy="399.26804"
+     inkscape:zoom="0.99796285"
+     inkscape:cx="461.94104"
+     inkscape:cy="505.52984"
      inkscape:window-width="1876"
      inkscape:window-height="1169"
      inkscape:window-x="1964"
@@ -241,9 +241,9 @@
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.91583px;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000;stroke-width:0.264583"
          x="2.794826"
          y="154.75627"
-         id="tspan13996"> <tspan
+         id="tspan13996">                     <tspan
    style="font-weight:bold;fill:#808000"
-   id="tspan5383">TIM4 CH4 AF2 (servo) PB9</tspan>       <tspan
+   id="tspan5383"> </tspan>PB9       <tspan
    style="font-weight:bold;fill:#ff00ff"
    id="tspan53796">PB8  I2C1 SCL AF4 (alt)</tspan></tspan><tspan
          sodipodi:role="line"
@@ -383,9 +383,9 @@
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.91583px;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000;stroke-width:0.264583"
          x="159.58223"
          y="135.22888"
-         id="tspan19590">   <tspan
-   style="font-weight:bold;fill:#666666"
-   id="tspan92232">GPIO pullup (LEDs) PA1</tspan>       <tspan
+         id="tspan19590"> <tspan
+   style="font-weight:bold;fill:#808000"
+   id="tspan11747">TIM5 CH2 AF2 (servo) PA1</tspan>       <tspan
    style="font-weight:bold;fill:#808000"
    id="tspan37808">PA0  TIM5 CH1 AF2 (servo)</tspan></tspan><tspan
          sodipodi:role="line"
