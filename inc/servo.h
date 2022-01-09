@@ -20,7 +20,7 @@
 #include "ch.h"
 #include "hal.h"
 
-#define SERVO_QUANTITY 4
+#define SERVO_QUANTITY 8
 
 typedef struct ServoPWM_s {
   PWMDriver *pwm_driver;
