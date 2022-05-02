@@ -58,15 +58,15 @@ void buzzer_quindar_tones(void)
 
 static void _buzzer_quindar_tones(void)
 {
-  pwmcfg.period = 396; // 2525 Hz
-  pwmStart(buzzer.pwm_driver, &pwmcfg);
-  pwmEnableChannel(buzzer.pwm_driver, buzzer.pwm_channel, (pwmcnt_t)198);
-  chThdSleepMilliseconds(115);
-  pwmDisableChannel(buzzer.pwm_driver, buzzer.pwm_channel);
-  chThdSleepMilliseconds(20);
   pwmcfg.period = 404; // 2475 Hz
   pwmStart(buzzer.pwm_driver, &pwmcfg);
   pwmEnableChannel(buzzer.pwm_driver, buzzer.pwm_channel, (pwmcnt_t)202);
+  chThdSleepMilliseconds(115);
+  pwmDisableChannel(buzzer.pwm_driver, buzzer.pwm_channel);
+  chThdSleepMilliseconds(20);
+  pwmcfg.period = 396; // 2525 Hz
+  pwmStart(buzzer.pwm_driver, &pwmcfg);
+  pwmEnableChannel(buzzer.pwm_driver, buzzer.pwm_channel, (pwmcnt_t)198);
   chThdSleepMilliseconds(115);
   pwmDisableChannel(buzzer.pwm_driver, buzzer.pwm_channel);
 }

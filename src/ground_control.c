@@ -76,7 +76,8 @@ uint8_t sbus_decode_packet(uint8_t current_byte)
   return 0;
 }
 
-/* SBUS specific SIO configuration. Since SBUS is an inverted protocol,
+/*
+ * SBUS specific SIO configuration. Since SBUS is an inverted protocol,
  * we enable RX pin active level inversion. SBUS serial parameters are:
  * - baud rate of 100000
  * - 8 data bits

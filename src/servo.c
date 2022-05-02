@@ -210,7 +210,6 @@ THD_FUNCTION(thServo, arg)
   servoInit(&servos[6]);
   servoInit(&servos[7]);
 
-
   chBSemSignal(&servo_ready_bsem);
 
   while (true) {

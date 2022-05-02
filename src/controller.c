@@ -41,12 +41,13 @@ static controller_state_t controller_state = CONTROLLER_STATE_INIT;
 
 static void simple_mixer(ground_control_data_t *gcd, servo_data_t *sd)
 {
-  /* Example channel values change from 224 to 1759 for servos and up to 1793 for RSSI.
-     Neutral position is around 992.
-     p1 = (224, 900)
-     p2 = (1759, 2100)
-     Actual 'a' after IEEE-754 conversion is 0.7817590236663818359375, 'b' is 724.885986328.
-     */
+  /* Example channel values change from 224 to 1759 for servos and up to 1793
+   * for RSSI. Neutral position is around 992.
+   * p1 = (224, 900)
+   * p2 = (1759, 2100)
+   * Actual 'a' after IEEE-754 conversion is 0.7817590236663818359375, 'b' is
+   * 724.885986328.
+   */
   for (uint8_t i = 0; i < SERVO_QUANTITY; i++) {
     sd->servos[i].position = (uint16_t)(0.781759 * gcd->channels[i] + 724.885993);
   }
@@ -95,6 +96,7 @@ THD_FUNCTION(thController, arg)
   blackbox_sync_init();
   buzzer_sync_init();
 
+  /* Play a tone to tell user we are initialized.*/
   buzzer_quindar_tones();
 
   controller_state = CONTROLLER_STATE_READY;
