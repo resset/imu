@@ -14,8 +14,8 @@
     limitations under the License.
 */
 
-#ifndef _GROUND_CONTROL_H_
-#define _GROUND_CONTROL_H_
+#ifndef _RX_H_
+#define _RX_H_
 
 #include "ch.h"
 #include "hal.h"
@@ -26,16 +26,16 @@ typedef struct {
   uint8_t channel18;
   uint8_t lost_frame;
   uint8_t failsafe;
-} ground_control_data_t;
+} rx_data_t;
 
-extern ground_control_data_t ground_control_data;
+extern rx_data_t rx_data;
 
-void ground_control_sync_init(void);
-void ground_control_copy_data(ground_control_data_t *source, ground_control_data_t *target);
+void rx_sync_init(void);
+void rx_copy_data(rx_data_t *source, rx_data_t *target);
 
-#define GROUND_CONTROL_THREAD_STACK_SIZE 128
-extern THD_WORKING_AREA(waGroundControl, GROUND_CONTROL_THREAD_STACK_SIZE);
+#define RX_THREAD_STACK_SIZE 128
+extern THD_WORKING_AREA(waGroundControl, RX_THREAD_STACK_SIZE);
 THD_FUNCTION(thGroundControl, arg);
-void shellcmd_ground_control(BaseSequentialStream *chp, int argc, char *argv[]);
+void shellcmd_rx(BaseSequentialStream *chp, int argc, char *argv[]);
 
-#endif /* _GROUND_CONTROL_H_ */
+#endif /* _RX_H_ */

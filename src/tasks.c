@@ -21,7 +21,7 @@
 #include "controller.h"
 #include "gnss.h"
 #include "altimeter.h"
-#include "ground_control.h"
+#include "rx.h"
 #include "servo.h"
 #include "blackbox.h"
 #include "shell_init.h"

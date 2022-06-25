@@ -20,7 +20,7 @@
 #include "hal.h"
 #include "chprintf.h"
 
-#include "ground_control.h"
+#include "rx.h"
 #include "servo.h"
 
 #define SBUS_PACKET_LENGTH     25
@@ -36,11 +36,11 @@
 #define EVT_RESET EVENT_MASK(0)
 #define EVT_DATA  EVENT_MASK(1)
 
-static mutex_t ground_control_data_mtx;
-ground_control_data_t ground_control_data, gcd;
+static mutex_t rx_data_mtx;
+rx_data_t rx_data, gcd;
 
-static thread_t *ground_control_thread = NULL;
-static binary_semaphore_t ground_control_ready_bsem;
+static thread_t *rx_thread = NULL;
+static binary_semaphore_t rx_ready_bsem;
 
 static uint8_t rxbuffer[SIO_FIFO_LENGTH];
 static uint8_t buffer[SBUS_PACKET_LENGTH];
@@ -98,7 +98,7 @@ static void rxfifo(SIODriver *siop)
 {
   (void)siop;
   chSysLockFromISR();
-  chEvtSignalI(ground_control_thread, EVT_DATA);
+  chEvtSignalI(rx_thread, EVT_DATA);
   chSysUnlockFromISR();
 }
 
@@ -106,7 +106,7 @@ static void rxidle(SIODriver *siop)
 {
   (void)siop;
   chSysLockFromISR();
-  chEvtSignalI(ground_control_thread, EVT_RESET);
+  chEvtSignalI(rx_thread, EVT_RESET);
   chSysUnlockFromISR();
 }
 
@@ -149,19 +149,19 @@ void sbus_parse_packet(uint8_t *packet)
   }
 }
 
-void ground_control_sync_init(void)
+void rx_sync_init(void)
 {
-  chBSemWait(&ground_control_ready_bsem);
+  chBSemWait(&rx_ready_bsem);
 }
 
-void ground_control_copy_data(ground_control_data_t *source, ground_control_data_t *target)
+void rx_copy_data(rx_data_t *source, rx_data_t *target)
 {
-  chMtxLock(&ground_control_data_mtx);
-  memcpy(target, source, sizeof(ground_control_data_t));
-  chMtxUnlock(&ground_control_data_mtx);
+  chMtxLock(&rx_data_mtx);
+  memcpy(target, source, sizeof(rx_data_t));
+  chMtxUnlock(&rx_data_mtx);
 }
 
-THD_WORKING_AREA(waGroundControl, GROUND_CONTROL_THREAD_STACK_SIZE);
+THD_WORKING_AREA(waGroundControl, RX_THREAD_STACK_SIZE);
 THD_FUNCTION(thGroundControl, arg)
 {
   (void)arg;
@@ -170,17 +170,17 @@ THD_FUNCTION(thGroundControl, arg)
   size_t pos = 0;
   size_t n;
 
-  chRegSetThreadName("ground_control");
-  ground_control_thread = chThdGetSelfX();
-  chBSemObjectInit(&ground_control_ready_bsem, true);
-  chMtxObjectInit(&ground_control_data_mtx);
+  chRegSetThreadName("rx");
+  rx_thread = chThdGetSelfX();
+  chBSemObjectInit(&rx_ready_bsem, true);
+  chMtxObjectInit(&rx_data_mtx);
 
   sioStart(&SIOD7, &sio7_config);
   sioStartOperation(&SIOD7, &sio7_operation);
   palSetPadMode(GPIOE, 8, PAL_MODE_ALTERNATE(7)); /* TX */
   palSetPadMode(GPIOE, 7, PAL_MODE_ALTERNATE(7)); /* RX */
 
-  chBSemSignal(&ground_control_ready_bsem);
+  chBSemSignal(&rx_ready_bsem);
 
   /* This loop is suited to SBUS transmission timing characteristics.
      Its event processing expect SBUS_PACKET_LENGTH bytes in a sequence,
@@ -202,7 +202,7 @@ THD_FUNCTION(thGroundControl, arg)
       /* We should have the packet now.*/
       if (pos == SBUS_PACKET_LENGTH) {
         sbus_parse_packet(buffer);
-        ground_control_copy_data(&gcd, &ground_control_data);
+        rx_copy_data(&gcd, &rx_data);
       }
 
       /* We received RX IDLE, this means we have to start over.*/
@@ -220,7 +220,7 @@ THD_FUNCTION(thGroundControl, arg)
   }
 }
 
-void shellcmd_ground_control(BaseSequentialStream *chp, int argc, char *argv[])
+void shellcmd_rx(BaseSequentialStream *chp, int argc, char *argv[])
 {
   (void)argc;
   (void)argv;
