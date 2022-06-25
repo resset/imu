@@ -49,7 +49,8 @@ static void simple_mixer(ground_control_data_t *gcd, servo_data_t *sd)
    * 724.885986328.
    */
   for (uint8_t i = 0; i < SERVO_QUANTITY; i++) {
-    sd->servos[i].position = (uint16_t)(0.781759 * gcd->channels[i] + 724.885993);
+    sd->servos[i].position = (uint16_t)(0.781759 * gcd->channels[i]
+                                        + 724.885993);
   }
 }
 
@@ -92,7 +93,7 @@ THD_FUNCTION(thController, arg)
   gnss_sync_init();
   /*imu_sync_init();*/
   servo_sync_init();
-  display_sync_init();
+  /*display_sync_init();*/
   blackbox_sync_init();
   buzzer_sync_init();
 

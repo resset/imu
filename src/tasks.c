@@ -41,7 +41,7 @@ void tasks_init(void)
   chThdCreateStatic(waShell, sizeof(waShell), LOWPRIO + 4, thShell, NULL);
   chThdCreateStatic(waBlink, sizeof(waBlink), LOWPRIO + 3, thBlink, NULL);
   chThdCreateStatic(waBuzzer, sizeof(waBuzzer), LOWPRIO + 2, thBuzzer, NULL);
-  chThdCreateStatic(waDisplay, sizeof(waDisplay), LOWPRIO + 1, thDisplay, NULL);
+  /*chThdCreateStatic(waDisplay, sizeof(waDisplay), LOWPRIO + 1, thDisplay, NULL);*/
 
   chThdCreateStatic(waImu, sizeof(waImu), HIGHPRIO, thImu, NULL);
   chThdCreateStatic(waController, sizeof(waController), HIGHPRIO - 1, thController, NULL);

@@ -37,7 +37,8 @@ const SPIConfig spicfg = {
   .cfg2     = SPI_CFG2_SSOE
 };
 
-inline static void imu_read(uint8_t *txbuf, size_t txbuf_len, uint8_t *rxbuf, size_t rxbuf_len)
+static void imu_read(uint8_t *txbuf, size_t txbuf_len,
+                     uint8_t *rxbuf, size_t rxbuf_len)
 {
   txbuf[0] |= ICM20689_READ_MASK;
   cacheBufferFlush(txbuf, CACHE_SIZE_ALIGN(uint8_t, txbuf_len));
@@ -45,7 +46,7 @@ inline static void imu_read(uint8_t *txbuf, size_t txbuf_len, uint8_t *rxbuf, si
   spiExchange(&SPID1, rxbuf_len, txbuf, rxbuf);
 }
 
-inline static void imu_write(uint8_t *txbuf, size_t txbuf_len)
+static void imu_write(uint8_t *txbuf, size_t txbuf_len)
 {
   cacheBufferFlush(txbuf, CACHE_SIZE_ALIGN(uint8_t, txbuf_len));
   spiSend(&SPID1, txbuf_len, txbuf);
@@ -56,14 +57,18 @@ static int imu_init(void)
   CC_ALIGN_DATA(32) uint8_t txbuf[CACHE_SIZE_ALIGN(uint8_t, 2)];
   CC_ALIGN_DATA(32) uint8_t rxbuf[CACHE_SIZE_ALIGN(uint8_t, 2)];
 
+  /* NSS.*/
   palSetPadMode(GPIOA, 15,
-    PAL_MODE_ALTERNATE(5) | PAL_STM32_OSPEED_HIGHEST | PAL_STM32_PUPDR_FLOATING); /* NSS */
+    PAL_MODE_ALTERNATE(5) | PAL_STM32_OSPEED_HIGHEST | PAL_STM32_PUPDR_FLOATING);
+  /* SCK.*/
   palSetPadMode(GPIOB,  3,
-    PAL_MODE_ALTERNATE(5) | PAL_STM32_OSPEED_HIGHEST | PAL_STM32_PUPDR_FLOATING); /* SCK */
+    PAL_MODE_ALTERNATE(5) | PAL_STM32_OSPEED_HIGHEST | PAL_STM32_PUPDR_FLOATING);
+  /* MISO.*/
   palSetPadMode(GPIOB,  4,
-    PAL_MODE_ALTERNATE(5) | PAL_STM32_OSPEED_HIGHEST | PAL_STM32_PUPDR_FLOATING); /* MISO */
+    PAL_MODE_ALTERNATE(5) | PAL_STM32_OSPEED_HIGHEST | PAL_STM32_PUPDR_FLOATING);
+  /* MOSI.*/
   palSetPadMode(GPIOB,  5,
-    PAL_MODE_ALTERNATE(5) | PAL_STM32_OSPEED_HIGHEST | PAL_STM32_PUPDR_FLOATING); /* MOSI */
+    PAL_MODE_ALTERNATE(5) | PAL_STM32_OSPEED_HIGHEST | PAL_STM32_PUPDR_FLOATING);
 
   spiAcquireBus(&SPID1);
   spiStart(&SPID1, &spicfg);
@@ -77,8 +82,8 @@ static int imu_init(void)
   chThdSleepMilliseconds(100);
   /* Here we check if the reset is done.*/
   do {
-    rxbuf[0] = 0xff;
     txbuf[0] = ICM20689_PWR_MGMT_1;
+    rxbuf[0] = 0xff;
     imu_read(txbuf, 1, rxbuf, 2);
   } while (rxbuf[0] & 0x80);
   /* Last step is to reset analog to digital paths of all sensors.*/
@@ -171,7 +176,8 @@ static void imu_get_data(void)
   imu_data.accel_z = (int16_t)(rxbuf[5] << 8 | rxbuf[6]);
 
   /* Temperature must be calculated.*/
-  imu_data.temperature = (float)((int16_t)rxbuf[7] << 8 | rxbuf[8]) / 326.8f + 25.0f;
+  imu_data.temperature = (float)((int16_t)rxbuf[7] << 8 | rxbuf[8]) / 326.8f
+                                + 25.0f;
 
   imu_data.gyro_x = (int16_t)(rxbuf[9] << 8 | rxbuf[10]);
   imu_data.gyro_y = (int16_t)(rxbuf[11] << 8 | rxbuf[12]);
