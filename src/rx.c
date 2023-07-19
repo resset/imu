@@ -33,9 +33,6 @@
 
 #define SIO_FIFO_LENGTH        16
 
-#define EVT_RESET EVENT_MASK(0)
-#define EVT_DATA  EVENT_MASK(1)
-
 static mutex_t rx_data_mtx;
 rx_data_t rx_data, gcd;
 
@@ -92,30 +89,6 @@ static SIOConfig sio7_config = {
                                                       even parity.*/
   USART_CR2_RXINV | USART_CR2_STOP_1,              /* RX inversion and 2 stop bits.*/
   USART_CR3_RXFTCFG_7E                             /* Interrupt if FIFO reaches 7/8 depth.*/
-};
-
-static void rxfifo(SIODriver *siop)
-{
-  (void)siop;
-  chSysLockFromISR();
-  chEvtSignalI(rx_thread, EVT_DATA);
-  chSysUnlockFromISR();
-}
-
-static void rxidle(SIODriver *siop)
-{
-  (void)siop;
-  chSysLockFromISR();
-  chEvtSignalI(rx_thread, EVT_RESET);
-  chSysUnlockFromISR();
-}
-
-static SIOOperation sio7_operation = {
-  .rx_cb      = rxfifo,
-  .rx_idle_cb = rxidle,
-  .tx_cb      = NULL,
-  .tx_end_cb  = NULL,
-  .rx_evt_cb  = NULL
 };
 
 void sbus_parse_packet(uint8_t *packet)
@@ -176,7 +149,6 @@ THD_FUNCTION(thGroundControl, arg)
   chMtxObjectInit(&rx_data_mtx);
 
   sioStart(&SIOD7, &sio7_config);
-  sioStartOperation(&SIOD7, &sio7_operation);
   palSetPadMode(GPIOE, 8, PAL_MODE_ALTERNATE(7)); /* TX */
   palSetPadMode(GPIOE, 7, PAL_MODE_ALTERNATE(7)); /* RX */
 
@@ -190,7 +162,7 @@ THD_FUNCTION(thGroundControl, arg)
     evt = chEvtWaitAny(ALL_EVENTS);
 
     /* IDLE event, get rest of the data from FIFO and process packet.*/
-    if (evt & EVT_RESET) {
+    if (evt & SIO_EV_RXIDLE) {
       if (pos < SBUS_PACKET_LENGTH) {
         n = sioAsyncRead(&SIOD7, rxbuffer, SIO_FIFO_LENGTH);
         if (pos + n == SBUS_PACKET_LENGTH) {
@@ -210,7 +182,7 @@ THD_FUNCTION(thGroundControl, arg)
     }
 
     /* Copy FIFO data when FIFO threshold reached.*/
-    if (evt & EVT_DATA) {
+    if (evt & SIO_EV_RXNOTEMPY_POS) {
       n = sioAsyncRead(&SIOD7, rxbuffer, SIO_FIFO_LENGTH);
       if (n && (pos + n) <= SBUS_PACKET_LENGTH) {
         memcpy(buffer + pos, rxbuffer, n);

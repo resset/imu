@@ -39,30 +39,6 @@ static SIOConfig sio8_config = {
   USART_CR3_RXFTCFG_7E
 };
 
-static void rxfifo(SIODriver *siop)
-{
-  (void)siop;
-  chSysLockFromISR();
-  chEvtSignalI(gnss_thread, EVENT_MASK(1));
-  chSysUnlockFromISR();
-}
-
-static void rxidle(SIODriver *siop)
-{
-  (void)siop;
-  chSysLockFromISR();
-  chEvtSignalI(gnss_thread, EVENT_MASK(0));
-  chSysUnlockFromISR();
-}
-
-static SIOOperation sio8_operation = {
-  .rx_cb      = rxfifo,
-  .rx_idle_cb = rxidle,
-  .tx_cb      = NULL,
-  .tx_end_cb  = NULL,
-  .rx_evt_cb  = NULL
-};
-
 void gnss_sync_init(void)
 {
   chBSemWait(&gnss_ready_bsem);
@@ -80,7 +56,6 @@ THD_FUNCTION(thGnss, arg)
   chBSemObjectInit(&gnss_ready_bsem, true);
 
   sioStart(&SIOD8, &sio8_config);
-  sioStartOperation(&SIOD8, &sio8_operation);
   palSetPadMode(GPIOE, 1, PAL_MODE_ALTERNATE(8)); /* TX */
   palSetPadMode(GPIOE, 0, PAL_MODE_ALTERNATE(8)); /* RX */
 
@@ -94,11 +69,11 @@ THD_FUNCTION(thGnss, arg)
     evt = chEvtWaitAny(ALL_EVENTS);
 
     /* IDLE event, get rest of the data from FIFO and process packet.*/
-    if (evt & EVENT_MASK(0)) {
+    if (evt & SIO_EV_RXIDLE) {
     }
 
     /* Copy FIFO data when FIFO threshold reached.*/
-    if (evt & EVENT_MASK(1)) {
+    if (evt & SIO_EV_RXNOTEMPY_POS) {
     }
 
     chThdSleepMilliseconds(500);
