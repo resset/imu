@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "alt"
+version = "0.1.0"
+description = ""
+authors = ["Mateusz Tomaszkiewicz <ressetpublic@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+pyftdi = "^0.54.0"
+matplotlib = "^3.5.3"
+numpy = "^1.23.2"
+pandas = "^1.4.3"
+
+[tool.poetry.dev-dependencies]
+pytest = "^5.2"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
