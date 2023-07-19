@@ -155,7 +155,7 @@ THD_FUNCTION(thGroundControl, arg)
   chBSemSignal(&rx_ready_bsem);
 
   /* This loop is suited to SBUS transmission timing characteristics.
-     Its event processing expect SBUS_PACKET_LENGTH bytes in a sequence,
+     Its event processing expects SBUS_PACKET_LENGTH bytes in a sequence,
      then an idle period on which it triggers packet processing. First idle
      event is used for synchronization.*/
   while (true) {

@@ -117,8 +117,8 @@ static pg_result_t altimeter_init(bmp280_data_t *bd)
 
   /* config register
      t_sb = 000 (0.5 ms)
-     filter = 111 (x16)
-     Bit 3 cannot be written, hence this read before the write.
+     filter = 111 (x16) (0 = OFF, 1 = x2, ... >=4 = x16)
+     Bit 1 cannot be written, hence this read before the write.
 
      NOTE: we have to use aligned memory in i2c_transmit/i2c_send,
      this is why the operations are performed on rxbuf.

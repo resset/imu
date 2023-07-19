@@ -62,7 +62,7 @@ THD_FUNCTION(thGnss, arg)
   chBSemSignal(&gnss_ready_bsem);
 
   /* This loop is suited to GNSS transmission timing characteristics.
-     Its event processing expect GNSS_PACKET_LENGTH bytes in a sequence,
+     Its event processing expects GNSS_PACKET_LENGTH bytes in a sequence,
      then an idle period on which it triggers packet processing. First idle
      event is used for synchronization.*/
   while (true) {
