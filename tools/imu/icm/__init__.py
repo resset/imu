@@ -103,13 +103,13 @@ class Icm:
         if rxbuf[0] != self._ICM20689_VAL_WHO_AM_I:
             raise Exception('ICM20689: identification register value does not match.')
 
-    def calibrate_zero(self, samples_number=100):
-        accel_x_sum = 0
-        accel_y_sum = 0
-        accel_z_sum = 0
-        gyro_x_sum = 0
-        gyro_y_sum = 0
-        gyro_z_sum = 0
+    def calibrate_zero(self, samples_number=100.0):
+        accel_x_sum = 0.0
+        accel_y_sum = 0.0
+        accel_z_sum = 0.0
+        gyro_x_sum = 0.0
+        gyro_y_sum = 0.0
+        gyro_z_sum = 0.0
 
         self.zeroed = False
         for _ in range(0, samples_number):
@@ -121,12 +121,12 @@ class Icm:
             gyro_y_sum += data['gyro_yout']
             gyro_z_sum += data['gyro_zout']
 
-        self.accel_x_offset = accel_x_sum / 100
-        self.accel_y_offset = accel_y_sum / 100
-        self.accel_z_offset = accel_z_sum / 100
-        self.gyro_x_offset = gyro_x_sum / 100
-        self.gyro_y_offset = gyro_y_sum / 100
-        self.gyro_z_offset = gyro_z_sum / 100
+        self.accel_x_offset = int(accel_x_sum / samples_number)
+        self.accel_y_offset = int(accel_y_sum / samples_number)
+        self.accel_z_offset = int(accel_z_sum / samples_number)
+        self.gyro_x_offset = int(gyro_x_sum / samples_number)
+        self.gyro_y_offset = int(gyro_y_sum / samples_number)
+        self.gyro_z_offset = int(gyro_z_sum / samples_number)
 
         self.zeroed = True
 
