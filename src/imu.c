@@ -77,7 +77,7 @@ static int imu_init(void)
 
   /* Reset ICM20689.*/
   txbuf[0] = ICM20689_PWR_MGMT_1;
-  txbuf[1] = 0x80;
+  txbuf[1] = 0x81;
   imu_write(txbuf, 2);
   chThdSleepMilliseconds(100);
   /* Here we check if the reset is done.*/

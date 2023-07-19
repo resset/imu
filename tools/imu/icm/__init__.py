@@ -54,9 +54,8 @@ class Icm:
         # This will throw UsbToolsError exception when there is no FTDI device.
         self.bus = spicc.get_port(cs=0, freq=5E5, mode=0)
 
-        # Reset ICM20689. Note: apparently this is needed for SPI
-        # connection in MPU6000 only, but it shouldn't hurt on I2C either.
-        self.bus.write([self._ICM20689_PWR_MGMT_1, 0x80])
+        # Reset ICM20689.
+        self.bus.write([self._ICM20689_PWR_MGMT_1, 0x81])
         time.sleep(0.1)
         # Here we check if the reset is done.
         while True:
