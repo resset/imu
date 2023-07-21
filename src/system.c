@@ -29,6 +29,10 @@ void system_init(void)
   palSetPadMode(GPIOB, 14, PAL_MODE_ALTERNATE(4)); /* TX */
   palSetPadMode(GPIOB, 15, PAL_MODE_ALTERNATE(4)); /* RX */
 
+  /* Turn off unused LED.*/
+  palSetLineMode(LINE_LED, PAL_MODE_OUTPUT_PUSHPULL);
+  palSetLine(LINE_LED);
+
   return;
 }
 
