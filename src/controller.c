@@ -98,7 +98,7 @@ THD_FUNCTION(thController, arg)
   buzzer_sync_init();
 
   /* Play a tone to tell user we are initialized.*/
-  buzzer_quindar_tones();
+  buzzer_play_quindar_tones();
 
   controller_state = CONTROLLER_STATE_READY;
 

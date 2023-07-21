@@ -19,6 +19,7 @@
 #include "hal.h"
 #include "shell.h"
 
+#include "buzzer.h"
 #include "system.h"
 #include "controller.h"
 #include "imu.h"
@@ -44,6 +45,7 @@ static const ShellCommand commands[] = {
   {"about", shellcmd_about},
   {"reset", shellcmd_reset},
   {"date", shellcmd_date},
+  {"buzz", shellcmd_buzz},
 #ifdef CH_DBG_STATISTICS
   {"cpu", cpu_load},
 #endif

@@ -20,10 +20,12 @@
 #include "ch.h"
 
 void buzzer_sync_init(void);
-void buzzer_quindar_tones(void);
+void buzzer_play_quindar_tones(void);
 
 #define BUZZER_THREAD_STACK_SIZE 128
 extern THD_WORKING_AREA(waBuzzer, BUZZER_THREAD_STACK_SIZE);
 THD_FUNCTION(thBuzzer, arg);
+
+void shellcmd_buzz(BaseSequentialStream *chp, int argc, char *argv[]);
 
 #endif /* _BUZZER_H_ */
