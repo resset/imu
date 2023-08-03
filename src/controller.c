@@ -95,6 +95,13 @@ THD_FUNCTION(thController, arg)
   servo_sync_init();
   /*display_sync_init();*/
   blackbox_sync_init();
+  /* A small sleep may be needed here if there are no threads with higher
+     priority than the controller. Usually there is an imu therad, see tasks.c.
+     All threads must have a chance to initialize their synchronization
+     semaphores before this thread is started. If they don't do that, we will
+     lock controller thread indefinitely.*/
+  chThdSleepMilliseconds(10);
+
   buzzer_sync_init();
 
   /* Play a tone to tell user we are initialized.*/
