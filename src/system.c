@@ -25,7 +25,7 @@ void system_init(void)
   SCB->CCR |= 0x10;
 
   /* Debug UART.*/
-  sdStart(&SD1, NULL);
+  sioStart(&SIOD1, NULL);
   palSetPadMode(GPIOB, 14, PAL_MODE_ALTERNATE(4)); /* TX */
   palSetPadMode(GPIOB, 15, PAL_MODE_ALTERNATE(4)); /* RX */
 
